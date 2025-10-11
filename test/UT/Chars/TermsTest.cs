@@ -6,9 +6,9 @@ using static Lmzzz.Chars.Parsers;
 public class TermsTest
 {
     [Fact]
-    public void Char()
+    public void CharTest()
     {
-        var t = Terms.Char('{').Eof();
+        var t = Char('{').Eof();
         Assert.True(t.TryParse("{", out var c, out var err));
         Assert.Equal('{', c);
         Assert.Null(err);
@@ -23,9 +23,9 @@ public class TermsTest
     }
 
     [Fact]
-    public void Text()
+    public void TextTest()
     {
-        var t = Terms.Text("select", true).Eof();
+        var t = Text("select", true).Eof();
         Assert.True(t.TryParse("select", out var c, out var err));
         Assert.Equal("select", c);
         Assert.Null(err);
@@ -44,9 +44,9 @@ public class TermsTest
     }
 
     [Fact]
-    public void Any()
+    public void AnyTest()
     {
-        var t = Terms.Any("{{", true);
+        var t = Any("{{", true);
         Assert.True(t.TryParse(" \r\n   xada/l;fslffp{salfas;f{{", out var c, out var err));
         Assert.Equal(" \r\n   xada/l;fslffp{salfas;f", c);
         Assert.Null(err);
@@ -59,7 +59,7 @@ public class TermsTest
         Assert.Equal(" \r\n   xada/l;fslf大大大fp{salfas;f{ 大打发打发发发", c);
         Assert.Null(err);
 
-        t = Terms.Any('{', true);
+        t = Any('{', true);
         Assert.True(t.TryParse(" \r\n   xada/l;fslffp{salfas;f{{", out c, out err));
         Assert.Equal(" \r\n   xada/l;fslffp", c);
         Assert.Null(err);
@@ -72,7 +72,7 @@ public class TermsTest
         Assert.Equal(" \r\n   xada/l;fslf大大大fpsalfas;f 大打发打发发发", c);
         Assert.Null(err);
 
-        t = Terms.Any('{', true, true);
+        t = Any('{', true, true);
         Assert.True(t.TryParse(" \r\n   xada/l;fslffp{salfas;f{{", out c, out err));
         Assert.Equal(" \r\n   xada/l;fslffp", c);
         Assert.Null(err);
@@ -80,5 +80,14 @@ public class TermsTest
         Assert.False(t.TryParse(" \r\n   xada/l;fslf大大大fpsalfas;f 大打发打发发发", out c, out err));
         Assert.Null(c.ToString());
         Assert.NotNull(err);
+    }
+
+    [Fact]
+    public void BetweenText()
+    {
+        var t = Between(Text("{{"), Any("}}", false, true), Text("}}"));
+        Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
+        Assert.Equal(" \r\n   sdda\r\ndad", c);
+        Assert.Null(err);
     }
 }

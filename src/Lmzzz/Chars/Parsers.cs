@@ -12,9 +12,9 @@ public static class Parsers
 
     public static Parser<string> Text(string text, bool ordinalIgnoreCase = false) => InogreSeparator<string>(new TextLiteral(text, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
 
-    public static Parser<TextSpan> Any(char end, bool ordinalIgnoreCase = false, bool mustHasEnd = false) => Any(end.ToString(), ordinalIgnoreCase, mustHasEnd);
+    public static Parser<TextSpan> Any(char end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => Any(end.ToString(), ordinalIgnoreCase, mustHasEnd, escape);
 
-    public static Parser<TextSpan> Any(string end, bool ordinalIgnoreCase = false, bool mustHasEnd = false) => new AnyLiteral(end, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal, mustHasEnd);
+    public static Parser<TextSpan> Any(string end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => new AnyLiteral(end, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal, mustHasEnd, escape);
 
     public static Parser<TextSpan> AnyBefore<T>(Parser<T> parser, bool canBeEmpty = false, bool failOnEof = false, bool consumeDelimiter = false) => new TextBefore<T>(parser, canBeEmpty, failOnEof, consumeDelimiter);
 
@@ -27,4 +27,6 @@ public static class Parsers
     public static Parser<IReadOnlyList<T>> OneOrMany<T>(Parser<T> parser) => new OneOrMany<T>(parser);
 
     public static Parser<IReadOnlyList<T>> Separated<U, T>(Parser<U> separator, Parser<T> parser) => new Separated<U, T>(separator, parser);
+
+    public static Parser<TextSpan> String(char quotes = '"', char escape = '\\') => Between(Char(quotes), Any(quotes, mustHasEnd: true, escape: escape), Char(quotes));
 }

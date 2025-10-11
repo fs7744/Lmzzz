@@ -44,6 +44,28 @@ public class TermsTest
     }
 
     [Fact]
+    public void StringTest()
+    {
+        var t = String().Eof();
+
+        Assert.True(t.TryParse("\"1\\\"2\"", out var c, out var err));
+        Assert.Equal("1\\\"2", c);
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("\"12\"", out c, out err));
+        Assert.Equal("12", c);
+        Assert.Null(err);
+
+        Assert.False(t.TryParse("\"", out c, out err));
+        Assert.Null(c.ToString());
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("\"\"", out c, out err));
+        Assert.Equal("", c);
+        Assert.Null(err);
+    }
+
+    [Fact]
     public void SeparatedTest()
     {
         var t = Separated(Char(','), Text("select", true)).Eof();
@@ -99,7 +121,11 @@ public class TermsTest
 
         Assert.False(t.TryParse(" \r\n   xada/l;fslf大大大fpsalfas;f 大打发打发发发", out c, out err));
         Assert.Null(c.ToString());
-        Assert.NotNull(err);
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("{", out c, out err));
+        Assert.Equal("", c.ToString());
+        Assert.Null(err);
     }
 
     [Fact]

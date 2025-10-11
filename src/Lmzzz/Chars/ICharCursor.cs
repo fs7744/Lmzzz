@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Lmzzz.Chars;
+﻿namespace Lmzzz.Chars;
 
 public interface ICharCursor : ICursor<char>
 {

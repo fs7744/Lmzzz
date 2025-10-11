@@ -5,12 +5,14 @@ public class AnyLiteral : Parser<TextSpan>
     private readonly string end;
     private readonly StringComparison stringComparison;
     private readonly bool mustHasEnd;
+    private readonly char? escape;
 
-    public AnyLiteral(string end, StringComparison stringComparison, bool mustHasEnd)
+    public AnyLiteral(string end, StringComparison stringComparison, bool mustHasEnd, char? escape)
     {
         this.end = end;
         this.stringComparison = stringComparison;
         this.mustHasEnd = mustHasEnd;
+        this.escape = escape;
     }
 
     public override bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
@@ -21,8 +23,24 @@ public class AnyLiteral : Parser<TextSpan>
         if (!cursor.Eof)
         {
             var span = cursor.Span;
-            var i = span.IndexOf(end, stringComparison);
-            if (i > 0)
+            int i = 0;
+            var j = 0;
+            do
+            {
+                var s = span.Slice(j);
+                i = s.IndexOf(end, stringComparison);
+                if (escape.HasValue && i > 0 && s[i - 1] == escape)
+                {
+                    j += i + 1;
+                }
+                else
+                {
+                    i += j;
+                    break;
+                }
+            } while (true);
+
+            if (i >= 0)
             {
                 var start = cursor.Offset;
                 cursor.Advance(i);
@@ -40,6 +58,7 @@ public class AnyLiteral : Parser<TextSpan>
                 return true;
             }
         }
-        throw new ParseException($"AnyLiteral not found '{end}'", cursor.Position);
+        context.ExitParser(this);
+        return false;
     }
 }

@@ -8,6 +8,8 @@ public interface ICharCursor : ICursor<char>
 
     public ReadOnlySpan<char> Span { get; }
 
+    public string Buffer { get; }
+
     void AdvanceNoNewLines(int offset);
 
     public void Reset(in TextPosition position);

@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Lmzzz.Chars;
 
@@ -50,6 +49,8 @@ public class StringCursor : ICharCursor
     public bool Eof { get; private set; }
 
     public ReadOnlySpan<char> Span => buffer.AsSpan(Offset);
+
+    public string Buffer => buffer;
 
     public void Advance()
     {

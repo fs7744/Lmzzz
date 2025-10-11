@@ -44,6 +44,26 @@ public class TermsTest
     }
 
     [Fact]
+    public void SeparatedTest()
+    {
+        var t = Separated(Char(','), Text("select", true)).Eof();
+        Assert.True(t.TryParse("select", out var c, out var err));
+        Assert.Single(c);
+        Assert.Equal("select", c[0]);
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("select,SElect", out c, out err));
+        Assert.Equal(2, c.Count);
+        Assert.Equal("select", c[0]);
+        Assert.Equal("select", c[1]);
+        Assert.Null(err);
+
+        Assert.False(t.TryParse("se", out c, out err));
+        Assert.Null(c);
+        Assert.Null(err);
+    }
+
+    [Fact]
     public void AnyTest()
     {
         var t = Any("{{", true);

@@ -38,7 +38,7 @@ public class TermsTest
         Assert.Equal("select", c);
         Assert.Null(err);
 
-        Assert.False(t.TryParse(" \r\n  SeleCt ", out c, out err));
+        Assert.False(t.TryParse(" \r\n  SeleCt 1", out c, out err));
         Assert.Null(c);
         Assert.Null(err);
     }

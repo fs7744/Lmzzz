@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Lmzzz.Chars;
+﻿namespace Lmzzz.Chars;
 
 public class InogreSeparator<T> : Parser<T>
 {
@@ -17,15 +15,7 @@ public class InogreSeparator<T> : Parser<T>
         var cursor = context.Cursor;
 
         var start = cursor.Position;
-
-        if (context.Separator != null)
-        {
-            context.Separator.Invoke(context);
-        }
-        else
-        {
-            SkipWhiteSpaceOrNewLine(cursor);
-        }
+        context.InogreSeparator();
 
         if (parser.Parse(context, ref result))
         {
@@ -37,25 +27,5 @@ public class InogreSeparator<T> : Parser<T>
 
         context.ExitParser(this);
         return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool SkipWhiteSpaceOrNewLine(ICharCursor cursor)
-    {
-        var span = cursor.Span;
-        var index = span.IndexOfAnyExcept(Character.SVWhiteSpaceOrNewLinesAscii);
-        switch (index)
-        {
-            case 0:
-                return false;
-
-            case -1:
-                cursor.Advance(span.Length);
-                return true;
-
-            default:
-                cursor.Advance(index);
-                return true;
-        }
     }
 }

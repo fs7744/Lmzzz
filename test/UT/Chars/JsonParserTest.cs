@@ -10,11 +10,11 @@ public class JsonParserTest
     [InlineData("{\"key\":False}")]
     [InlineData("{\"key\":null}")]
     [InlineData("{\"key\":1.23}")]
-    [InlineData("{\"key\":-0.23}")]
+    [InlineData(" {\"key\":-0.23} ")]
     public void JsonTest(string json)
     {
         var v = JsonParser.Parse(json);
         Assert.NotNull(v);
-        Assert.Equal(json, v.ToString());
+        Assert.Equal(json.Trim(), v.ToString());
     }
 }

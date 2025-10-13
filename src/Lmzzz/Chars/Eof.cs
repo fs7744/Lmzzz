@@ -13,10 +13,15 @@ public class Eof<T> : Parser<T>
     {
         context.EnterParser(this);
 
-        if (_parser.Parse(context, ref result) && context.Cursor.Eof)
+        context.InogreSeparator();
+        if (_parser.Parse(context, ref result))
         {
-            context.ExitParser(this);
-            return true;
+            context.InogreSeparator();
+            if (context.Cursor.Eof)
+            {
+                context.ExitParser(this);
+                return true;
+            }
         }
 
         context.ExitParser(this);

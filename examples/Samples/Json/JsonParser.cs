@@ -42,6 +42,7 @@ public class JsonParser
                 .Then<IJson>(static kvps => new JsonObject(new Dictionary<string, IJson>(kvps)));
 
         Json = json.Parser = jsonString.Or(jsonArray).Or(jsonObject).Or(nullv).Or(boolv).Or(number);
+        Json = Json.Eof();
     }
 
     public static IJson Parse(string input)

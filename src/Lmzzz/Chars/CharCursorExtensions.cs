@@ -153,4 +153,24 @@ public static class ByteCursorExtensions
         number = cursor.Buffer.AsSpan(start.Offset, cursor.Offset - start.Offset);
         return true;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool SkipWhiteSpaceOrNewLine(this ICharCursor cursor)
+    {
+        var span = cursor.Span;
+        var index = span.IndexOfAnyExcept(Character.SVWhiteSpaceOrNewLinesAscii);
+        switch (index)
+        {
+            case 0:
+                return false;
+
+            case -1:
+                cursor.Advance(span.Length);
+                return true;
+
+            default:
+                cursor.Advance(index);
+                return true;
+        }
+    }
 }

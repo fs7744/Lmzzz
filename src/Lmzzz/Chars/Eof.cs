@@ -13,7 +13,6 @@ public class Eof<T> : Parser<T>
     {
         context.EnterParser(this);
 
-        context.InogreSeparator();
         if (_parser.Parse(context, ref result))
         {
             context.InogreSeparator();

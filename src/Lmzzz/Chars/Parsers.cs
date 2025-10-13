@@ -26,6 +26,10 @@ public static partial class Parsers
 
     public static Parser<T> ZeroOrOne<T>(Parser<T> parser) where T : notnull => new ZeroOrOne<T>(parser, default!);
 
+    public static Parser<T> Optional<T>(Parser<T> parser, T defaultValue) => ZeroOrOne(parser, defaultValue);
+
+    public static Parser<T> Optional<T>(Parser<T> parser) where T : notnull => ZeroOrOne(parser);
+
     public static Parser<IReadOnlyList<T>> ZeroOrMany<T>(Parser<T> parser) => new ZeroOrMany<T>(parser);
 
     public static Parser<IReadOnlyList<T>> OneOrMany<T>(Parser<T> parser) => new OneOrMany<T>(parser);

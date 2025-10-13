@@ -83,3 +83,193 @@ public class Sequence<T1, T2, T3> : Parser<ValueTuple<T1, T2, T3>>
         return false;
     }
 }
+
+public class Sequence<T1, T2, T3, T4> : Parser<ValueTuple<T1, T2, T3, T4>>
+{
+    private readonly Parser<ValueTuple<T1, T2, T3>> parser;
+    private readonly Parser<T4> lastParser;
+
+    public Sequence(Parser<ValueTuple<T1, T2, T3>> parser, Parser<T4> lastParser)
+    {
+        this.parser = parser;
+        this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
+    }
+
+    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4>> result)
+    {
+        context.EnterParser(this);
+
+        var tupleResult = new ParseResult<ValueTuple<T1, T2, T3>>();
+
+        var start = context.Cursor.Position;
+
+        if (parser.Parse(context, ref tupleResult))
+        {
+            var lastResult = new ParseResult<T4>();
+
+            if (lastParser.Parse(context, ref lastResult))
+            {
+                var tuple = new ValueTuple<T1, T2, T3, T4>(
+                    tupleResult.Value.Item1,
+                    tupleResult.Value.Item2,
+                    tupleResult.Value.Item3,
+                    lastResult.Value
+                    );
+
+                result.Set(tupleResult.Start, lastResult.End, tuple);
+
+                context.ExitParser(this);
+                return true;
+            }
+        }
+
+        context.Cursor.Reset(start);
+
+        context.ExitParser(this);
+        return false;
+    }
+}
+
+public class Sequence<T1, T2, T3, T4, T5> : Parser<ValueTuple<T1, T2, T3, T4, T5>>
+{
+    private readonly Parser<ValueTuple<T1, T2, T3, T4>> parser;
+    private readonly Parser<T5> lastParser;
+
+    public Sequence(Parser<ValueTuple<T1, T2, T3, T4>> parser, Parser<T5> lastParser)
+    {
+        this.parser = parser;
+        this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
+    }
+
+    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5>> result)
+    {
+        context.EnterParser(this);
+
+        var tupleResult = new ParseResult<ValueTuple<T1, T2, T3, T4>>();
+
+        var start = context.Cursor.Position;
+
+        if (parser.Parse(context, ref tupleResult))
+        {
+            var lastResult = new ParseResult<T5>();
+
+            if (lastParser.Parse(context, ref lastResult))
+            {
+                var tuple = new ValueTuple<T1, T2, T3, T4, T5>(
+                    tupleResult.Value.Item1,
+                    tupleResult.Value.Item2,
+                    tupleResult.Value.Item3,
+                    tupleResult.Value.Item4,
+                    lastResult.Value
+                    );
+
+                result.Set(tupleResult.Start, lastResult.End, tuple);
+
+                context.ExitParser(this);
+                return true;
+            }
+        }
+
+        context.Cursor.Reset(start);
+
+        context.ExitParser(this);
+        return false;
+    }
+}
+
+public class Sequence<T1, T2, T3, T4, T5, T6> : Parser<ValueTuple<T1, T2, T3, T4, T5, T6>>
+{
+    private readonly Parser<ValueTuple<T1, T2, T3, T4, T5>> parser;
+    private readonly Parser<T6> lastParser;
+
+    public Sequence(Parser<ValueTuple<T1, T2, T3, T4, T5>> parser, Parser<T6> lastParser)
+    {
+        this.parser = parser;
+        this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
+    }
+
+    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5, T6>> result)
+    {
+        context.EnterParser(this);
+
+        var tupleResult = new ParseResult<ValueTuple<T1, T2, T3, T4, T5>>();
+
+        var start = context.Cursor.Position;
+
+        if (parser.Parse(context, ref tupleResult))
+        {
+            var lastResult = new ParseResult<T6>();
+
+            if (lastParser.Parse(context, ref lastResult))
+            {
+                var tuple = new ValueTuple<T1, T2, T3, T4, T5, T6>(
+                    tupleResult.Value.Item1,
+                    tupleResult.Value.Item2,
+                    tupleResult.Value.Item3,
+                    tupleResult.Value.Item4,
+                    tupleResult.Value.Item5,
+                    lastResult.Value
+                    );
+
+                result.Set(tupleResult.Start, lastResult.End, tuple);
+
+                context.ExitParser(this);
+                return true;
+            }
+        }
+
+        context.Cursor.Reset(start);
+
+        context.ExitParser(this);
+        return false;
+    }
+}
+
+public class Sequence<T1, T2, T3, T4, T5, T6, T7> : Parser<ValueTuple<T1, T2, T3, T4, T5, T6, T7>>
+{
+    private readonly Parser<ValueTuple<T1, T2, T3, T4, T5, T6>> parser;
+    private readonly Parser<T7> lastParser;
+
+    public Sequence(Parser<ValueTuple<T1, T2, T3, T4, T5, T6>> parser, Parser<T7> lastParser)
+    {
+        this.parser = parser;
+        this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
+    }
+
+    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5, T6, T7>> result)
+    {
+        context.EnterParser(this);
+
+        var tupleResult = new ParseResult<ValueTuple<T1, T2, T3, T4, T5, T6>>();
+
+        var start = context.Cursor.Position;
+
+        if (parser.Parse(context, ref tupleResult))
+        {
+            var lastResult = new ParseResult<T7>();
+
+            if (lastParser.Parse(context, ref lastResult))
+            {
+                var tuple = new ValueTuple<T1, T2, T3, T4, T5, T6, T7>(
+                    tupleResult.Value.Item1,
+                    tupleResult.Value.Item2,
+                    tupleResult.Value.Item3,
+                    tupleResult.Value.Item4,
+                    tupleResult.Value.Item5,
+                    tupleResult.Value.Item6,
+                    lastResult.Value
+                    );
+
+                result.Set(tupleResult.Start, lastResult.End, tuple);
+
+                context.ExitParser(this);
+                return true;
+            }
+        }
+
+        context.Cursor.Reset(start);
+
+        context.ExitParser(this);
+        return false;
+    }
+}

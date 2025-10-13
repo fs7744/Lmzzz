@@ -40,6 +40,14 @@ public static partial class Parsers
 
     public static Sequence<T1, T2, T3> And<T1, T2, T3>(this Sequence<T1, T2> parser, Parser<T3> and) => new(parser, and);
 
+    public static Sequence<T1, T2, T3, T4> And<T1, T2, T3, T4>(this Sequence<T1, T2, T3> parser, Parser<T4> and) => new(parser, and);
+
+    public static Sequence<T1, T2, T3, T4, T5> And<T1, T2, T3, T4, T5>(this Sequence<T1, T2, T3, T4> parser, Parser<T5> and) => new(parser, and);
+
+    public static Sequence<T1, T2, T3, T4, T5, T6> And<T1, T2, T3, T4, T5, T6>(this Sequence<T1, T2, T3, T4, T5> parser, Parser<T6> and) => new(parser, and);
+
+    public static Sequence<T1, T2, T3, T4, T5, T6, T7> And<T1, T2, T3, T4, T5, T6, T7>(this Sequence<T1, T2, T3, T4, T5, T6> parser, Parser<T7> and) => new(parser, and);
+
     #endregion And
 
     #region Or

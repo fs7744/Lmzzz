@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\examples\Samples\Samples.csproj" />
     <ProjectReference Include="..\..\src\Lmzzz\Lmzzz.csproj" />
   </ItemGroup>
 

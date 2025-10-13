@@ -1,10 +1,13 @@
 ﻿using System.Buffers;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Lmzzz.Chars;
 
 public static partial class Character
 {
+    public const char DefaultDecimalSeparator = '.';
+    public const char DefaultDecimalGroupSeparator = ',';
     public const char NullChar = '\0';
 
     internal const string DecimalDigits = "0123456789";
@@ -33,5 +36,35 @@ public static partial class Character
     public static bool IsWhiteSpaceOrNewLine(char ch)
     {
         return SVWhiteSpaceOrNewLinesAscii.Contains(ch);
+    }
+
+    public static NumberStyles ToNumberStyles(this NumberOptions numberOptions)
+    {
+        // Using HasFlag instead of the direct bitwise comparison as perf doesn't matter
+        // here. This is only used while constructing a limited number of parsers.
+
+        var numberStyles = NumberStyles.None;
+
+        if (numberOptions.HasFlag(NumberOptions.AllowLeadingSign))
+        {
+            numberStyles |= NumberStyles.AllowLeadingSign;
+        }
+
+        if (numberOptions.HasFlag(NumberOptions.AllowDecimalSeparator))
+        {
+            numberStyles |= NumberStyles.AllowDecimalPoint;
+        }
+
+        if (numberOptions.HasFlag(NumberOptions.AllowGroupSeparators))
+        {
+            numberStyles |= NumberStyles.AllowThousands;
+        }
+
+        if (numberOptions.HasFlag(NumberOptions.AllowExponent))
+        {
+            numberStyles |= NumberStyles.AllowExponent;
+        }
+
+        return numberStyles;
     }
 }

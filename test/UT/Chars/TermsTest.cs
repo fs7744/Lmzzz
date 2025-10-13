@@ -63,6 +63,24 @@ public class TermsTest
         Assert.True(t.TryParse("\"\"", out c, out err));
         Assert.Equal("", c);
         Assert.Null(err);
+
+        t = String('\'').Eof();
+
+        Assert.True(t.TryParse("'1\\'2'", out c, out err));
+        Assert.Equal("1\\'2", c);
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("'12'", out c, out err));
+        Assert.Equal("12", c);
+        Assert.Null(err);
+
+        Assert.False(t.TryParse("'", out c, out err));
+        Assert.Null(c.ToString());
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("''", out c, out err));
+        Assert.Equal("", c);
+        Assert.Null(err);
     }
 
     [Fact]

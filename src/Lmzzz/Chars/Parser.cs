@@ -28,4 +28,10 @@ public abstract class Parser<T>
         value = default!;
         return false;
     }
+
+    #region Then
+
+    public Parser<U> Then<U>(Func<T, U> conversion) => new Then<T, U>(this, conversion);
+
+    #endregion Then
 }

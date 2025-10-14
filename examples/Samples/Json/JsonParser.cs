@@ -1,5 +1,5 @@
-﻿using Lmzzz.Chars;
-using static Lmzzz.Chars.Parsers;
+﻿using Lmzzz.Chars.Fluent;
+using static Lmzzz.Chars.Fluent.Parsers;
 
 namespace Samples.Json;
 

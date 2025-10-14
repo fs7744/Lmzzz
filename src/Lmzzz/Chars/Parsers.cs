@@ -1,6 +1,7 @@
-﻿using System.Numerics;
+﻿using System.Buffers;
+using System.Numerics;
 
-namespace Lmzzz.Chars;
+namespace Lmzzz.Chars.Fluent;
 
 public static partial class Parsers
 {
@@ -37,6 +38,10 @@ public static partial class Parsers
     public static Parser<IReadOnlyList<T>> Separated<U, T>(Parser<U> separator, Parser<T> parser) => new Separated<U, T>(separator, parser);
 
     public static Parser<TextSpan> String(char quotes = '"', char escape = '\\') => Between(Char(quotes), Any(quotes, mustHasEnd: true, escape: escape), Char(quotes));
+
+    public static Parser<TextSpan> Identifier(SearchValues<char> identifierStart, SearchValues<char> identifierPart) => new IdentifierLiteral(identifierStart, identifierPart);
+
+    public static Parser<TextSpan> Identifier(ReadOnlySpan<char> identifierStart, ReadOnlySpan<char> identifierPart) => new IdentifierLiteral(SearchValues.Create(identifierStart), SearchValues.Create(identifierPart));
 
     #region And
 

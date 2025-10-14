@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Lmzzz.Chars;
+namespace Lmzzz.Chars.Fluent;
 
 public class CharParseContext : ParseContext
 {

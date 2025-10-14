@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Numerics;
 using System.Reflection;
+using Lmzzz.Chars.Fluent;
 
 namespace Lmzzz.Chars;
 

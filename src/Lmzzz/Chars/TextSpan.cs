@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Lmzzz.Chars;
+namespace Lmzzz.Chars.Fluent;
 
 public readonly struct TextSpan : IEquatable<string>, IEquatable<TextSpan>
 {

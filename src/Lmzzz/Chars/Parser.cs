@@ -1,4 +1,4 @@
-﻿namespace Lmzzz.Chars;
+﻿namespace Lmzzz.Chars.Fluent;
 
 public abstract class Parser<T>
 {

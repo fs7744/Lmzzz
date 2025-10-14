@@ -1,5 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Lmzzz.Chars;
+using Lmzzz.Chars.Fluent;
 
 namespace Benchmarks;
 

@@ -1,4 +1,6 @@
-﻿namespace Lmzzz.Chars;
+﻿using Lmzzz.Chars.Fluent;
+
+namespace Lmzzz.Chars;
 
 public class OneOrMany<T> : Parser<IReadOnlyList<T>>
 {

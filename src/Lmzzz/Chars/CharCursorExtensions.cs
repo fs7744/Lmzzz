@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Lmzzz.Chars;
 
-namespace Lmzzz.Chars;
+namespace Lmzzz.Chars.Fluent;
 
-public static class ByteCursorExtensions
+public static class CharCursorExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Match(this ICharCursor cursor, char c)

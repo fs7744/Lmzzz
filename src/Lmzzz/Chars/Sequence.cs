@@ -1,4 +1,6 @@
-﻿namespace Lmzzz.Chars;
+﻿using Lmzzz.Chars.Fluent;
+
+namespace Lmzzz.Chars;
 
 public class Sequence<T1, T2> : Parser<ValueTuple<T1, T2>>
 {

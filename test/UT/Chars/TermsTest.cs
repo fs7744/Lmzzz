@@ -1,7 +1,7 @@
 ﻿namespace UT.Chars;
 
-using Lmzzz.Chars;
-using static Lmzzz.Chars.Parsers;
+using Lmzzz.Chars.Fluent;
+using static Lmzzz.Chars.Fluent.Parsers;
 
 public class TermsTest
 {

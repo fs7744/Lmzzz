@@ -21,7 +21,7 @@ public sealed class OneOf<T> : Parser<T>
 
         var start = cursor.Position;
 
-        foreach (var item in Parsers.AsSpan())
+        foreach (var item in Parsers)
         {
             if (item.Parse(context, ref result))
             {

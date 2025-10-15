@@ -1,5 +1,7 @@
 ﻿namespace UT.Chars;
 
+using Lmzzz;
+using Lmzzz.Chars;
 using Lmzzz.Chars.Fluent;
 using static Lmzzz.Chars.Fluent.Parsers;
 
@@ -245,5 +247,21 @@ public class TermsTest
         Assert.False(t.TryParse(" \r\n   ", out c, out err));
         Assert.Null(c);
         Assert.Null(err);
+    }
+
+    [Fact]
+    public void IdentifierText()
+    {
+        var field = Identifier(Character.SVIdentifierStart, Character.SVIdentifierPart).Then<string>(static s => s.ToString());
+        var dot = Char('.');
+        var fp = Separated(dot, field).Then(static s => s).Eof();
+        Assert.True(fp.TryParse("f.f1", out var c, out var err));
+        Assert.Equal(["f", "f1"], c);
+
+        Assert.True(fp.TryParse("f.f1.y", out c, out err));
+        Assert.Equal(["f", "f1", "y"], c);
+
+        Assert.True(fp.TryParse("f", out c, out err));
+        Assert.Equal(["f"], c);
     }
 }

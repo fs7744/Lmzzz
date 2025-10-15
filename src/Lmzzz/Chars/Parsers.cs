@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Linq;
 using System.Numerics;
 
 namespace Lmzzz.Chars.Fluent;
@@ -10,6 +11,10 @@ public static partial class Parsers
     public static Parser<T> InogreSeparator<T>(Parser<T> parser) => new InogreSeparator<T>(parser);
 
     public static Parser<T> Eof<T>(this Parser<T> parser) => new Eof<T>(parser);
+
+    public static Parser<T> Else<T>(this Parser<T> parser, T value) => new Else<T>(parser, value);
+
+    public static Parser<T> ElseError<T>(this Parser<T> parser, string message) => new ElseError<T>(parser, message);
 
     public static Parser<T> Between<A, T, B>(Parser<A> before, Parser<T> parser, Parser<B> after) => new Between<A, T, B>(before, parser, after);
 
@@ -39,9 +44,9 @@ public static partial class Parsers
 
     public static Parser<TextSpan> String(char quotes = '"', char escape = '\\') => Between(Char(quotes), Any(quotes, mustHasEnd: true, escape: escape), Char(quotes));
 
-    public static Parser<TextSpan> Identifier(SearchValues<char> identifierStart, SearchValues<char> identifierPart) => new IdentifierLiteral(identifierStart, identifierPart);
+    public static Parser<TextSpan> Identifier(SearchValues<char> identifierStart, SearchValues<char> identifierPart) => InogreSeparator(new IdentifierLiteral(identifierStart, identifierPart));
 
-    public static Parser<TextSpan> Identifier(ReadOnlySpan<char> identifierStart, ReadOnlySpan<char> identifierPart) => new IdentifierLiteral(SearchValues.Create(identifierStart), SearchValues.Create(identifierPart));
+    public static Parser<TextSpan> Identifier(ReadOnlySpan<char> identifierStart, ReadOnlySpan<char> identifierPart) => InogreSeparator(new IdentifierLiteral(SearchValues.Create(identifierStart), SearchValues.Create(identifierPart)));
 
     #region And
 
@@ -93,4 +98,24 @@ public static partial class Parsers
     public static Parser<decimal> Decimal(NumberOptions numberOptions = NumberOptions.Float) => Number<decimal>(numberOptions);
 
     #endregion Number
+
+    public static Parser<T> LeftAssociative<T, TInput>(this Parser<T> parser, params (Parser<TInput> op, Func<T, T, T> factory)[] list)
+    {
+        var choices = list.Select(l => new Then<TInput, Func<T, T, T>>(l.op, c => l.factory)).ToArray();
+
+        return parser.And(ZeroOrMany(new OneOf<Func<T, T, T>>(choices).And(parser)))
+            .Then(static x =>
+            {
+                // multiplicative
+                var result = x.Item1;
+
+                // (("-" | "+") multiplicative ) *
+                foreach (var op in x.Item2)
+                {
+                    result = op.Item1(result, op.Item2);
+                }
+
+                return result;
+            });
+    }
 }

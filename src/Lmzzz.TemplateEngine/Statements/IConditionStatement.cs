@@ -1,12 +1,18 @@
 ﻿namespace Lmzzz;
 
-public interface IConditionStatement
+public interface IConditionStatement : IStatement
 {
 }
 
 public class OperaterStatement : IConditionStatement
 {
-    public IConditionStatement Left { get; set; }
+    public IStatement Left { get; set; }
     public string Operater { get; set; }
-    public IConditionStatement Right { get; set; }
+    public IStatement Right { get; set; }
+}
+
+public class UnaryStatement : IConditionStatement
+{
+    public IStatement Statement { get; set; }
+    public string Operater { get; set; }
 }

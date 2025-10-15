@@ -1,4 +1,7 @@
-﻿namespace Lmzzz;
+﻿using Lmzzz.Chars.Fluent;
+using System.Collections.Immutable;
+
+namespace Lmzzz;
 
 public interface IValueStatement : IStatement
 {
@@ -10,15 +13,20 @@ public interface IFieldStatement : IValueStatement
 
 public class FieldStatement : IFieldStatement
 {
-    public string Name { get; }
+    public IReadOnlyList<string> Names { get; }
 
-    public FieldStatement(string name)
+    public FieldStatement(IReadOnlyList<string> names)
     {
-        Name = name;
+        Names = names;
+    }
+
+    public FieldStatement(IReadOnlyList<TextSpan> names)
+    {
+        Names = names.Select(i => i.ToString()).ToImmutableList();
     }
 
     public override string ToString()
     {
-        return Name;
+        return string.Join('.', Names);
     }
 }

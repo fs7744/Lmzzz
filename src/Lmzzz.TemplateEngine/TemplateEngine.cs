@@ -7,20 +7,20 @@ namespace Lmzzz.Template.Inner;
 public class TemplateEngineParser
 {
     public static readonly Parser<IStatement> ConditionParser;
-    public static readonly Parser<IValueStatement> NullValue = Text("null").Then<IValueStatement>(static s => NullValueStatement.Value);
+    public static readonly Parser<IStatement> NullValue = Text("null").Then<IStatement>(static s => NullValueStatement.Value);
 
-    public static readonly Parser<IValueStatement> BoolValue = Text("true", true).Then<IValueStatement>(static s => BoolValueStatement.True)
-            .Or(Text("false", true).Then<IValueStatement>(static s => BoolValueStatement.False));
+    public static readonly Parser<IStatement> BoolValue = Text("true", true).Then<IStatement>(static s => BoolValueStatement.True)
+            .Or(Text("false", true).Then<IStatement>(static s => BoolValueStatement.False));
 
-    public static readonly Parser<IValueStatement> NumberValue = Decimal().Then<IValueStatement>(static s => new DecimalValueStatement(s));
-    public static readonly Parser<IValueStatement> Field = Separated(Char('.'), Identifier(Character.SVIdentifierStart, Character.SVIdentifierPart)).Then<IValueStatement>(static s => new FieldStatement(s));
+    public static readonly Parser<IStatement> NumberValue = Decimal().Then<IStatement>(static s => new DecimalValueStatement(s));
+    public static readonly Parser<IStatement> Field = Separated(Char('.'), Identifier(Character.SVIdentifierStart, Character.SVIdentifierPart)).Then<IStatement>(static s => new FieldStatement(s));
 
-    public static readonly Parser<IValueStatement> AnyValue = NullValue.Or(BoolValue).Or(NumberValue).Or(Field);
+    public static readonly Parser<IStatement> AnyValue = NullValue.Or(BoolValue).Or(NumberValue).Or(Field);
 
-    public static readonly Parser<IConditionStatement> OP = AnyValue
+    public static readonly Parser<IStatement> OP = AnyValue
         .And(Text("==").Or(Text("!=")).Or(Text(">")).Or(Text(">=")).Or(Text("<")).Or(Text("<=")))
         .And(AnyValue)
-        .Then<IConditionStatement>(static s => new OperaterStatement() { Left = s.Item1, Operater = s.Item2, Right = s.Item3 });
+        .Then<IStatement>(static s => new OperaterStatement() { Left = s.Item1, Operater = s.Item2, Right = s.Item3 });
 
     public static readonly Deferred<IStatement> Condition = Deferred<IStatement>();
 
@@ -30,7 +30,7 @@ public class TemplateEngineParser
     public static readonly Parser<IStatement> GroupExpression = Between(ParenOpen, Condition, ParenClose);
     public static readonly Parser<IStatement> NotExpression = Between(Text("!("), Condition, ParenClose).Then<IStatement>(static s => new UnaryStatement() { Operater = "not", Statement = s });
 
-    public static readonly Parser<IStatement> ConditionValue = OP.Then(static s => s as IStatement).Or(BoolValue.Then(static s => s as IStatement));
+    public static readonly Parser<IStatement> ConditionValue = OP.Or(BoolValue);
 
     public static readonly Parser<IStatement> Primary = NotExpression.Or(GroupExpression).Or(ConditionValue);
 
@@ -44,6 +44,6 @@ public class TemplateEngineParser
     static TemplateEngineParser()
     {
         ConditionParser = Condition.Parser = Conditions;
-        ConditionParser = ConditionParser.Eof().ElseError("error");
+        ConditionParser = ConditionParser.Eof().ElseError("Wrong syntax");
     }
 }

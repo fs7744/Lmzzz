@@ -264,4 +264,12 @@ public class TermsTest
         Assert.True(fp.TryParse("f", out c, out err));
         Assert.Equal(["f"], c);
     }
+
+    //[Fact]
+    //public void Test()
+    //{
+    //    //Assert.Equal(char.MaxValue, (char)0x41);
+    //    //Assert.Equal(1, 0x41);
+    //    Assert.Equal(1, 0b101);
+    //}
 }

@@ -5,6 +5,8 @@ namespace Lmzzz.Chars;
 public class InogreSeparator<T> : Parser<T>
 {
     private Parser<T> parser;
+    public Parser<T> Parser
+    { get { return parser; } }
 
     public InogreSeparator(Parser<T> parser)
     {

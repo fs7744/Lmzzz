@@ -20,6 +20,11 @@ public static partial class Parsers
 
     public static Parser<char> Char(char c) => InogreSeparator<char>(new CharLiteral(c));
 
+    public static Parser<char> Char(char start, char end)
+    {
+        return InogreSeparator<char>(new CharLiteral(string.Join("", Enumerable.Range((int)start, (int)end - (int)start))));
+    }
+
     public static Parser<string> Text(string text, bool ordinalIgnoreCase = false) => InogreSeparator<string>(new TextLiteral(text, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
 
     public static Parser<TextSpan> Any(char end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => Any(end.ToString(), ordinalIgnoreCase, mustHasEnd, escape);
@@ -65,6 +70,39 @@ public static partial class Parsers
     #endregion And
 
     #region Or
+
+    public static Parser<char> Or(this Parser<char> parser, Parser<char> or)
+    {
+        string cs = null;
+        if (parser is CharLiteral c)
+        {
+            cs = c.Value;
+        }
+        else if (parser is InogreSeparator<char> isc && isc.Parser is CharLiteral c1)
+        {
+            cs = c1.Value;
+        }
+
+        if (cs != null)
+        {
+            string csc = null;
+            if (or is CharLiteral cc)
+            {
+                csc = cc.Value;
+            }
+            else if (or is InogreSeparator<char> iscc && iscc.Parser is CharLiteral cc1)
+            {
+                csc = cc1.Value;
+            }
+
+            if (csc != null)
+            {
+                return new CharLiteral(cs + csc);
+            }
+        }
+
+        return Or<char>(parser, or);
+    }
 
     public static Parser<T> Or<T>(this Parser<T> parser, Parser<T> or)
     {

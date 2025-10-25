@@ -33,7 +33,7 @@ public partial class AbstractABNFParser
     //; " (Double Quote)
     public static Parser<IStatement> DQUOTE = Convert_DQUOTE(Char((char)0x22));
 
-    public static Parser<IStatement> HEXDIG = Convert_HEXDIG(DIGIT.Or(Convert_HEXDIG_1(Char('A').Or(Char('B')).Or(Char('C')).Or(Char('D')).Or(Char('E')).Or(Char('F')))));
+    public static Parser<IStatement> HEXDIG = DIGIT.Or(Convert_HEXDIG_1(Char('A').Or(Char('B')).Or(Char('C')).Or(Char('D')).Or(Char('E')).Or(Char('F'))));
 
     //; horizontal tab
     public static Parser<IStatement> HTAB = Convert_HTAB(Char((char)0x09));
@@ -135,11 +135,6 @@ public partial class AbstractABNFParser
     }
 
     private static Parser<IStatement> Convert_DQUOTE(Parser<char> parser)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static Parser<IStatement> Convert_HEXDIG(object value)
     {
         throw new NotImplementedException();
     }

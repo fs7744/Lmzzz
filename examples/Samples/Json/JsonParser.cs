@@ -9,15 +9,15 @@ public class JsonParser
 
     static JsonParser()
     {
-        var lBrace = Char('{');
-        var rBrace = Char('}');
-        var lBracket = Char('[');
-        var rBracket = Char(']');
-        var colon = Char(':');
-        var comma = Char(',');
-        var nullv = Text("null").Then<IJson>(static s => JsonNull.Value);
-        var boolv = (Text("true", true).Then<IJson>(static s => JsonBool.True))
-                .Or(Text("false", true).Then<IJson>(static s => JsonBool.False));
+        var lBrace = IgnoreSeparator(Char('{'));
+        var rBrace = IgnoreSeparator(Char('}'));
+        var lBracket = IgnoreSeparator(Char('['));
+        var rBracket = IgnoreSeparator(Char(']'));
+        var colon = IgnoreSeparator(Char(':'));
+        var comma = IgnoreSeparator(Char(','));
+        var nullv = IgnoreSeparator(Text("null")).Then<IJson>(static s => JsonNull.Value);
+        var boolv = IgnoreSeparator((Text("true", true)).Then<IJson>(static s => JsonBool.True))
+                .Or(IgnoreSeparator(Text("false", true)).Then<IJson>(static s => JsonBool.False));
 
         var number = Decimal().Then<IJson>(static s => new JsonNumber(s));
 

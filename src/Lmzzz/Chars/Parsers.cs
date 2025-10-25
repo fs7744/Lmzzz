@@ -8,7 +8,7 @@ public static partial class Parsers
 {
     public static Deferred<T> Deferred<T>() => new();
 
-    public static Parser<T> InogreSeparator<T>(Parser<T> parser) => new InogreSeparator<T>(parser);
+    public static Parser<T> IgnoreSeparator<T>(Parser<T> parser) => new IgnoreSeparator<T>(parser);
 
     public static Parser<T> Eof<T>(this Parser<T> parser) => new Eof<T>(parser);
 
@@ -18,14 +18,19 @@ public static partial class Parsers
 
     public static Parser<T> Between<A, T, B>(Parser<A> before, Parser<T> parser, Parser<B> after) => new Between<A, T, B>(before, parser, after);
 
-    public static Parser<char> Char(char c) => InogreSeparator<char>(new CharLiteral(c));
+    public static Parser<char> Char(char c) => new CharLiteral(c);
 
     public static Parser<char> Char(char start, char end)
     {
-        return InogreSeparator<char>(new CharLiteral(string.Join("", Enumerable.Range((int)start, (int)end - (int)start))));
+        return new CharLiteral(string.Join("", Enumerable.Range((int)start, (int)end - (int)start)));
     }
 
-    public static Parser<string> Text(string text, bool ordinalIgnoreCase = false) => InogreSeparator<string>(new TextLiteral(text, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+    public static Parser<char> Char(char[] chars)
+    {
+        return new CharLiteral(string.Join("", chars));
+    }
+
+    public static Parser<string> Text(string text, bool ordinalIgnoreCase = false) => new TextLiteral(text, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
     public static Parser<TextSpan> Any(char end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => Any(end.ToString(), ordinalIgnoreCase, mustHasEnd, escape);
 
@@ -49,9 +54,9 @@ public static partial class Parsers
 
     public static Parser<TextSpan> String(char quotes = '"', char escape = '\\') => Between(Char(quotes), Any(quotes, mustHasEnd: true, escape: escape), Char(quotes));
 
-    public static Parser<TextSpan> Identifier(SearchValues<char> identifierStart, SearchValues<char> identifierPart) => InogreSeparator(new IdentifierLiteral(identifierStart, identifierPart));
+    public static Parser<TextSpan> Identifier(SearchValues<char> identifierStart, SearchValues<char> identifierPart) => new IdentifierLiteral(identifierStart, identifierPart);
 
-    public static Parser<TextSpan> Identifier(ReadOnlySpan<char> identifierStart, ReadOnlySpan<char> identifierPart) => InogreSeparator(new IdentifierLiteral(SearchValues.Create(identifierStart), SearchValues.Create(identifierPart)));
+    public static Parser<TextSpan> Identifier(ReadOnlySpan<char> identifierStart, ReadOnlySpan<char> identifierPart) => new IdentifierLiteral(SearchValues.Create(identifierStart), SearchValues.Create(identifierPart));
 
     #region And
 
@@ -78,7 +83,7 @@ public static partial class Parsers
         {
             cs = c.Value;
         }
-        else if (parser is InogreSeparator<char> isc && isc.Parser is CharLiteral c1)
+        else if (parser is IgnoreSeparator<char> isc && isc.Parser is CharLiteral c1)
         {
             cs = c1.Value;
         }
@@ -90,7 +95,7 @@ public static partial class Parsers
             {
                 csc = cc.Value;
             }
-            else if (or is InogreSeparator<char> iscc && iscc.Parser is CharLiteral cc1)
+            else if (or is IgnoreSeparator<char> iscc && iscc.Parser is CharLiteral cc1)
             {
                 csc = cc1.Value;
             }
@@ -123,7 +128,7 @@ public static partial class Parsers
     #region Number
 
     public static Parser<T> Number<T>(NumberOptions numberOptions = NumberOptions.Number, char decimalSeparator = '.', char groupSeparator = ',') where T : INumber<T>
-        => InogreSeparator(new NumberLiteral<T>(numberOptions, decimalSeparator, groupSeparator));
+        => new NumberLiteral<T>(numberOptions, decimalSeparator, groupSeparator);
 
     public static Parser<int> Int(NumberOptions numberOptions = NumberOptions.Integer) => Number<int>(numberOptions);
 

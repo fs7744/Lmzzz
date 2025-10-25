@@ -2,13 +2,14 @@
 
 namespace Lmzzz.Chars;
 
-public class InogreSeparator<T> : Parser<T>
+public class IgnoreSeparator<T> : Parser<T>
 {
     private Parser<T> parser;
+
     public Parser<T> Parser
     { get { return parser; } }
 
-    public InogreSeparator(Parser<T> parser)
+    public IgnoreSeparator(Parser<T> parser)
     {
         this.parser = parser;
     }

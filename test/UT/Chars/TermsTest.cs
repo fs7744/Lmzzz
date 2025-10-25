@@ -10,7 +10,7 @@ public class TermsTest
     [Fact]
     public void CharTest()
     {
-        var t = Char('{').Eof();
+        var t = IgnoreSeparator(Char('{')).Eof();
         Assert.True(t.TryParse("{", out var c, out var err));
         Assert.Equal('{', c);
         Assert.Null(err);
@@ -27,7 +27,7 @@ public class TermsTest
     [Fact]
     public void TextTest()
     {
-        var t = Text("select", true).Eof();
+        var t = IgnoreSeparator(Text("select", true)).Eof();
         Assert.True(t.TryParse("select", out var c, out var err));
         Assert.Equal("select", c);
         Assert.Null(err);
@@ -190,7 +190,7 @@ public class TermsTest
     [Fact]
     public void BetweenText()
     {
-        var t = Between(Text("{{"), Any("}}", false, true), Text("}}"));
+        var t = Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}")));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Equal(" \r\n   sdda\r\ndad", c);
         Assert.Null(err);
@@ -199,7 +199,7 @@ public class TermsTest
     [Fact]
     public void ZeroOrOneText()
     {
-        var t = ZeroOrOne(Between(Text("{{"), Any("}}", false, true), Text("}}")));
+        var t = ZeroOrOne(Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}"))));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Equal(" \r\n   sdda\r\ndad", c);
         Assert.Null(err);
@@ -212,7 +212,7 @@ public class TermsTest
     [Fact]
     public void ZeroOrManyText()
     {
-        var t = ZeroOrMany(Between(Text("{{"), Any("}}", false, true), Text("}}")));
+        var t = ZeroOrMany(Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}"))));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Single(c);
         Assert.Equal(" \r\n   sdda\r\ndad", c[0]);
@@ -232,7 +232,7 @@ public class TermsTest
     [Fact]
     public void OneOrManyText()
     {
-        var t = OneOrMany(Between(Text("{{"), Any("}}", false, true), Text("}}")));
+        var t = OneOrMany(Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}"))));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Single(c);
         Assert.Equal(" \r\n   sdda\r\ndad", c[0]);

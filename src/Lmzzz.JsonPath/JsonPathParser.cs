@@ -34,14 +34,19 @@ public class JsonPathParser
     public static Parser<IStatement> True = Text("true").Then<IStatement>(static x => BoolValue.True);
     public static Parser<IStatement> False = Text("false").Then<IStatement>(static x => BoolValue.False);
     public static Parser<IStatement> Null = Text("null").Then<IStatement>(static x => NullValue.Value);
-    public static Parser<char> LCALPHA = Char('a', 'z');
-    public static Parser<char> DIGIT = Char('0', '9');
-    public static Parser<char> ALPHA = Char((char)0x41, (char)0x5A).Or(Char((char)0x61, (char)0x7A));
-    public static Parser<char> NameFirst = ALPHA.Or(Char('_')).Or(Char((char)0x80, (char)0xD7FF)).Or(Char((char)0xE000, (char)0xFFFF));
-    public static Parser<char> NameChar = NameFirst.Or(DIGIT);
-    public static Parser<char> FunctionNameFirst = LCALPHA;
-    public static Parser<char> FunctionNameChar = FunctionNameFirst.Or(Char('_')).Or(DIGIT);
-    public static Parser<string> FunctionName = FunctionNameFirst.And(ZeroOrMany(FunctionNameChar)).Then<string>(static x => throw new NotImplementedException());
+
+    //public static Parser<char> LCALPHA = Char('a', 'z');
+    //public static Parser<char> DIGIT = Char('0', '9');
+    //public static Parser<char> ALPHA = Char((char)0x41, (char)0x5A).Or(Char((char)0x61, (char)0x7A));
+    public static Parser<IStatement> MemberNameShorthand = AnyExclude("[]().,\"'").Then<IStatement>(static x => new Member { Name = x.Span.ToString() });
+
+    //public static Parser<char> NameFirst = ALPHA.Or(Char('_')).Or(Char((char)0x80, (char)0xD7FF)).Or(Char((char)0xE000, (char)0xFFFF));
+    //public static Parser<char> NameChar = NameFirst.Or(DIGIT);
+    //public static Parser<char> FunctionNameFirst = LCALPHA;
+
+    //public static Parser<char> FunctionNameChar = FunctionNameFirst.Or(Char('_')).Or(DIGIT);
+    //public static Parser<string> FunctionName = FunctionNameFirst.And(ZeroOrMany(FunctionNameChar)).Then<string>(static x => throw new NotImplementedException());
+    public static Parser<string> FunctionName = AnyExclude("()[].,\"'").Then<string>(static x => x.Span.ToString());
 
     public static Parser<IStatement> SliceSelector = Optional(Start.And(S)).And(Char(':')).And(S).And(Optional(End.And(S))).And(Optional(Char(':').And(Optional(S.And(Step))))).Then<IStatement>(static x => throw new NotImplementedException());
 
@@ -62,8 +67,9 @@ public class JsonPathParser
             Statement = x.Item4
         });
 
-    public static Deferred<IStatement> MemberNameShorthand = Deferred<IStatement>();
+    //public static Deferred<IStatement> MemberNameShorthand = Deferred<IStatement>();
     public static Deferred<IStatement> Segments = Deferred<IStatement>();
+
     public static Deferred<IStatement> FunctionExpr = Deferred<IStatement>();
     public static Deferred<IStatement> JsonPathQuery = Deferred<IStatement>();
     public static Parser<IStatement> RelQuery = CurrentNodeIdentifier.And(Segments).Then<IStatement>(static x => new CurrentNode() { Child = x.Item2 });
@@ -92,7 +98,7 @@ public class JsonPathParser
     {
         LogicalExpr.Parser = LogicalOrExpr;
         Segments.Parser = ZeroOrMany(S.And(Segment)).Then<IStatement>(static x => throw new NotImplementedException());
-        MemberNameShorthand.Parser = NameFirst.And(ZeroOrMany(NameChar)).Then<IStatement>(static x => new Member { Name = x.Item1 + new string(x.Item2.ToArray()) });
+        //MemberNameShorthand.Parser = NameFirst.And(ZeroOrMany(NameChar)).Then<IStatement>(static x => new Member { Name = x.Item1 + new string(x.Item2.ToArray()) });
         FunctionExpr.Parser = FunctionName.And(Char('(')).And(S).And(Optional(FunctionArgument.And(ZeroOrMany(S.And(Char(',')).And(S).And(FunctionArgument))))).And(S).And(Char(')')).Then<IStatement>(static x => throw new NotImplementedException());
         JsonPathQuery.Parser = RootIdentifier.And(Segments).Then<IStatement>(static x => new RootNode() { Child = x.Item2 });
     }

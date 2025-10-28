@@ -32,6 +32,8 @@ public static partial class Parsers
 
     public static Parser<string> Text(string text, bool ordinalIgnoreCase = false) => new TextLiteral(text, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
+    public static Parser<TextSpan> AnyExclude(string exclude) => new ExcludeLiteral(exclude);
+
     public static Parser<TextSpan> Any(char end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => Any(end.ToString(), ordinalIgnoreCase, mustHasEnd, escape);
 
     public static Parser<TextSpan> Any(string end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => new AnyLiteral(end, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal, mustHasEnd, escape);

@@ -22,7 +22,7 @@ public static partial class Parsers
 
     public static Parser<char> Char(char start, char end)
     {
-        return new CharLiteral(string.Join("", Enumerable.Range((int)start, (int)end - (int)start)));
+        return new CharLiteral(string.Join("", Enumerable.Range((int)start, (int)end - (int)start).Select(i => (char)i)));
     }
 
     public static Parser<char> Char(char[] chars)

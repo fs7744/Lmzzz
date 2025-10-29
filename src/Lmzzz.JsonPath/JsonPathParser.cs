@@ -15,16 +15,16 @@ public class JsonPathParser
     });
 
     public static Parser<char> RootIdentifier = Char('$');
-    public static Parser<decimal> Int = Decimal(NumberOptions.Integer);
+    public static Parser<int> Int = Int();
     public static Parser<char> DoubleQuoted = Char('"');
     public static Parser<char> SingleQuoted = Char('\'');
     public static Parser<char> WildcardSelector = Char('*');
-    public static Parser<decimal> IndexSelector = Int;
+    public static Parser<int> IndexSelector = Int;
     public static Parser<TextSpan> StringLiteral = Between(DoubleQuoted, ZeroOrOne(Any("\"", mustHasEnd: true, escape: '\\')), DoubleQuoted).Or(Between(SingleQuoted, ZeroOrOne(Any("'", mustHasEnd: true, escape: '\\')), SingleQuoted));
     public static Parser<TextSpan> NameSelector = StringLiteral;
-    public static Parser<decimal> Start = Int;
-    public static Parser<decimal> End = Int;
-    public static Parser<decimal> Step = Int;
+    public static Parser<int> Start = Int;
+    public static Parser<int> End = Int;
+    public static Parser<int> Step = Int;
     public static Parser<IReadOnlyList<char>> S = ZeroOrMany(B);
     public static Parser<char> CurrentNodeIdentifier = Char('@');
     public static Parser<char> LogicalNotOp = Char('!');
@@ -47,7 +47,7 @@ public class JsonPathParser
     //public static Parser<string> FunctionName = FunctionNameFirst.And(ZeroOrMany(FunctionNameChar)).Then<string>(static x => throw new NotImplementedException());
     public static Parser<string> FunctionName = AnyExclude("()[].,\"'").Then<string>(static x => x.Span.ToString());
 
-    public static Parser<IStatement> SliceSelector = Optional(Start.And(S)).And(Char(':')).And(S).And(Optional(End.And(S))).And(Optional(Char(':').And(Optional(S.And(Step))))).Then<IStatement>(static x => throw new NotImplementedException());
+    public static Parser<IStatement> SliceSelector = Optional<int?>(Start.And(S).Then<int?>(static x => x.Item1), null).And(Char(':')).And(S).And(Optional<int?>(End.And(S).Then<int?>(static x => x.Item1), null)).And(Optional<int?>(Char(':').And(Optional<int?>(S.And(Step).Then<int?>(static x => x.Item2), null)).Then<int?>(static x => x.Item2))).Then<IStatement>(static x => new SliceStatement() { Start = x.Item1, End = x.Item4, Step = x.Item5 });
 
     public static Deferred<IStatement> LogicalExpr = Deferred<IStatement>();
 

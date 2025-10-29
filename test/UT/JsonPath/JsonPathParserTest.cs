@@ -11,6 +11,13 @@ public class JsonPathParserTest
     [InlineData("sss.s", true, "sss")]
     [InlineData("dsd[sd]csd", true, "dsd")]
     [InlineData("[sd]csd", false, "")]
+    [InlineData(",sd]csd", false, "")]
+    [InlineData("]sd]csd", false, "")]
+    [InlineData("(sd]csd", false, "")]
+    [InlineData(")sd]csd", false, "")]
+    [InlineData(".sd]csd", false, "")]
+    [InlineData("\"sd]csd", false, "")]
+    [InlineData("'sd]csd", false, "")]
     public void MemberNameShorthandTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.MemberNameShorthand;
@@ -54,6 +61,7 @@ public class JsonPathParserTest
     }
 
     [Theory]
+    [InlineData("\"ss\\\"s\"", true, "ss\\\"s")]
     [InlineData("\"ss\r\ns\"", true, "ss\r\ns")]
     [InlineData("\"sss\"", true, "sss")]
     [InlineData("'sss'", true, "sss")]
@@ -123,5 +131,27 @@ public class JsonPathParserTest
         Assert.Equal(r, b);
         if (r)
             Assert.Equal(rr, v);
+    }
+
+    [Theory]
+    [InlineData(": ", true, null, null, null)]
+    [InlineData("2: ", true, 2, null, null)]
+    [InlineData("22: 33", true, 22, 33, null)]
+    [InlineData("22: 33 : 99", true, 22, 33, 99)]
+    [InlineData(": 33 : 99", true, null, 33, 99)]
+    [InlineData(": 33 ", true, null, 33, null)]
+    public void SliceSelectorTest(string test, bool r, int? start, int? end, int? step)
+    {
+        var p = JsonPathParser.SliceSelector;
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+        {
+            var s = v as SliceStatement;
+            Assert.NotNull(s);
+            Assert.Equal(start, s.Start);
+            Assert.Equal(end, s.End);
+            Assert.Equal(step, s.Step);
+        }
     }
 }

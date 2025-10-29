@@ -20,7 +20,7 @@ public class ExcludeLiteral : Parser<TextSpan>
         {
             var span = cursor.Span;
             int i = span.IndexOfAny(exclude);
-            if (i >= 0)
+            if (i > 0)
             {
                 var start = cursor.Offset;
                 cursor.Advance(i);
@@ -28,7 +28,7 @@ public class ExcludeLiteral : Parser<TextSpan>
                 context.ExitParser(this);
                 return true;
             }
-            else
+            else if (i != 0)
             {
                 var start = cursor.Offset;
                 cursor.Advance(span.Length);

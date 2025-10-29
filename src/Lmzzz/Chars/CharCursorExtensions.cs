@@ -61,13 +61,21 @@ public static class CharCursorExtensions
         }
     }
 
-    public static bool ReadDecimal(this ICharCursor cursor, bool allowLeadingSign, bool allowDecimalSeparator, bool allowGroupSeparator, bool allowExponent, out ReadOnlySpan<char> number, char decimalSeparator = '.', char groupSeparator = ',')
+    public static bool ReadDecimal(this ICharCursor cursor, bool allowLeadingSignPlus, bool allowLeadingSignMinus, bool allowDecimalSeparator, bool allowGroupSeparator, bool allowExponent, out ReadOnlySpan<char> number, char decimalSeparator = '.', char groupSeparator = ',')
     {
         var start = cursor.Position;
 
-        if (allowLeadingSign)
+        if (allowLeadingSignMinus)
         {
-            if (cursor.Current is '-' or '+')
+            if (cursor.Current is '-')
+            {
+                cursor.AdvanceNoNewLines(1);
+            }
+        }
+
+        if (allowLeadingSignPlus)
+        {
+            if (cursor.Current is '+')
             {
                 cursor.AdvanceNoNewLines(1);
             }

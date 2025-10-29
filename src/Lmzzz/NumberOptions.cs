@@ -12,9 +12,9 @@ public enum NumberOptions
 
     /// <summary>
     /// Indicates that the numeric string can have a leading sign. Valid leading sign
-    /// characters are plus (+) and minus (-).
+    /// characters are minus (-).
     /// </summary>
-    AllowLeadingSign = 1,
+    AllowLeadingSignMinus = 1,
 
     /// <summary>
     /// Indicates that the numeric string can have a decimal separator. By default it uses dot (.) as the separator.
@@ -36,26 +36,32 @@ public enum NumberOptions
     AllowExponent = 8,
 
     /// <summary>
-    /// Indicates that the <see cref="AllowLeadingSign"/>
+    /// Indicates that the numeric string can have a leading sign. Valid leading sign
+    /// characters are plus (+) .
+    /// </summary>
+    AllowLeadingSignPlus = 16,
+
+    /// <summary>
+    /// Indicates that the <see cref="AllowLeadingSignMinus"/>
     /// style is used. This is a composite number style.
     /// </summary>
-    Integer = AllowLeadingSign,
+    Integer = AllowLeadingSignMinus,
 
     /// <summary>
-    /// Indicates that the <see cref="AllowLeadingSign"/>, <see cref="AllowDecimalSeparator"/>, <see cref="AllowGroupSeparators"/>
+    /// Indicates that the <see cref="AllowLeadingSignMinus"/>, <see cref="AllowDecimalSeparator"/>, <see cref="AllowGroupSeparators"/>
     /// styles are used. This is a composite number style.
     /// </summary>
-    Number = AllowLeadingSign | AllowDecimalSeparator | AllowGroupSeparators,
+    Number = AllowLeadingSignMinus | AllowDecimalSeparator | AllowGroupSeparators,
 
     /// <summary>
-    /// Indicates that the <see cref="AllowLeadingSign"/>, <see cref="AllowDecimalSeparator"/>, <see cref="AllowExponent"/>
+    /// Indicates that the <see cref="AllowLeadingSignMinus"/>, <see cref="AllowDecimalSeparator"/>, <see cref="AllowExponent"/>
     /// styles are used. This is a composite number style.
     /// </summary>
-    Float = AllowLeadingSign | AllowDecimalSeparator | AllowExponent,
+    Float = AllowLeadingSignMinus | AllowDecimalSeparator | AllowExponent,
 
     /// <summary>
     /// Indicates that all options are used.
     /// This is a composite number style.
     /// </summary>
-    Any = AllowLeadingSign | AllowDecimalSeparator | AllowGroupSeparators | AllowExponent,
+    Any = AllowLeadingSignMinus | AllowDecimalSeparator | AllowGroupSeparators | AllowExponent | AllowLeadingSignPlus,
 }

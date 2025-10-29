@@ -42,7 +42,12 @@ public static partial class Character
     {
         var numberStyles = NumberStyles.None;
 
-        if (numberOptions.HasFlag(NumberOptions.AllowLeadingSign))
+        if (numberOptions.HasFlag(NumberOptions.AllowLeadingSignPlus))
+        {
+            numberStyles |= NumberStyles.AllowLeadingSign;
+        }
+
+        if (numberOptions.HasFlag(NumberOptions.AllowLeadingSignMinus))
         {
             numberStyles |= NumberStyles.AllowLeadingSign;
         }

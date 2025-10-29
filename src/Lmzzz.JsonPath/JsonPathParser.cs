@@ -18,10 +18,9 @@ public class JsonPathParser
     public static Parser<decimal> Int = Decimal(NumberOptions.Integer);
     public static Parser<char> DoubleQuoted = Char('"');
     public static Parser<char> SingleQuoted = Char('\'');
-    public static Parser<TextSpan> Unescaped = Any("\\\r\n", mustHasEnd: true, escape: '\\');
     public static Parser<char> WildcardSelector = Char('*');
     public static Parser<decimal> IndexSelector = Int;
-    public static Parser<TextSpan> StringLiteral = Between(DoubleQuoted, Unescaped, DoubleQuoted).Or(Between(SingleQuoted, Unescaped, SingleQuoted));
+    public static Parser<TextSpan> StringLiteral = Between(DoubleQuoted, ZeroOrOne(Any("\"", mustHasEnd: true, escape: '\\')), DoubleQuoted).Or(Between(SingleQuoted, ZeroOrOne(Any("'", mustHasEnd: true, escape: '\\')), SingleQuoted));
     public static Parser<TextSpan> NameSelector = StringLiteral;
     public static Parser<decimal> Start = Int;
     public static Parser<decimal> End = Int;

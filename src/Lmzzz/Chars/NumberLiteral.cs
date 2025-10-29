@@ -17,7 +17,8 @@ public sealed class NumberLiteral<T> : Parser<T>
     private readonly char _groupSeparator;
     private readonly NumberStyles _numberStyles;
     private readonly CultureInfo _culture = CultureInfo.InvariantCulture;
-    private readonly bool _allowLeadingSign;
+    private readonly bool _allowLeadingSignPlus;
+    private readonly bool _allowLeadingSignMinus;
     private readonly bool _allowDecimalSeparator;
     private readonly bool _allowGroupSeparator;
     private readonly bool _allowExponent;
@@ -36,7 +37,8 @@ public sealed class NumberLiteral<T> : Parser<T>
             _culture.NumberFormat.NumberGroupSeparator = groupSeparator.ToString();
         }
 
-        _allowLeadingSign = (numberOptions & NumberOptions.AllowLeadingSign) != 0;
+        _allowLeadingSignMinus = (numberOptions & NumberOptions.AllowLeadingSignMinus) != 0;
+        _allowLeadingSignPlus = (numberOptions & NumberOptions.AllowLeadingSignPlus) != 0;
         _allowDecimalSeparator = (numberOptions & NumberOptions.AllowDecimalSeparator) != 0;
         _allowGroupSeparator = (numberOptions & NumberOptions.AllowGroupSeparators) != 0;
         _allowExponent = (numberOptions & NumberOptions.AllowExponent) != 0;
@@ -49,7 +51,7 @@ public sealed class NumberLiteral<T> : Parser<T>
         var reset = context.Cursor.Position;
         var start = reset.Offset;
 
-        if (context.Cursor.ReadDecimal(_allowLeadingSign, _allowDecimalSeparator, _allowGroupSeparator, _allowExponent, out var number, _decimalSeparator, _groupSeparator))
+        if (context.Cursor.ReadDecimal(_allowLeadingSignPlus, _allowLeadingSignMinus, _allowDecimalSeparator, _allowGroupSeparator, _allowExponent, out var number, _decimalSeparator, _groupSeparator))
         {
             var end = context.Cursor.Offset;
 

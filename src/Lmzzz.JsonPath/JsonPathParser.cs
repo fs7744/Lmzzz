@@ -18,10 +18,10 @@ public class JsonPathParser
     public static Parser<int> Int = Int();
     public static Parser<char> DoubleQuoted = Char('"');
     public static Parser<char> SingleQuoted = Char('\'');
-    public static Parser<char> WildcardSelector = Char('*');
-    public static Parser<int> IndexSelector = Int;
+    public static Parser<IStatement> WildcardSelector = Char('*').Then<IStatement>(static x => WildcardSelectorStatment.Value);
+    public static Parser<IStatement> IndexSelector = Int.Then<IStatement>(static x => new IndexSelectorStatment() { Index = x });
     public static Parser<TextSpan> StringLiteral = Between(DoubleQuoted, ZeroOrOne(Any("\"", mustHasEnd: true, escape: '\\')), DoubleQuoted).Or(Between(SingleQuoted, ZeroOrOne(Any("'", mustHasEnd: true, escape: '\\')), SingleQuoted));
-    public static Parser<TextSpan> NameSelector = StringLiteral;
+    public static Parser<IStatement> NameSelector = StringLiteral.Then<IStatement>(static x => new Member() { Name = x.Span.ToString() });
     public static Parser<int> Start = Int;
     public static Parser<int> End = Int;
     public static Parser<int> Step = Int;
@@ -64,7 +64,7 @@ public class JsonPathParser
         Statement = x.Item3
     });
 
-    public static Parser<IStatement> Selector = NameSelector.Then<IStatement>(static x => throw new NotImplementedException()).Or(WildcardSelector.Then<IStatement>(static x => throw new NotImplementedException())).Or(SliceSelector).Or(IndexSelector.Then<IStatement>(static x => throw new NotImplementedException())).Or(FilterSelector);
+    public static Parser<IStatement> Selector = NameSelector.Or(WildcardSelector).Or(SliceSelector).Or(IndexSelector).Or(FilterSelector);
 
     public static Parser<IStatement> ParenExpr = Optional(LogicalNotOp.And(S)).And(Char('(')).And(S).And(LogicalExpr).And(S).And(Char(')'))
         .Then<IStatement>(static x => new UnaryOperaterStatement()
@@ -73,18 +73,36 @@ public class JsonPathParser
             Statement = x.Item4
         });
 
-    //public static Deferred<IStatement> MemberNameShorthand = Deferred<IStatement>();
     public static Deferred<IStatement> Segments = Deferred<IStatement>();
 
     public static Deferred<IStatement> FunctionExpr = Deferred<IStatement>();
     public static Deferred<IStatement> JsonPathQuery = Deferred<IStatement>();
     public static Parser<IStatement> RelQuery = CurrentNodeIdentifier.And(Segments).Then<IStatement>(static x => new CurrentNode() { Child = x.Item2 });
     public static Parser<IStatement> Literal = Num.Or(StringLiteral.Then<IStatement>(static x => new StringValue(x.Span.ToString()))).Or(True).Or(False).Or(Null);
-    public static Parser<IStatement> NameSegment = Char('[').And(NameSelector).And(Char(']')).Then<IStatement>(static x => throw new NotImplementedException()).Or(Char('.').And(MemberNameShorthand).Then<IStatement>(static x => throw new NotImplementedException()));
-    public static Parser<IStatement> IndexSegment = Char('[').And(IndexSelector).And(Char(']')).Then<IStatement>(static x => new IndexSelectorStatment() { Index = x.Item2 });
-    public static Parser<IStatement> SingularQuerySegments = ZeroOrMany(S.And(NameSegment.Or(IndexSegment))).Then<IStatement>(static x => throw new NotImplementedException());
-    public static Parser<IStatement> RelSingularQuery = CurrentNodeIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => throw new NotImplementedException());
-    public static Parser<IStatement> AbsSingularQuery = RootIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => throw new NotImplementedException());
+    public static Parser<IStatement> NameSegment = Char('[').And(NameSelector).And(Char(']')).Then<IStatement>(static x => x.Item2).Or(Char('.').And(MemberNameShorthand).Then<IStatement>(static x => x.Item2));
+    public static Parser<IStatement> IndexSegment = Char('[').And(IndexSelector).And(Char(']')).Then<IStatement>(static x => x.Item2);
+
+    public static Parser<IStatement> SingularQuerySegments = ZeroOrMany(S.And(NameSegment.Or(IndexSegment))).Then<IStatement>(static x =>
+    {
+        if (x == null || x.Count == 0)
+        {
+            return null;
+        }
+        else if (x.Count == 1)
+            return x[0].Item2;
+        else
+        {
+            var current = x.Last().Item2;
+            for (int i = x.Count - 2; i >= 0; i--)
+            {
+                current = new LinkNode() { Current = x[i].Item2, Child = current };
+            }
+            return current;
+        }
+    });
+
+    public static Parser<IStatement> RelSingularQuery = CurrentNodeIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => new CurrentNode() { Child = x.Item2 });
+    public static Parser<IStatement> AbsSingularQuery = RootIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => new RootNode() { Child = x.Item2 });
     public static Parser<IStatement> SingularQuery = RelSingularQuery.Or(AbsSingularQuery);
     public static Parser<IStatement> Comparable = Literal.Or(SingularQuery).Or(FunctionExpr);
     public static Parser<IStatement> ComparisonExpr = Comparable.And(S).And(ComparisonOp).And(S).And(Comparable).Then<IStatement>(static x => new OperatorStatement() { Left = x.Item1, Operator = x.Item3, Right = x.Item5 });
@@ -95,9 +113,9 @@ public class JsonPathParser
     public static Parser<IStatement> LogicalAndExpr = BasicExpr.And(ZeroOrMany(S.And(Text("&&")).And(S).And(BasicExpr))).Then<IStatement>(static x => throw new NotImplementedException());
     public static Parser<IStatement> LogicalOrExpr = LogicalAndExpr.And(ZeroOrMany(S.And(Text("||")).And(S).And(LogicalAndExpr))).Then<IStatement>(static x => throw new NotImplementedException());
     public static Parser<IStatement> BracketedSelection = Char('[').And(S).And(Selector).And(ZeroOrMany(S.And(Char(',')).And(Selector))).And(S).And(Char(']')).Then<IStatement>(static x => throw new NotImplementedException());
-    public static Parser<IStatement> ChildSegment = BracketedSelection.Or(Char('.').And(WildcardSelector.Then<IStatement>(static x => throw new NotImplementedException()).Or(MemberNameShorthand)).Then<IStatement>(static x => throw new NotImplementedException())).Then<IStatement>(static x => throw new NotImplementedException());
+    public static Parser<IStatement> ChildSegment = BracketedSelection.Or(Char('.').And(WildcardSelector.Or(MemberNameShorthand)).Then<IStatement>(static x => throw new NotImplementedException())).Then<IStatement>(static x => throw new NotImplementedException());
 
-    public static Parser<IStatement> DescendantSegment = Char('.').And(Char('.')).And(BracketedSelection.Then<IStatement>(static x => throw new NotImplementedException()).Or(WildcardSelector.Then<IStatement>(static x => throw new NotImplementedException())).Or(MemberNameShorthand)).Then<IStatement>(static x => throw new NotImplementedException());
+    public static Parser<IStatement> DescendantSegment = Char('.').And(Char('.')).And(BracketedSelection.Then<IStatement>(static x => throw new NotImplementedException()).Or(WildcardSelector).Or(MemberNameShorthand)).Then<IStatement>(static x => throw new NotImplementedException());
     public static Parser<IStatement> Segment = ChildSegment.Or(DescendantSegment);
 
     static JsonPathParser()

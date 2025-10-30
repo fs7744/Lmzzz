@@ -168,4 +168,172 @@ public class JsonPathParserTest
         if (r)
             Assert.Equal(rr, (v as IndexSelectorStatment).Index);
     }
+
+    [Theory]
+    [InlineData("*", true)]
+    [InlineData("[2]*", false)]
+    [InlineData("[2", false)]
+    [InlineData("[2..]", false)]
+    public void WildcardSelectorTest(string test, bool r)
+    {
+        var p = JsonPathParser.WildcardSelector;
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.IsType<WildcardSelectorStatment>(v);
+    }
+
+    [Theory]
+    [InlineData("\"ss\\\"s\"", true, "ss\\\"s")]
+    [InlineData("\"ss\r\ns\"", true, "ss\r\ns")]
+    [InlineData("\"sss\"", true, "sss")]
+    [InlineData("'sss'", true, "sss")]
+    [InlineData("sss", false, "")]
+    public void NameSelectorTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.NameSelector;
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, (v as Member).Name);
+    }
+
+    [Theory]
+    [InlineData("[\"ss\\\"s\"]", true, "ss\\\"s")]
+    [InlineData("[\"ss\r\ns\"]", true, "ss\r\ns")]
+    [InlineData("[\"sss\"]", true, "sss")]
+    [InlineData("['sss']", true, "sss")]
+    [InlineData("[sss]", false, "")]
+    [InlineData(".sss", true, "sss")]
+    [InlineData(".ss.s", true, "ss")]
+    [InlineData("sss", false, "")]
+    public void NameSegmentTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.NameSegment;
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, (v as Member).Name);
+    }
+
+    [Theory]
+    [InlineData("[\"ss\\\"s\"]", true, "ss\\\"s")]
+    [InlineData("['s']['d']", true, "s.d")]
+    [InlineData("['s']['d']['d']['d']['d']['d']['d']", true, "s.d.d.d.d.d.d")]
+    [InlineData("[1][3]", true, "1.3")]
+    [InlineData("[1]['s'][3]", true, "1.s.3")]
+    [InlineData("[s]['d']", true, null)]
+    [InlineData("[+99]['d']", true, null)]
+    public void SingularQuerySegmentsTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.SingularQuerySegments;
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, JoinLikNode(v));
+    }
+
+    [Theory]
+    [InlineData("@[\"ss\\\"s\"]", true, "@.ss\\\"s")]
+    [InlineData("@['s']['d']", true, "@.s.d")]
+    [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.s.d.d.d.d.d.d")]
+    [InlineData("@[1][3]", true, "@.1.3")]
+    [InlineData("@[1]['s'][3]", true, "@.1.s.3")]
+    [InlineData("@[s]['d']", false, null)]
+    [InlineData("@[+99]['d']", false, null)]
+    [InlineData("[+99]['d']", false, null)]
+    public void RelSingularQueryTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.RelSingularQuery.Eof();
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, JoinLikNode(v));
+    }
+
+    [Theory]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.ss\\\"s")]
+    [InlineData("$['s']['d']", true, "$.s.d")]
+    [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.s.d.d.d.d.d.d")]
+    [InlineData("$[1][3]", true, "$.1.3")]
+    [InlineData("$[1]['s'][3]", true, "$.1.s.3")]
+    [InlineData("$[s]['d']", false, null)]
+    [InlineData("$[+99]['d']", false, null)]
+    [InlineData("[+99]['d']", false, null)]
+    public void AbsSingularQueryTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.AbsSingularQuery.Eof();
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, JoinLikNode(v));
+    }
+
+    [Theory]
+    [InlineData("@[\"ss\\\"s\"]", true, "@.ss\\\"s")]
+    [InlineData("@['s']['d']", true, "@.s.d")]
+    [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.s.d.d.d.d.d.d")]
+    [InlineData("@[1][3]", true, "@.1.3")]
+    [InlineData("@[1]['s'][3]", true, "@.1.s.3")]
+    [InlineData("@[s]['d']", false, null)]
+    [InlineData("@[+99]['d']", false, null)]
+    [InlineData("[+99]['d']", false, null)]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.ss\\\"s")]
+    [InlineData("$['s']['d']", true, "$.s.d")]
+    [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.s.d.d.d.d.d.d")]
+    [InlineData("$[1][3]", true, "$.1.3")]
+    [InlineData("$[1]['s'][3]", true, "$.1.s.3")]
+    [InlineData("$[s]['d']", false, null)]
+    [InlineData("$[+99]['d']", false, null)]
+    public void SingularQueryTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.SingularQuery.Eof();
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, JoinLikNode(v));
+    }
+
+    public static string JoinLikNode(IStatement statement)
+    {
+        if (statement is null)
+            return null;
+        else if (statement is Member m)
+            return m.Name;
+        else if (statement is IndexSelectorStatment i)
+            return i.Index.ToString();
+        else if (statement is WildcardSelectorStatment)
+            return "*";
+        else if (statement is CurrentNode node)
+        {
+            return "@" + (node.Child is not null ? "." + JoinLikNode(node.Child) : "");
+        }
+        else if (statement is RootNode rn)
+        {
+            return "$" + (rn.Child is not null ? "." + JoinLikNode(rn.Child) : "");
+        }
+        else if (statement is LinkNode ln)
+        {
+            var sb = new System.Text.StringBuilder();
+            IStatement cc = ln;
+            while (cc is not null)
+            {
+                if (cc is LinkNode c)
+                {
+                    sb.Append(JoinLikNode(c.Current));
+                    cc = c.Child;
+                    if (cc is not null)
+                        sb.Append(".");
+                }
+                else
+                {
+                    sb.Append(JoinLikNode(cc));
+                    cc = null;
+                }
+            }
+            return sb.ToString();
+        }
+        else
+            throw new NotSupportedException($"Not supported statement type: {statement.GetType().FullName}");
+    }
 }

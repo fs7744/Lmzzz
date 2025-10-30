@@ -30,6 +30,19 @@ public static partial class Parsers
         return new CharLiteral(string.Join("", chars));
     }
 
+    public static Parser<char> Char(string chars)
+    {
+        return new CharLiteral(chars);
+    }
+
+    public static Parser<Nothing> IgnoreChar(char c) => new IgnoreCharLiteral(c.ToString());
+
+    public static Parser<Nothing> IgnoreChar(char start, char end) => new IgnoreCharLiteral(string.Join("", Enumerable.Range((int)start, (int)end - (int)start).Select(i => (char)i)));
+
+    public static Parser<Nothing> IgnoreChar(char[] chars) => new IgnoreCharLiteral(string.Join("", chars));
+
+    public static Parser<Nothing> IgnoreChar(string chars) => new IgnoreCharLiteral(chars);
+
     public static Parser<string> Text(string text, bool ordinalIgnoreCase = false) => new TextLiteral(text, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
     public static Parser<TextSpan> AnyExclude(string exclude) => new ExcludeLiteral(exclude);
@@ -49,6 +62,8 @@ public static partial class Parsers
     public static Parser<T> Optional<T>(Parser<T> parser) where T : notnull => ZeroOrOne(parser);
 
     public static Parser<IReadOnlyList<T>> ZeroOrMany<T>(Parser<T> parser) => new ZeroOrMany<T>(parser);
+
+    public static Parser<Nothing> IgnoreZeroOrMany<T>(Parser<T> parser) => new IgnoreZeroOrMany<T>(parser);
 
     public static Parser<IReadOnlyList<T>> OneOrMany<T>(Parser<T> parser) => new OneOrMany<T>(parser);
 

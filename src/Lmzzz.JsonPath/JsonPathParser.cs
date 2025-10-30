@@ -7,12 +7,12 @@ namespace Lmzzz.JsonPath;
 
 public class JsonPathParser
 {
-    public static Parser<char> B = Char(new char[]
-    { (char)0x20, // Space
-      (char)0x09, //Horizontal tab
-      (char)0x0A, // Line feed or New line
-      (char)0x0D // Carriage return
-    });
+    //public static Parser<char> B = Char(new char[]
+    //{ (char)0x20, // Space
+    //  (char)0x09, //Horizontal tab
+    //  (char)0x0A, // Line feed or New line
+    //  (char)0x0D // Carriage return
+    //});
 
     public static Parser<char> RootIdentifier = Char('$');
     public static Parser<int> Int = Int();
@@ -25,7 +25,14 @@ public class JsonPathParser
     public static Parser<int> Start = Int;
     public static Parser<int> End = Int;
     public static Parser<int> Step = Int;
-    public static Parser<IReadOnlyList<char>> S = ZeroOrMany(B);
+
+    public static Parser<Nothing> S = IgnoreChar(new char[]
+    { (char)0x20, // Space
+      (char)0x09, //Horizontal tab
+      (char)0x0A, // Line feed or New line
+      (char)0x0D // Carriage return
+    });
+
     public static Parser<char> CurrentNodeIdentifier = Char('@');
     public static Parser<char> LogicalNotOp = Char('!');
     public static Parser<string> ComparisonOp = Text("==").Or(Text("!=")).Or(Text("<=")).Or(Text(">=")).Or(Text("<")).Or(Text(">"));

@@ -265,6 +265,33 @@ public class TermsTest
         Assert.Equal(["f"], c);
     }
 
+    [Fact]
+    public void IgnoreZeroOrManyText()
+    {
+        var f = IgnoreZeroOrMany(Char(" \r\n"));
+        Assert.True(f.TryParse(" ", out var c, out var err));
+        Assert.Equal(Nothing.Value, c);
+
+        Assert.True(f.TryParse("f.f1.y", out c, out err));
+        Assert.Equal(Nothing.Value, c);
+    }
+
+    [Fact]
+    public void IgnoreCharText()
+    {
+        var f = IgnoreChar(" \r\n");
+        var c = new ParseResult<Nothing>();
+        Assert.True(f.Parse(new CharParseContext(new StringCursor(" \r\n23d \r\n")), ref c));
+        Assert.Equal(Nothing.Value, c.Value);
+        Assert.Equal(0, c.Start);
+        Assert.Equal(2, c.End);
+
+        Assert.True(f.Parse(new CharParseContext(new StringCursor("f.f1.y")), ref c));
+        Assert.Equal(Nothing.Value, c.Value);
+        Assert.Equal(0, c.Start);
+        Assert.Equal(0, c.End);
+    }
+
     //[Fact]
     //public void Test()
     //{

@@ -125,7 +125,9 @@ public class JsonPathParser
         var list = new List<IStatement> { x.Item3 };
         if (x.Item4 != null)
             list.AddRange(x.Item4.Select(y => y.Item3));
-        return new UnionSelectionStatement(list);
+        if (list.Count == 0)
+            return null;
+        return list.Count == 1 ? list[0] : new UnionSelectionStatement(list);
     });
 
     public static readonly Parser<IStatement> ChildSegment = BracketedSelection.Or(Char('.').And(WildcardSelector.Or(MemberNameShorthand)).Then<IStatement>(static x => x.Item2));

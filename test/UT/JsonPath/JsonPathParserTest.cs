@@ -230,7 +230,7 @@ public class JsonPathParserTest
         var b = p.TryParse(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
-            Assert.Equal(rr, JoinLikNode(v));
+            Assert.Equal(rr, ToTestString(v));
     }
 
     [Theory]
@@ -248,7 +248,7 @@ public class JsonPathParserTest
         var b = p.TryParse(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
-            Assert.Equal(rr, JoinLikNode(v));
+            Assert.Equal(rr, ToTestString(v));
     }
 
     [Theory]
@@ -266,7 +266,7 @@ public class JsonPathParserTest
         var b = p.TryParse(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
-            Assert.Equal(rr, JoinLikNode(v));
+            Assert.Equal(rr, ToTestString(v));
     }
 
     [Theory]
@@ -291,10 +291,24 @@ public class JsonPathParserTest
         var b = p.TryParse(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
-            Assert.Equal(rr, JoinLikNode(v));
+            Assert.Equal(rr, ToTestString(v));
     }
 
-    public static string JoinLikNode(IStatement statement)
+    [Theory]
+    [InlineData("$", true, "$")]
+    [InlineData("$$", false, "")]
+    [InlineData("@", false, "")]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.ss\\\"s")]
+    public void JsonPathParsersTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.Parser;
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, ToTestString(v));
+    }
+
+    public static string ToTestString(IStatement statement)
     {
         if (statement is null)
             return null;
@@ -304,13 +318,56 @@ public class JsonPathParserTest
             return i.Index.ToString();
         else if (statement is WildcardSelectorStatment)
             return "*";
+        else if (statement is SliceStatement s)
+        {
+            return $"{(s.Start.HasValue ? s.Start.Value.ToString() : "")}:{(s.End.HasValue ? s.End.Value.ToString() : "")}{(s.Step.HasValue ? " :" + s.Step.Value.ToString() : "")}";
+        }
+        else if (statement is FunctionStatement f)
+        {
+            return $"{f.Name}({string.Join(",", f.Arguments.Select(ToTestString))})";
+        }
+        else if (statement is OperatorStatement o)
+        {
+            return $"{ToTestString(o.Left)} {o.Operator} {ToTestString(o.Right)}";
+        }
+        else if (statement is AndStatement and)
+        {
+            return $"({ToTestString(and.Left)} && {ToTestString(and.Right)})";
+        }
+        else if (statement is OrStatement or)
+        {
+            return $"({ToTestString(or.Left)} || {ToTestString(or.Right)})";
+        }
         else if (statement is CurrentNode node)
         {
-            return "@" + (node.Child is not null ? "." + JoinLikNode(node.Child) : "");
+            return "@" + (node.Child is not null ? "." + ToTestString(node.Child) : "");
         }
         else if (statement is RootNode rn)
         {
-            return "$" + (rn.Child is not null ? "." + JoinLikNode(rn.Child) : "");
+            return "$" + (rn.Child is not null ? "." + ToTestString(rn.Child) : "");
+        }
+        else if (statement is UnionSelectionStatement u)
+        {
+            return $"[{string.Join(",", u.List.Select(ToTestString))}]";
+        }
+        else if (statement is IStatementValue v)
+        {
+            return (v.Value ?? "null").ToString();
+        }
+        else if (statement is UnaryOperaterStatement uo)
+        {
+            if (uo.Operator.Equals("("))
+            {
+                return "(" + ToTestString(uo.Statement) + ")";
+            }
+            else if (uo.Operator.Equals("!"))
+            {
+                return "!(" + ToTestString(uo.Statement) + ")";
+            }
+            else
+            {
+                throw new NotSupportedException($"Not supported UnaryOperaterStatement Operator: {uo.Operator}");
+            }
         }
         else if (statement is LinkNode ln)
         {
@@ -320,14 +377,14 @@ public class JsonPathParserTest
             {
                 if (cc is LinkNode c)
                 {
-                    sb.Append(JoinLikNode(c.Current));
+                    sb.Append(ToTestString(c.Current));
                     cc = c.Child;
                     if (cc is not null)
                         sb.Append(".");
                 }
                 else
                 {
-                    sb.Append(JoinLikNode(cc));
+                    sb.Append(ToTestString(cc));
                     cc = null;
                 }
             }

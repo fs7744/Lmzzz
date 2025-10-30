@@ -1,6 +1,6 @@
 ﻿namespace Lmzzz.JsonPath.Statements;
 
-internal class UnionSelectionStatement : IStatement
+public class UnionSelectionStatement : IStatement
 {
     public UnionSelectionStatement(List<IStatement> list)
     {

@@ -1,0 +1,6 @@
+﻿namespace Lmzzz.JsonPath.Statements;
+
+public class IndexSelectorStatment : IStatement
+{
+    public int Index { get; set; }
+}

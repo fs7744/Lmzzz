@@ -81,7 +81,7 @@ public class JsonPathParser
     public static Parser<IStatement> RelQuery = CurrentNodeIdentifier.And(Segments).Then<IStatement>(static x => new CurrentNode() { Child = x.Item2 });
     public static Parser<IStatement> Literal = Num.Or(StringLiteral.Then<IStatement>(static x => new StringValue(x.Span.ToString()))).Or(True).Or(False).Or(Null);
     public static Parser<IStatement> NameSegment = Char('[').And(NameSelector).And(Char(']')).Then<IStatement>(static x => throw new NotImplementedException()).Or(Char('.').And(MemberNameShorthand).Then<IStatement>(static x => throw new NotImplementedException()));
-    public static Parser<IStatement> IndexSegment = Char('[').And(IndexSelector).And(Char(']')).Then<IStatement>(static x => throw new NotImplementedException());
+    public static Parser<IStatement> IndexSegment = Char('[').And(IndexSelector).And(Char(']')).Then<IStatement>(static x => new IndexSelectorStatment() { Index = x.Item2 });
     public static Parser<IStatement> SingularQuerySegments = ZeroOrMany(S.And(NameSegment.Or(IndexSegment))).Then<IStatement>(static x => throw new NotImplementedException());
     public static Parser<IStatement> RelSingularQuery = CurrentNodeIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => throw new NotImplementedException());
     public static Parser<IStatement> AbsSingularQuery = RootIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => throw new NotImplementedException());

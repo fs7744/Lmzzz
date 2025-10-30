@@ -154,4 +154,18 @@ public class JsonPathParserTest
             Assert.Equal(step, s.Step);
         }
     }
+
+    [Theory]
+    [InlineData("[-2]", true, -2)]
+    [InlineData("[2]", true, 2)]
+    [InlineData("[2", false, 0)]
+    [InlineData("[2..]", false, 0)]
+    public void IndexSegmentTest(string test, bool r, int rr)
+    {
+        var p = JsonPathParser.IndexSegment;
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, (v as IndexSelectorStatment).Index);
+    }
 }

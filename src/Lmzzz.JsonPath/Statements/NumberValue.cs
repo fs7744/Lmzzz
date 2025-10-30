@@ -10,4 +10,9 @@ public class NumberValue : IStatementValue
     public decimal Value { get; }
 
     object IStatementValue.Value => Value;
+
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
 }

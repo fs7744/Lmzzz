@@ -5,4 +5,9 @@ public class SliceStatement : IStatement
     public int? Start { get; set; }
     public int? End { get; set; }
     public int? Step { get; set; }
+
+    public override string ToString()
+    {
+        return $"{(Start.HasValue ? Start.Value.ToString() : "")}:{(End.HasValue ? End.Value.ToString() : "")}{(Step.HasValue ? " :" + Step.Value.ToString() : "")}";
+    }
 }

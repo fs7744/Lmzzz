@@ -15,4 +15,9 @@ public class BoolValue : IStatementValue
     object IStatementValue.Value => Value;
 
     public static BoolValue From(bool x) => x ? True : False;
+
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
 }

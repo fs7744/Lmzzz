@@ -10,4 +10,9 @@ public class StringValue : IStatementValue
     public string Value { get; }
 
     object IStatementValue.Value => Value;
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }

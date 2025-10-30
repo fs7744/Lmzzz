@@ -217,11 +217,11 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("[\"ss\\\"s\"]", true, "ss\\\"s")]
-    [InlineData("['s']['d']", true, "s.d")]
-    [InlineData("['s']['d']['d']['d']['d']['d']['d']", true, "s.d.d.d.d.d.d")]
-    [InlineData("[1][3]", true, "1.3")]
-    [InlineData("[1]['s'][3]", true, "1.s.3")]
+    [InlineData("[\"ss\\\"s\"]", true, "[ss\\\"s]")]
+    [InlineData("['s']['d']", true, "[s].[d]")]
+    [InlineData("['s']['d']['d']['d']['d']['d']['d']", true, "[s].[d].[d].[d].[d].[d].[d]")]
+    [InlineData("[1][3]", true, "[1].[3]")]
+    [InlineData("[1]['s'][3]", true, "[1].[s].[3]")]
     [InlineData("[s]['d']", true, null)]
     [InlineData("[+99]['d']", true, null)]
     public void SingularQuerySegmentsTest(string test, bool r, string rr)
@@ -234,11 +234,11 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("@[\"ss\\\"s\"]", true, "@.ss\\\"s")]
-    [InlineData("@['s']['d']", true, "@.s.d")]
-    [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.s.d.d.d.d.d.d")]
-    [InlineData("@[1][3]", true, "@.1.3")]
-    [InlineData("@[1]['s'][3]", true, "@.1.s.3")]
+    [InlineData("@[\"ss\\\"s\"]", true, "@.[ss\\\"s]")]
+    [InlineData("@['s']['d']", true, "@.[s].[d]")]
+    [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.[s].[d].[d].[d].[d].[d].[d]")]
+    [InlineData("@[1][3]", true, "@.[1].[3]")]
+    [InlineData("@[1]['s'][3]", true, "@.[1].[s].[3]")]
     [InlineData("@[s]['d']", false, null)]
     [InlineData("@[+99]['d']", false, null)]
     [InlineData("[+99]['d']", false, null)]
@@ -252,11 +252,11 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("$[\"ss\\\"s\"]", true, "$.ss\\\"s")]
-    [InlineData("$['s']['d']", true, "$.s.d")]
-    [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.s.d.d.d.d.d.d")]
-    [InlineData("$[1][3]", true, "$.1.3")]
-    [InlineData("$[1]['s'][3]", true, "$.1.s.3")]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\\\"s]")]
+    [InlineData("$['s']['d']", true, "$.[s].[d]")]
+    [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.[s].[d].[d].[d].[d].[d].[d]")]
+    [InlineData("$[1][3]", true, "$.[1].[3]")]
+    [InlineData("$[1]['s'][3]", true, "$.[1].[s].[3]")]
     [InlineData("$[s]['d']", false, null)]
     [InlineData("$[+99]['d']", false, null)]
     [InlineData("[+99]['d']", false, null)]
@@ -270,19 +270,19 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("@[\"ss\\\"s\"]", true, "@.ss\\\"s")]
-    [InlineData("@['s']['d']", true, "@.s.d")]
-    [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.s.d.d.d.d.d.d")]
-    [InlineData("@[1][3]", true, "@.1.3")]
-    [InlineData("@[1]['s'][3]", true, "@.1.s.3")]
+    [InlineData("@[\"ss\\\"s\"]", true, "@.[ss\\\"s]")]
+    [InlineData("@['s']['d']", true, "@.[s].[d]")]
+    [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.[s].[d].[d].[d].[d].[d].[d]")]
+    [InlineData("@[1][3]", true, "@.[1].[3]")]
+    [InlineData("@[1]['s'][3]", true, "@.[1].[s].[3]")]
     [InlineData("@[s]['d']", false, null)]
     [InlineData("@[+99]['d']", false, null)]
     [InlineData("[+99]['d']", false, null)]
-    [InlineData("$[\"ss\\\"s\"]", true, "$.ss\\\"s")]
-    [InlineData("$['s']['d']", true, "$.s.d")]
-    [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.s.d.d.d.d.d.d")]
-    [InlineData("$[1][3]", true, "$.1.3")]
-    [InlineData("$[1]['s'][3]", true, "$.1.s.3")]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\\\"s]")]
+    [InlineData("$['s']['d']", true, "$.[s].[d]")]
+    [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.[s].[d].[d].[d].[d].[d].[d]")]
+    [InlineData("$[1][3]", true, "$.[1].[3]")]
+    [InlineData("$[1]['s'][3]", true, "$.[1].[s].[3]")]
     [InlineData("$[s]['d']", false, null)]
     [InlineData("$[+99]['d']", false, null)]
     public void SingularQueryTest(string test, bool r, string rr)
@@ -298,7 +298,7 @@ public class JsonPathParserTest
     [InlineData("$", true, "$")]
     [InlineData("$$", false, "")]
     [InlineData("@", false, "")]
-    [InlineData("$[\"ss\\\"s\"]", true, "$.ss\\\"s")]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\\\"s]")]
     public void JsonPathParsersTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.Parser;
@@ -312,85 +312,86 @@ public class JsonPathParserTest
     {
         if (statement is null)
             return null;
-        else if (statement is Member m)
-            return m.Name;
-        else if (statement is IndexSelectorStatment i)
-            return i.Index.ToString();
-        else if (statement is WildcardSelectorStatment)
-            return "*";
-        else if (statement is SliceStatement s)
-        {
-            return $"{(s.Start.HasValue ? s.Start.Value.ToString() : "")}:{(s.End.HasValue ? s.End.Value.ToString() : "")}{(s.Step.HasValue ? " :" + s.Step.Value.ToString() : "")}";
-        }
-        else if (statement is FunctionStatement f)
-        {
-            return $"{f.Name}({string.Join(",", f.Arguments.Select(ToTestString))})";
-        }
-        else if (statement is OperatorStatement o)
-        {
-            return $"{ToTestString(o.Left)} {o.Operator} {ToTestString(o.Right)}";
-        }
-        else if (statement is AndStatement and)
-        {
-            return $"({ToTestString(and.Left)} && {ToTestString(and.Right)})";
-        }
-        else if (statement is OrStatement or)
-        {
-            return $"({ToTestString(or.Left)} || {ToTestString(or.Right)})";
-        }
-        else if (statement is CurrentNode node)
-        {
-            return "@" + (node.Child is not null ? "." + ToTestString(node.Child) : "");
-        }
-        else if (statement is RootNode rn)
-        {
-            return "$" + (rn.Child is not null ? "." + ToTestString(rn.Child) : "");
-        }
-        else if (statement is UnionSelectionStatement u)
-        {
-            return $"[{string.Join(",", u.List.Select(ToTestString))}]";
-        }
-        else if (statement is IStatementValue v)
-        {
-            return (v.Value ?? "null").ToString();
-        }
-        else if (statement is UnaryOperaterStatement uo)
-        {
-            if (uo.Operator.Equals("("))
-            {
-                return "(" + ToTestString(uo.Statement) + ")";
-            }
-            else if (uo.Operator.Equals("!"))
-            {
-                return "!(" + ToTestString(uo.Statement) + ")";
-            }
-            else
-            {
-                throw new NotSupportedException($"Not supported UnaryOperaterStatement Operator: {uo.Operator}");
-            }
-        }
-        else if (statement is LinkNode ln)
-        {
-            var sb = new System.Text.StringBuilder();
-            IStatement cc = ln;
-            while (cc is not null)
-            {
-                if (cc is LinkNode c)
-                {
-                    sb.Append(ToTestString(c.Current));
-                    cc = c.Child;
-                    if (cc is not null)
-                        sb.Append(".");
-                }
-                else
-                {
-                    sb.Append(ToTestString(cc));
-                    cc = null;
-                }
-            }
-            return sb.ToString();
-        }
-        else
-            throw new NotSupportedException($"Not supported statement type: {statement.GetType().FullName}");
+        return statement.ToString();
+        //else if (statement is Member m)
+        //    return m.Name;
+        //else if (statement is IndexSelectorStatment i)
+        //    return i.Index.ToString();
+        //else if (statement is WildcardSelectorStatment)
+        //    return "*";
+        //else if (statement is SliceStatement s)
+        //{
+        //    return $"{(s.Start.HasValue ? s.Start.Value.ToString() : "")}:{(s.End.HasValue ? s.End.Value.ToString() : "")}{(s.Step.HasValue ? " :" + s.Step.Value.ToString() : "")}";
+        //}
+        //else if (statement is FunctionStatement f)
+        //{
+        //    return $"{f.Name}({string.Join(",", f.Arguments.Select(ToTestString))})";
+        //}
+        //else if (statement is OperatorStatement o)
+        //{
+        //    return $"{ToTestString(o.Left)} {o.Operator} {ToTestString(o.Right)}";
+        //}
+        //else if (statement is AndStatement and)
+        //{
+        //    return $"({ToTestString(and.Left)} && {ToTestString(and.Right)})";
+        //}
+        //else if (statement is OrStatement or)
+        //{
+        //    return $"({ToTestString(or.Left)} || {ToTestString(or.Right)})";
+        //}
+        //else if (statement is CurrentNode node)
+        //{
+        //    return "@" + (node.Child is not null ? "." + ToTestString(node.Child) : "");
+        //}
+        //else if (statement is RootNode rn)
+        //{
+        //    return "$" + (rn.Child is not null ? "." + ToTestString(rn.Child) : "");
+        //}
+        //else if (statement is UnionSelectionStatement u)
+        //{
+        //    return $"[{string.Join(",", u.List.Select(ToTestString))}]";
+        //}
+        //else if (statement is IStatementValue v)
+        //{
+        //    return (v.Value ?? "null").ToString();
+        //}
+        //else if (statement is UnaryOperaterStatement uo)
+        //{
+        //    if (uo.Operator.Equals("("))
+        //    {
+        //        return "(" + ToTestString(uo.Statement) + ")";
+        //    }
+        //    else if (uo.Operator.Equals("!"))
+        //    {
+        //        return "!(" + ToTestString(uo.Statement) + ")";
+        //    }
+        //    else
+        //    {
+        //        throw new NotSupportedException($"Not supported UnaryOperaterStatement Operator: {uo.Operator}");
+        //    }
+        //}
+        //else if (statement is LinkNode ln)
+        //{
+        //    var sb = new System.Text.StringBuilder();
+        //    IStatement cc = ln;
+        //    while (cc is not null)
+        //    {
+        //        if (cc is LinkNode c)
+        //        {
+        //            sb.Append(ToTestString(c.Current));
+        //            cc = c.Child;
+        //            if (cc is not null)
+        //                sb.Append(".");
+        //        }
+        //        else
+        //        {
+        //            sb.Append(ToTestString(cc));
+        //            cc = null;
+        //        }
+        //    }
+        //    return sb.ToString();
+        //}
+        //else
+        //    throw new NotSupportedException($"Not supported statement type: {statement.GetType().FullName}");
     }
 }

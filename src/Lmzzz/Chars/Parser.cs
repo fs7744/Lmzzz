@@ -2,6 +2,8 @@
 
 public abstract class Parser<T>
 {
+    public string Name { get; set; }
+
     public abstract bool Parse(CharParseContext context, ref ParseResult<T> result);
 
     public bool TryParse(CharParseContext context, out T value, out ParseException? error)
@@ -34,4 +36,9 @@ public abstract class Parser<T>
     public Parser<U> Then<U>(Func<T, U> conversion) => new Then<T, U>(this, conversion);
 
     #endregion Then
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
+    }
 }

@@ -30,6 +30,23 @@ public static class CharCursorExtensions
         return parser.TryParse(c, out value, out error);
     }
 
+    public static bool TryParseResult<T>(this Parser<T> parser, string context, out ParseResult<T> result, out ParseException? error, Action<CharParseContext> setup = null)
+    {
+        var c = new CharParseContext(new StringCursor(context));
+        setup?.Invoke(c);
+        error = null;
+        result = new ParseResult<T>();
+        try
+        {
+            return parser.Parse(c, ref result);
+        }
+        catch (ParseException e)
+        {
+            error = e;
+        }
+        return false;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool ReadInteger(this ICharCursor cursor) => cursor.ReadInteger(out _);
 

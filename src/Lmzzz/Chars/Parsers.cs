@@ -1,12 +1,17 @@
 ﻿using System.Buffers;
-using System.Linq;
 using System.Numerics;
 
 namespace Lmzzz.Chars.Fluent;
 
 public static partial class Parsers
 {
-    public static Deferred<T> Deferred<T>() => new();
+    public static Deferred<T> Deferred<T>(string name = null) => new() { Name = name };
+
+    public static Parser<T> Name<T>(this Parser<T> parser, string name)
+    {
+        parser.Name = name;
+        return parser;
+    }
 
     public static Parser<T> IgnoreSeparator<T>(Parser<T> parser) => new IgnoreSeparator<T>(parser);
 

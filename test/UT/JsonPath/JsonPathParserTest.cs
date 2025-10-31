@@ -297,6 +297,52 @@ public class JsonPathParserTest
     }
 
     [Theory]
+    [InlineData("[*,*]", true, "[*,*]")]
+    public void BracketedSelectionTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.BracketedSelection.Eof();
+        var b = p.TryParse(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, ToTestString(v));
+    }
+
+    [Theory]
+    [InlineData("'kilo'", true, "kilo")]
+    [InlineData("@.b", true, "@.[b]")]
+    [InlineData("@.b ==", false, "")]
+    public void ComparableTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.Comparable.Eof();
+        var b = p.TryParseResult(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, ToTestString(v.Value));
+    }
+
+    [Theory]
+    [InlineData("@.b == 'kilo'", true, "(@.[b] == kilo)")]
+    public void ComparisonExprTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.ComparisonExpr.Eof();
+        var b = p.TryParseResult(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, ToTestString(v.Value));
+    }
+
+    [Theory]
+    [InlineData("?@.b == 'kilo'", true, "?((@.[b] == kilo))")]
+    public void FilterSelectorTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.FilterSelector.Eof();
+        var b = p.TryParseResult(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, ToTestString(v.Value));
+    }
+
+    [Theory]
     [InlineData("$", true, "$")]
     [InlineData("$$", false, "")]
     [InlineData("@", false, "")]
@@ -304,7 +350,7 @@ public class JsonPathParserTest
     [InlineData("$.[\"ss\\\"s\"]", false, "")]
     [InlineData("$[1]", true, "$.[1]")]
     [InlineData("$['store']['book'][0]['title']", true, "$.[store].[book].[0].[title]")]
-    [InlineData("$.store.book[?@.price < 10].title", true, "$.[store].[book].?(@.[price < 10]).[title]")]
+    [InlineData("$.store.book[?@.price < 10].title", true, "$.[store].[book].?((@.[price] < 10)).[title]")]
     [InlineData("$.store.book[*].author", true, "$.[store].[book].*.[author]")]
     [InlineData("$..author", true, "$.*.[author]")]
     [InlineData("$.store.*", true, "$.[store].*")]
@@ -314,9 +360,9 @@ public class JsonPathParserTest
     [InlineData("$..book[2].publisher", true, "$.*.[book].[2].[publisher]")]
     [InlineData("$..book[-1]", true, "$.*.[book].[-1]")]
     [InlineData("$..book[0,1]", true, "$.*.[book].[[0],[1]]")]
-    [InlineData("$..book[:2]", true, "$.*.[book].:2")]
+    [InlineData("$..book[:2]", true, "$.*.[book].:2:")]
     [InlineData("$..book[?@.isbn]", true, "$.*.[book].?(@.[isbn])")]
-    [InlineData("$..book[?@.price<10]", true, "$.*.[book].?(@.[price<10])")]
+    [InlineData("$..book[?@.price<10]", true, "$.*.[book].?((@.[price] < 10))")]
     [InlineData("$..*", true, "$.*.*")]
     [InlineData("$.o['j j']", true, "$.[o].[j j]")]
     [InlineData("$['o']['j j']", true, "$.[o].[j j]")]
@@ -325,13 +371,36 @@ public class JsonPathParserTest
     [InlineData("$.o[\"j j\"][\"k.k\"]", true, "$.[o].[j j].[k.k]")]
     [InlineData("$[\"'\"][\"@\"]", true, "$.['].[@]")]
     [InlineData("$['\\'']['@']", true, "$.['].[@]")]
+    [InlineData("$[*]", true, "$.*")]
+    [InlineData("$.o[*]", true, "$.[o].*")]
+    [InlineData("$.o[*,*]", true, "$.[o].[*,*]")]
+    [InlineData("$.a[*]", true, "$.[a].*")]
+    [InlineData("$[1:3]", true, "$.1:3:")]
+    [InlineData("$[5:]", true, "$.5::")]
+    [InlineData("$[1:5:2]", true, "$.1:5:2")]
+    [InlineData("$[5:1:-2]", true, "$.5:1:-2")]
+    [InlineData("$[::-1]", true, "$.::-1")]
+    [InlineData("$.a[?@.b == 'kilo']", true, "$.[a].?((@.[b] == kilo))")]
+    [InlineData("$.a[?(@.b == 'kilo')]", true, "$.[a].?(((@.[b] == kilo)))")]
+    [InlineData("$.a[?@>3.5]", true, "$.[a].?((@ > 3.5))")]
+    [InlineData("$.a[?@.b]", true, "$.[a].?(@.[b])")]
+    [InlineData("$[?@.*]", true, "$.?(@.*)")]
+    [InlineData("$[?@[?@.b]]", true, "$.?(@.?(@.[b]))")]
+    [InlineData("$.o[?@<3, ?@<3]", true, "")]
+    [InlineData("$.a[?@<2 || @.b == \"k\"]", true, "$.[a].?(((@ < 2) || (@.[b] == k)))")]
+    [InlineData("$.a[?match(@.b, \"[jk]\")]", true, "$.[a].?(match(@.[b],[jk]))")]
+    [InlineData("$.a[?search(@.b, \"[jk]\")]", true, "$.[a].?(search(@.[b],[jk]))")]
+    [InlineData("$.o[?@>1 && @<4]", true, "$.[o].?(((@ > 1) && (@ < 4)))")]
+    [InlineData("$.o[?@.u || @.x]", true, "$.[o].?((@.[u] || @.[x]))")]
+    [InlineData("$.a[?@.b == $.x]", true, "$.[a].?((@.[b] == $.[x]))")]
+    [InlineData("$.a[?@ == @]", true, "$.[a].?((@ == @))")]
     public void JsonPathParsersTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.Parser;
-        var b = p.TryParse(test, out var v, out var err);
+        var b = p.TryParseResult(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
-            Assert.Equal(rr, ToTestString(v));
+            Assert.Equal(rr, ToTestString(v.Value));
     }
 
     public static string ToTestString(IStatement statement)

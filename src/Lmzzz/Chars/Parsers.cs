@@ -47,9 +47,9 @@ public static partial class Parsers
 
     public static Parser<TextSpan> AnyExclude(string exclude) => new ExcludeLiteral(exclude);
 
-    public static Parser<TextSpan> Any(char end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => Any(end.ToString(), ordinalIgnoreCase, mustHasEnd, escape);
+    public static Parser<TextSpan> Any(char end, bool mustHasEnd = false, char? escape = null) => Any(end.ToString(), mustHasEnd, escape);
 
-    public static Parser<TextSpan> Any(string end, bool ordinalIgnoreCase = false, bool mustHasEnd = false, char? escape = null) => new AnyLiteral(end, ordinalIgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal, mustHasEnd, escape);
+    public static Parser<TextSpan> Any(string end, bool mustHasEnd = false, char? escape = null) => new AnyLiteral(end, mustHasEnd, escape);
 
     public static Parser<TextSpan> AnyBefore<T>(Parser<T> parser, bool canBeEmpty = false, bool failOnEof = false, bool consumeDelimiter = false) => new TextBefore<T>(parser, canBeEmpty, failOnEof, consumeDelimiter);
 

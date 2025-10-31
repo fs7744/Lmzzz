@@ -51,7 +51,7 @@ public class TermsTest
         var t = String().Eof();
 
         Assert.True(t.TryParse("\"1\\\"2\"", out var c, out var err));
-        Assert.Equal("1\\\"2", c);
+        Assert.Equal("1\"2", c);
         Assert.Null(err);
 
         Assert.True(t.TryParse("\"12\"", out c, out err));
@@ -69,7 +69,7 @@ public class TermsTest
         t = String('\'').Eof();
 
         Assert.True(t.TryParse("'1\\'2'", out c, out err));
-        Assert.Equal("1\\'2", c);
+        Assert.Equal("1'2", c);
         Assert.Null(err);
 
         Assert.True(t.TryParse("'12'", out c, out err));
@@ -82,6 +82,20 @@ public class TermsTest
 
         Assert.True(t.TryParse("''", out c, out err));
         Assert.Equal("", c);
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("'1\\\\\\'2'", out c, out err));
+        Assert.Equal("1\\'2", c);
+        Assert.Null(err);
+
+        Assert.True(t.TryParse("'1\\\\\\'2dasdadadad\\\\sdsdadad\\\\adas'", out c, out err));
+        Assert.Equal("1\\'2dasdadadad\\sdsdadad\\adas", c);
+        Assert.Null(err);
+
+        Assert.False(t.TryParse("'1\\\\\\'2dasdadadad\\sdsdadad\\\\adas'", out c, out err));
+        Assert.Null(err);
+
+        Assert.False(t.TryParse("'1\\\\\\'2dasdadadad\\", out c, out err));
         Assert.Null(err);
     }
 
@@ -108,20 +122,20 @@ public class TermsTest
     [Fact]
     public void AnyTest()
     {
-        var t = Any("{{", true);
+        var t = Any("{", true);
         Assert.True(t.TryParse(" \r\n   xada/l;fslffp{salfas;f{{", out var c, out var err));
-        Assert.Equal(" \r\n   xada/l;fslffp{salfas;f", c);
+        Assert.Equal(" \r\n   xada/l;fslffp", c);
         Assert.Null(err);
 
         Assert.True(t.TryParse(" \r\n   xada/l;fslf大大大fp{salfas;f{{ 大打发打发发发", out c, out err));
-        Assert.Equal(" \r\n   xada/l;fslf大大大fp{salfas;f", c);
+        Assert.Equal(" \r\n   xada/l;fslf大大大fp", c);
         Assert.Null(err);
 
         Assert.True(t.TryParse(" \r\n   xada/l;fslf大大大fp{salfas;f{ 大打发打发发发", out c, out err));
-        Assert.Equal(" \r\n   xada/l;fslf大大大fp{salfas;f{ 大打发打发发发", c);
+        Assert.Equal(" \r\n   xada/l;fslf大大大fp", c);
         Assert.Null(err);
 
-        t = Any('{', true);
+        t = Any('{', false);
         Assert.True(t.TryParse(" \r\n   xada/l;fslffp{salfas;f{{", out c, out err));
         Assert.Equal(" \r\n   xada/l;fslffp", c);
         Assert.Null(err);
@@ -134,7 +148,7 @@ public class TermsTest
         Assert.Equal(" \r\n   xada/l;fslf大大大fpsalfas;f 大打发打发发发", c);
         Assert.Null(err);
 
-        t = Any('{', true, true);
+        t = Any('{', true);
         Assert.True(t.TryParse(" \r\n   xada/l;fslffp{salfas;f{{", out c, out err));
         Assert.Equal(" \r\n   xada/l;fslffp", c);
         Assert.Null(err);
@@ -190,7 +204,7 @@ public class TermsTest
     [Fact]
     public void BetweenText()
     {
-        var t = Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}")));
+        var t = Between(IgnoreSeparator(Text("{{")), Any("}}", true), IgnoreSeparator(Text("}}")));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Equal(" \r\n   sdda\r\ndad", c);
         Assert.Null(err);
@@ -199,7 +213,7 @@ public class TermsTest
     [Fact]
     public void ZeroOrOneText()
     {
-        var t = ZeroOrOne(Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}"))));
+        var t = ZeroOrOne(Between(IgnoreSeparator(Text("{{")), Any("}}", true), IgnoreSeparator(Text("}}"))));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Equal(" \r\n   sdda\r\ndad", c);
         Assert.Null(err);
@@ -212,7 +226,7 @@ public class TermsTest
     [Fact]
     public void ZeroOrManyText()
     {
-        var t = ZeroOrMany(Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}"))));
+        var t = ZeroOrMany(Between(IgnoreSeparator(Text("{{")), Any("}}", true), IgnoreSeparator(Text("}}"))));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Single(c);
         Assert.Equal(" \r\n   sdda\r\ndad", c[0]);
@@ -232,7 +246,7 @@ public class TermsTest
     [Fact]
     public void OneOrManyText()
     {
-        var t = OneOrMany(Between(IgnoreSeparator(Text("{{")), Any("}}", false, true), IgnoreSeparator(Text("}}"))));
+        var t = OneOrMany(Between(IgnoreSeparator(Text("{{")), Any("}}", true), IgnoreSeparator(Text("}}"))));
         Assert.True(t.TryParse(" \r\n   {{ \r\n   sdda\r\ndad}} dada\r\n", out var c, out var err));
         Assert.Single(c);
         Assert.Equal(" \r\n   sdda\r\ndad", c[0]);

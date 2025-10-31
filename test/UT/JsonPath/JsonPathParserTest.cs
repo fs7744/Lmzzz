@@ -61,7 +61,7 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("\"ss\\\"s\"", true, "ss\\\"s")]
+    [InlineData("\"ss\\\"s\"", true, "ss\"s")]
     [InlineData("\"ss\r\ns\"", true, "ss\r\ns")]
     [InlineData("\"sss\"", true, "sss")]
     [InlineData("'sss'", true, "sss")]
@@ -184,14 +184,15 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("\"ss\\\"s\"", true, "ss\\\"s")]
+    [InlineData("\"ss\\\"s\"", true, "ss\"s")]
     [InlineData("\"ss\r\ns\"", true, "ss\r\ns")]
     [InlineData("\"sss\"", true, "sss")]
     [InlineData("'sss'", true, "sss")]
     [InlineData("sss", false, "")]
+    [InlineData("'k.k'", true, "k.k")]
     public void NameSelectorTest(string test, bool r, string rr)
     {
-        var p = JsonPathParser.NameSelector;
+        var p = JsonPathParser.NameSelector.Eof();
         var b = p.TryParse(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
@@ -199,17 +200,18 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("[\"ss\\\"s\"]", true, "ss\\\"s")]
+    [InlineData("[\"ss\\\"s\"]", true, "ss\"s")]
     [InlineData("[\"ss\r\ns\"]", true, "ss\r\ns")]
     [InlineData("[\"sss\"]", true, "sss")]
     [InlineData("['sss']", true, "sss")]
     [InlineData("[sss]", false, "")]
     [InlineData(".sss", true, "sss")]
-    [InlineData(".ss.s", true, "ss")]
+    [InlineData(".ss.s", false, "")]
     [InlineData("sss", false, "")]
+    [InlineData("['k.k']", true, "k.k")]
     public void NameSegmentTest(string test, bool r, string rr)
     {
-        var p = JsonPathParser.NameSegment;
+        var p = JsonPathParser.NameSegment.Eof();
         var b = p.TryParse(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
@@ -217,7 +219,7 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("[\"ss\\\"s\"]", true, "[ss\\\"s]")]
+    [InlineData("[\"ss\\\"s\"]", true, "[ss\"s]")]
     [InlineData("['s']['d']", true, "[s].[d]")]
     [InlineData("['s']['d']['d']['d']['d']['d']['d']", true, "[s].[d].[d].[d].[d].[d].[d]")]
     [InlineData("[1][3]", true, "[1].[3]")]
@@ -234,7 +236,7 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("@[\"ss\\\"s\"]", true, "@.[ss\\\"s]")]
+    [InlineData("@[\"ss\\\"s\"]", true, "@.[ss\"s]")]
     [InlineData("@['s']['d']", true, "@.[s].[d]")]
     [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.[s].[d].[d].[d].[d].[d].[d]")]
     [InlineData("@[1][3]", true, "@.[1].[3]")]
@@ -252,7 +254,7 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\\\"s]")]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\"s]")]
     [InlineData("$['s']['d']", true, "$.[s].[d]")]
     [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.[s].[d].[d].[d].[d].[d].[d]")]
     [InlineData("$[1][3]", true, "$.[1].[3]")]
@@ -270,7 +272,7 @@ public class JsonPathParserTest
     }
 
     [Theory]
-    [InlineData("@[\"ss\\\"s\"]", true, "@.[ss\\\"s]")]
+    [InlineData("@[\"ss\\\"s\"]", true, "@.[ss\"s]")]
     [InlineData("@['s']['d']", true, "@.[s].[d]")]
     [InlineData("@['s']['d']['d']['d']['d']['d']['d']", true, "@.[s].[d].[d].[d].[d].[d].[d]")]
     [InlineData("@[1][3]", true, "@.[1].[3]")]
@@ -278,7 +280,7 @@ public class JsonPathParserTest
     [InlineData("@[s]['d']", false, null)]
     [InlineData("@[+99]['d']", false, null)]
     [InlineData("[+99]['d']", false, null)]
-    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\\\"s]")]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\"s]")]
     [InlineData("$['s']['d']", true, "$.[s].[d]")]
     [InlineData("$['s']['d']['d']['d']['d']['d']['d']", true, "$.[s].[d].[d].[d].[d].[d].[d]")]
     [InlineData("$[1][3]", true, "$.[1].[3]")]
@@ -298,7 +300,31 @@ public class JsonPathParserTest
     [InlineData("$", true, "$")]
     [InlineData("$$", false, "")]
     [InlineData("@", false, "")]
-    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\\\"s]")]
+    [InlineData("$[\"ss\\\"s\"]", true, "$.[ss\"s]")]
+    [InlineData("$.[\"ss\\\"s\"]", false, "")]
+    [InlineData("$[1]", true, "$.[1]")]
+    [InlineData("$['store']['book'][0]['title']", true, "$.[store].[book].[0].[title]")]
+    [InlineData("$.store.book[?@.price < 10].title", true, "$.[store].[book].?(@.[price < 10]).[title]")]
+    [InlineData("$.store.book[*].author", true, "$.[store].[book].*.[author]")]
+    [InlineData("$..author", true, "$.*.[author]")]
+    [InlineData("$.store.*", true, "$.[store].*")]
+    [InlineData("$.store..price", true, "$.[store].*.[price]")]
+    [InlineData("$..book[2]", true, "$.*.[book].[2]")]
+    [InlineData("$..book[2].author", true, "$.*.[book].[2].[author]")]
+    [InlineData("$..book[2].publisher", true, "$.*.[book].[2].[publisher]")]
+    [InlineData("$..book[-1]", true, "$.*.[book].[-1]")]
+    [InlineData("$..book[0,1]", true, "$.*.[book].[[0],[1]]")]
+    [InlineData("$..book[:2]", true, "$.*.[book].:2")]
+    [InlineData("$..book[?@.isbn]", true, "$.*.[book].?(@.[isbn])")]
+    [InlineData("$..book[?@.price<10]", true, "$.*.[book].?(@.[price<10])")]
+    [InlineData("$..*", true, "$.*.*")]
+    [InlineData("$.o['j j']", true, "$.[o].[j j]")]
+    [InlineData("$['o']['j j']", true, "$.[o].[j j]")]
+    [InlineData("$.o['j j']['k.k']", true, "$.[o].[j j].[k.k]")]
+    [InlineData("$['o']['j j']['k.k']", true, "$.[o].[j j].[k.k]")]
+    [InlineData("$.o[\"j j\"][\"k.k\"]", true, "$.[o].[j j].[k.k]")]
+    [InlineData("$[\"'\"][\"@\"]", true, "$.['].[@]")]
+    [InlineData("$['\\'']['@']", true, "$.['].[@]")]
     public void JsonPathParsersTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.Parser;

@@ -69,7 +69,7 @@ public class JsonPathParser
     public static readonly Parser<IStatement> ParenExpr = Optional(LogicalNotOp.And(S)).And(Char('(')).And(S).And(LogicalExpr).And(S).And(Char(')'))
         .Then<IStatement>(static x => new UnaryOperaterStatement()
         {
-            Operator = x.Item1.Item1.ToString(),
+            Operator = x.Item1.Item1 == '!' ? "!" : "(",
             Statement = x.Item4
         });
 
@@ -91,7 +91,7 @@ public class JsonPathParser
     public static readonly Parser<IStatement> ComparisonExpr = Comparable.And(S).And(ComparisonOp).And(S).And(Comparable).Then<IStatement>(static x => new OperatorStatement() { Left = x.Item1, Operator = x.Item3, Right = x.Item5 });
     public static readonly Parser<IStatement> FilterQuery = RelQuery.Or(JsonPathQuery);
     public static readonly Parser<IStatement> FunctionArgument = Literal.Or(FilterQuery).Or(LogicalExpr).Or(FunctionExpr);
-    public static readonly Parser<IStatement> TestExpr = Optional(LogicalNotOp.And(S)).And(FilterQuery.Or(FunctionExpr)).Then<IStatement>(static x => new UnaryOperaterStatement() { Operator = x.Item1.Item1.ToString(), Statement = x.Item2 });
+    public static readonly Parser<IStatement> TestExpr = Optional(LogicalNotOp.And(S)).And(FilterQuery.Or(FunctionExpr)).Then<IStatement>(static x => x.Item1.Item1 == '!' ? new UnaryOperaterStatement() { Operator = "!", Statement = x.Item2 } : x.Item2);
     public static readonly Parser<IStatement> BasicExpr = ParenExpr.Or(ComparisonExpr).Or(TestExpr);
 
     public static readonly Parser<IStatement> LogicalAndExpr = BasicExpr.And(ZeroOrMany(S.And(Text("&&")).And(S).And(BasicExpr))).Then<IStatement>(static x =>

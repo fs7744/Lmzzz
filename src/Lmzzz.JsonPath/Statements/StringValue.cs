@@ -1,4 +1,6 @@
-﻿namespace Lmzzz.JsonPath.Statements;
+﻿using System.Text.Json.Nodes;
+
+namespace Lmzzz.JsonPath.Statements;
 
 public class StringValue : IStatementValue
 {
@@ -14,5 +16,10 @@ public class StringValue : IStatementValue
     public override string ToString()
     {
         return Value;
+    }
+
+    public JsonNode? Evaluate(JsonPathContext context)
+    {
+        return JsonValue.Create(Value);
     }
 }

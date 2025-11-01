@@ -1,7 +1,6 @@
 ﻿using Lmzzz.Chars;
 using Lmzzz.Chars.Fluent;
 using Lmzzz.JsonPath.Statements;
-using System.Collections.Generic;
 using static Lmzzz.Chars.Fluent.Parsers;
 
 namespace Lmzzz.JsonPath;

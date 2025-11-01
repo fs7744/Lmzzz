@@ -1,4 +1,6 @@
-﻿namespace Lmzzz.JsonPath.Statements;
+﻿using System.Text.Json.Nodes;
+
+namespace Lmzzz.JsonPath.Statements;
 
 public class UnionSelectionStatement : IStatement
 {
@@ -8,6 +10,11 @@ public class UnionSelectionStatement : IStatement
     }
 
     public IStatement[] List { get; }
+
+    public JsonNode? Evaluate(JsonPathContext context)
+    {
+        throw new NotImplementedException();
+    }
 
     public override string ToString()
     {

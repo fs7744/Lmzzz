@@ -1,4 +1,6 @@
-﻿namespace Lmzzz.JsonPath.Statements;
+﻿using System.Text.Json.Nodes;
+
+namespace Lmzzz.JsonPath.Statements;
 
 public class BoolValue : IStatementValue
 {
@@ -19,5 +21,10 @@ public class BoolValue : IStatementValue
     public override string ToString()
     {
         return Value.ToString();
+    }
+
+    public JsonNode? Evaluate(JsonPathContext context)
+    {
+        return JsonValue.Create(Value);
     }
 }

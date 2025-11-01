@@ -9,7 +9,8 @@ public class LinkNode : IStatement
 
     public JsonNode? Evaluate(JsonPathContext context)
     {
-        throw new NotImplementedException();
+        context.Current = Current.Evaluate(context);
+        return Child?.Evaluate(context);
     }
 
     public override string ToString()

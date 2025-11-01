@@ -8,7 +8,13 @@ public class IndexSelectorStatment : IStatement
 
     public JsonNode? Evaluate(JsonPathContext context)
     {
-        throw new NotImplementedException();
+        if (context.Current is null)
+            return null;
+
+        if (context.Current is JsonArray array && Index < array.Count)
+            return array[Index];
+
+        return null;
     }
 
     public override string ToString()

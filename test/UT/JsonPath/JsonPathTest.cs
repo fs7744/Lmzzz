@@ -1,15 +1,6 @@
 ﻿using Lmzzz.Chars.Fluent;
 using Lmzzz.JsonPath;
-using Lmzzz.JsonPath.Statements;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization.Metadata;
-using System.Threading.Tasks;
 
 namespace UT.JsonPath;
 
@@ -29,7 +20,13 @@ public class JsonPathTest
 
     private object data = new
     {
-        Num = -3.4
+        Num = -3.4,
+        Array = new object[]
+        {
+            new { Name = "Alice", Age = 30 },
+            new { Name = "Bob", Age = 25 },
+            new { Name = "Charlie", Age = 35 }
+        },
     };
 
     private string json;
@@ -40,12 +37,16 @@ public class JsonPathTest
     }
 
     [Theory]
-    [InlineData("$", "{\"Num\":-3.4}")]
+    [InlineData("$", "$")]
     [InlineData("$.Num", "-3.4")]
     [InlineData("$[\"Num\"]", "-3.4")]
     [InlineData("$['Num']", "-3.4")]
+    [InlineData("$.Array[1]", "{\"Name\":\"Bob\",\"Age\":25}")]
+    [InlineData("$.Array[0].Age", "30")]
     public void EvaluateJsonTest(string test, string r)
     {
+        if (r == "$")
+            r = json;
         Assert.True(JsonPathParser.Parser.TryParseResult(test, out var result, out var error));
         var s = result.Value;
         Assert.NotNull(s);
@@ -76,9 +77,11 @@ public class JsonPathTest
     }
 
     [Theory]
-    [InlineData("$", "{\"Num\":-3.4}")]
+    [InlineData("$", "$")]
     public void EvaluateObjectTest(string test, string r)
     {
+        if (r == "$")
+            r = json;
         Assert.True(JsonPathParser.Parser.TryParseResult(test, out var result, out var error));
         var s = result.Value;
         Assert.NotNull(s);

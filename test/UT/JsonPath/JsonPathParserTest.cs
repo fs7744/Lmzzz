@@ -1,6 +1,7 @@
 ﻿using Lmzzz.JsonPath;
 using Lmzzz.Chars.Fluent;
 using Lmzzz.JsonPath.Statements;
+using static Lmzzz.Chars.Fluent.Parsers;
 
 namespace UT.JsonPath;
 
@@ -298,6 +299,8 @@ public class JsonPathParserTest
 
     [Theory]
     [InlineData("[*,*]", true, "[*,*]")]
+    [InlineData("[?@<3, ?@<3]", true, "[?((@ < 3)),?((@ < 3))]")]
+    [InlineData("[ ? @ < 3 , ? @ < 3 ]", true, "[?((@ < 3)),?((@ < 3))]")]
     public void BracketedSelectionTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.BracketedSelection.Eof();
@@ -386,7 +389,7 @@ public class JsonPathParserTest
     [InlineData("$.a[?@.b]", true, "$.[a].?(@.[b])")]
     [InlineData("$[?@.*]", true, "$.?(@.*)")]
     [InlineData("$[?@[?@.b]]", true, "$.?(@.?(@.[b]))")]
-    [InlineData("$.o[?@<3, ?@<3]", true, "")]
+    [InlineData("$.o[?@<3, ?@<3]", true, "$.[o].[?((@ < 3)),?((@ < 3))]")]
     [InlineData("$.a[?@<2 || @.b == \"k\"]", true, "$.[a].?(((@ < 2) || (@.[b] == k)))")]
     [InlineData("$.a[?match(@.b, \"[jk]\")]", true, "$.[a].?(match(@.[b],[jk]))")]
     [InlineData("$.a[?search(@.b, \"[jk]\")]", true, "$.[a].?(search(@.[b],[jk]))")]
@@ -394,6 +397,24 @@ public class JsonPathParserTest
     [InlineData("$.o[?@.u || @.x]", true, "$.[o].?((@.[u] || @.[x]))")]
     [InlineData("$.a[?@.b == $.x]", true, "$.[a].?((@.[b] == $.[x]))")]
     [InlineData("$.a[?@ == @]", true, "$.[a].?((@ == @))")]
+    [InlineData("$[?length(@.authors) >= 5]", true, "$.?((length(@.[authors]) >= 5))")]
+    [InlineData("$[?count(@.*.author) >= 5]", true, "$.?((count(@.*.[author]) >= 5))")]
+    [InlineData("$[?match(@.date, \"1974-05-..\")]", true, "$.?(match(@.[date],1974-05-..))")]
+    [InlineData("$[?search(@.author, \"[BR]ob\")]", true, "$.?(search(@.[author],[BR]ob))")]
+    [InlineData("$[?value(@..color) == \"red\"]", true, "$.?((value(@.*.[color]) == red))")]
+    [InlineData("$[?length(@) < 3]", true, "$.?((length(@) < 3))")]
+    [InlineData("$[?length(@.*) < 3]", true, "$.?((length(@.*) < 3))")]
+    [InlineData("$[?count(@.*) == 1]", true, "$.?((count(@.*) == 1))")]
+    [InlineData("$[?count(1) == 1]", true, "$.?((count(1) == 1))")]
+    [InlineData("$[?count(foo(@.*)) == 1]", true, "$.?((count(foo(@.*)) == 1))")]
+    [InlineData("$[?match(@.timezone, 'Europe/.*')]", true, "$.?(match(@.[timezone],Europe/.*))")]
+    [InlineData("$[?match(@.timezone, 'Europe/.*') == true]", true, "$.?((match(@.[timezone],Europe/.*) == True))")]
+    [InlineData("$[?value(@..color)]", true, "$.?(value(@.*.[color]))")]
+    [InlineData("$[?bar(@.a)]", true, "$.?(bar(@.[a]))")]
+    [InlineData("$[?bnl(@.*)]", true, "$.?(bnl(@.*))")]
+    [InlineData("$[?blt(1==1)]", true, "")]
+    [InlineData("$[?blt(1)]", true, "$.?(blt(1))")]
+    [InlineData("$[?bal(1)]", true, "$.?(bal(1))")]
     public void JsonPathParsersTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.Parser;

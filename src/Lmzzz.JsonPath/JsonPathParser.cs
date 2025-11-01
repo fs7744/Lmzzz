@@ -1,6 +1,7 @@
 ﻿using Lmzzz.Chars;
 using Lmzzz.Chars.Fluent;
 using Lmzzz.JsonPath.Statements;
+using System.Collections.Generic;
 using static Lmzzz.Chars.Fluent.Parsers;
 
 namespace Lmzzz.JsonPath;
@@ -123,11 +124,12 @@ public class JsonPathParser
         return current;
     }).Name(nameof(LogicalOrExpr));
 
-    public static readonly Parser<IStatement> BracketedSelection = Char('[').And(S).And(Selector).And(ZeroOrMany(S.And(Char(',')).And(Selector))).And(S).And(Char(']')).Then<IStatement>(static x =>
+    public static readonly Parser<IStatement> BracketedSelection = Char('[').And(S).And(Selector).And(ZeroOrMany(S.And(Char(',')).And(S).And(Selector))).And(S).And(Char(']'))
+        .Then<IStatement>(static x =>
     {
         var list = new List<IStatement> { x.Item3 };
         if (x.Item4 != null)
-            list.AddRange(x.Item4.Select(y => y.Item3));
+            list.AddRange(x.Item4.Select(y => y.Item4));
         if (list.Count == 0)
             return null;
         return list.Count == 1 ? list[0] : new UnionSelectionStatement(list);

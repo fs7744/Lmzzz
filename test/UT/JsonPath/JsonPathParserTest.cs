@@ -141,6 +141,7 @@ public class JsonPathParserTest
     [InlineData("22: 33 : 99", true, 22, 33, 99)]
     [InlineData(": 33 : 99", true, null, 33, 99)]
     [InlineData(": 33 ", true, null, 33, null)]
+    [InlineData("22 :  33  :  99", true, 22, 33, 99)]
     public void SliceSelectorTest(string test, bool r, int? start, int? end, int? step)
     {
         var p = JsonPathParser.SliceSelector;

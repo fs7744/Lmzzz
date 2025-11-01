@@ -94,7 +94,7 @@ public class JsonPathParser
     public static readonly Parser<IStatement> Comparable = Literal.Or(SingularQuery).Or(FunctionExpr).Name(nameof(Comparable));
     public static readonly Parser<IStatement> ComparisonExpr = Comparable.And(S).And(ComparisonOp).And(S).And(Comparable).Then<IStatement>(static x => new OperatorStatement() { Left = x.Item1, Operator = x.Item3, Right = x.Item5 }).Name(nameof(ComparisonExpr));
     public static readonly Parser<IStatement> FilterQuery = RelQuery.Or(JsonPathQuery).Name(nameof(FilterQuery));
-    public static readonly Parser<IStatement> FunctionArgument = Literal.Or(FilterQuery).Or(LogicalExpr).Or(FunctionExpr).Name(nameof(FunctionArgument));
+    public static readonly Parser<IStatement> FunctionArgument = FilterQuery.Or(LogicalExpr).Or(FunctionExpr).Or(Literal).Name(nameof(FunctionArgument));
     public static readonly Parser<IStatement> TestExpr = Optional(LogicalNotOp.And(S)).And(FilterQuery.Or(FunctionExpr)).Then<IStatement>(static x => x.Item1.Item1 == '!' ? new UnaryOperaterStatement() { Operator = "!", Statement = x.Item2 } : x.Item2).Name(nameof(TestExpr));
     public static readonly Parser<IStatement> BasicExpr = ParenExpr.Or(ComparisonExpr).Or(TestExpr).Name(nameof(BasicExpr));
 

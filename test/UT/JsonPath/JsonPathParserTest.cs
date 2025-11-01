@@ -325,6 +325,7 @@ public class JsonPathParserTest
 
     [Theory]
     [InlineData("@.b == 'kilo'", true, "(@.[b] == kilo)")]
+    [InlineData("1==1", true, "(1 == 1)")]
     public void ComparisonExprTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.ComparisonExpr.Eof();
@@ -339,6 +340,17 @@ public class JsonPathParserTest
     public void FilterSelectorTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.FilterSelector.Eof();
+        var b = p.TryParseResult(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, ToTestString(v.Value));
+    }
+
+    [Theory]
+    [InlineData("1==1", true, "(1 == 1)")]
+    public void FunctionArgumentTest(string test, bool r, string rr)
+    {
+        var p = JsonPathParser.FunctionArgument.Eof();
         var b = p.TryParseResult(test, out var v, out var err);
         Assert.Equal(r, b);
         if (r)
@@ -412,7 +424,7 @@ public class JsonPathParserTest
     [InlineData("$[?value(@..color)]", true, "$.?(value(@.*.[color]))")]
     [InlineData("$[?bar(@.a)]", true, "$.?(bar(@.[a]))")]
     [InlineData("$[?bnl(@.*)]", true, "$.?(bnl(@.*))")]
-    [InlineData("$[?blt(1==1)]", true, "")]
+    [InlineData("$[?blt(1==1)]", true, "$.?(blt((1 == 1)))")]
     [InlineData("$[?blt(1)]", true, "$.?(blt(1))")]
     [InlineData("$[?bal(1)]", true, "$.?(bal(1))")]
     public void JsonPathParsersTest(string test, bool r, string rr)

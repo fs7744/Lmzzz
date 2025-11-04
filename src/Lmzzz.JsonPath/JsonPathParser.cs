@@ -18,7 +18,7 @@ public class JsonPathParser
     public static readonly Parser<int> Int = Int().Name(nameof(Int));
     public static readonly Parser<char> DoubleQuoted = Char('"').Name(nameof(DoubleQuoted));
     public static readonly Parser<char> SingleQuoted = Char('\'').Name(nameof(SingleQuoted));
-    public static readonly Parser<IStatement> WildcardSelector = Char('*').Then<IStatement>(static x => WildcardSelectorStatment.Value).Name(nameof(WildcardSelector));
+    public static readonly Parser<IStatement> WildcardSelector = Char('*').Then<IStatement>(static x => new WildcardSelectorStatment()).Name(nameof(WildcardSelector));
     public static readonly Parser<IStatement> IndexSelector = Int.Then<IStatement>(static x => new IndexSelectorStatment() { Index = x }).Name(nameof(IndexSelector));
     public static readonly Parser<TextSpan> StringLiteral = Between(DoubleQuoted, ZeroOrOne(Any("\"", mustHasEnd: true, escape: '\\')), DoubleQuoted).Or(Between(SingleQuoted, ZeroOrOne(Any("'", mustHasEnd: true, escape: '\\')), SingleQuoted)).Name(nameof(StringLiteral));
     public static readonly Parser<IStatement> NameSelector = StringLiteral.Then<IStatement>(static x => new Member() { Name = x.Span.ToString() }).Name(nameof(NameSelector));
@@ -136,7 +136,7 @@ public class JsonPathParser
 
     public static readonly Parser<IStatement> ChildSegment = BracketedSelection.Or(Char('.').And(WildcardSelector.Or(MemberNameShorthand)).Then<IStatement>(static x => x.Item2)).Name(nameof(ChildSegment));
 
-    public static readonly Parser<IStatement> DescendantSegment = Char('.').And(Char('.')).And(BracketedSelection.Or(WildcardSelector).Or(MemberNameShorthand)).Then<IStatement>(static x => new LinkNode() { Current = WildcardSelectorStatment.Value, Child = x.Item3 }).Name(nameof(DescendantSegment));
+    public static readonly Parser<IStatement> DescendantSegment = Char('.').And(Char('.')).And(BracketedSelection.Or(WildcardSelector).Or(MemberNameShorthand)).Then<IStatement>(static x => new WildcardSelectorStatment() { Child = x.Item3 }).Name(nameof(DescendantSegment));
     public static readonly Parser<IStatement> Segment = ChildSegment.Or(DescendantSegment).Name(nameof(Segment));
 
     public static readonly Parser<IStatement> Parser;
@@ -182,7 +182,35 @@ public class JsonPathParser
             var current = x.Last().Item2;
             for (int i = x.Count - 2; i >= 0; i--)
             {
-                current = new LinkNode() { Current = x[i].Item2, Child = current };
+                if (x[i].Item2 is IParentStatement p)
+                {
+                    var pp = p;
+                    while (pp.Child != null)
+                    {
+                        var pc = p.Child as IParentStatement;
+                        if (pc is null)
+                            throw new NotSupportedException($"Cannot set child for statement of type {p.GetType().FullName}");
+                        pp = pc;
+                    }
+                    pp.Child = current;
+                    current = p;
+                }
+                else
+                {
+                    throw new NotSupportedException($"Cannot set child for statement of type {x[i].Item2.GetType().FullName}");
+                }
+                //if (x[i].Item2 is WildcardSelectorStatment ws)
+                //{
+                //    if (ws.Child == null)
+                //    {
+                //        ws.Child = current;
+                //        current = ws;
+                //    }
+                //    else
+                //        ws.Child = new LinkNode() { Current = x[i].Item2, Child = current };
+                //}
+                //else
+                //    current = new LinkNode() { Current = x[i].Item2, Child = current };
             }
             return current;
         }

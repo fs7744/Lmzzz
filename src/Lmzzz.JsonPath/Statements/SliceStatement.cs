@@ -2,8 +2,9 @@
 
 namespace Lmzzz.JsonPath.Statements;
 
-public class SliceStatement : IStatement
+public class SliceStatement : IParentStatement
 {
+    public IStatement? Child { get; set; }
     public int? Start { get; set; }
     public int? End { get; set; }
     public int? Step { get; set; }
@@ -15,6 +16,6 @@ public class SliceStatement : IStatement
 
     public override string ToString()
     {
-        return $"{(Start.HasValue ? Start.Value.ToString() : "")}:{(End.HasValue ? End.Value.ToString() : "")}:{(Step.HasValue ? Step.Value.ToString() : "")}";
+        return Child.ToChildString($"{(Start.HasValue ? Start.Value.ToString() : "")}:{(End.HasValue ? End.Value.ToString() : "")}:{(Step.HasValue ? Step.Value.ToString() : "")}");
     }
 }

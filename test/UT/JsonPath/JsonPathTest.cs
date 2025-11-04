@@ -43,6 +43,11 @@ public class JsonPathTest
     [InlineData("$['Num']", "-3.4")]
     [InlineData("$.Array[1]", "{\"Name\":\"Bob\",\"Age\":25}")]
     [InlineData("$.Array[0].Age", "30")]
+    [InlineData("$.Array[-10].Age", "null")]
+    [InlineData("$.Array[-1].Age", "35")]
+    [InlineData("$.Array[2].Age", "35")]
+    [InlineData("$.*", "[-3.4,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$.*.*", "")]
     public void EvaluateJsonTest(string test, string r)
     {
         if (r == "$")

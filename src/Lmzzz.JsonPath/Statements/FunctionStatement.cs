@@ -2,8 +2,9 @@
 
 namespace Lmzzz.JsonPath.Statements;
 
-public class FunctionStatement : IStatement
+public class FunctionStatement : IParentStatement
 {
+    public IStatement? Child { get; set; }
     public string Name { get; set; }
     public IStatement[] Arguments { get; set; }
 
@@ -14,6 +15,6 @@ public class FunctionStatement : IStatement
 
     public override string ToString()
     {
-        return $"{Name}({string.Join(",", Arguments.Select(static x => x.ToString()))})";
+        return Child.ToChildString($"{Name}({string.Join(",", Arguments.Select(static x => x.ToString()))})");
     }
 }

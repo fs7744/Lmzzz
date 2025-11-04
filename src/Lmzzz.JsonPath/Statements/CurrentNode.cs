@@ -2,7 +2,7 @@
 
 namespace Lmzzz.JsonPath.Statements;
 
-public class CurrentNode : IStatement
+public class CurrentNode : IParentStatement
 {
     public IStatement? Child { get; set; }
 
@@ -13,6 +13,6 @@ public class CurrentNode : IStatement
 
     public override string ToString()
     {
-        return Child is not null ? $"@.{Child.ToString()}" : "@";
+        return Child.ToChildString("@");
     }
 }

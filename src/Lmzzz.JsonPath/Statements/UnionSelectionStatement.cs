@@ -2,8 +2,10 @@
 
 namespace Lmzzz.JsonPath.Statements;
 
-public class UnionSelectionStatement : IStatement
+public class UnionSelectionStatement : IParentStatement
 {
+    public IStatement? Child { get; set; }
+
     public UnionSelectionStatement(List<IStatement> list)
     {
         List = list.ToArray();
@@ -18,6 +20,6 @@ public class UnionSelectionStatement : IStatement
 
     public override string ToString()
     {
-        return $"[{string.Join(",", List.Select(static x => x.ToString()))}]";
+        return Child.ToChildString($"[{string.Join(",", List.Select(static x => x.ToString()))}]");
     }
 }

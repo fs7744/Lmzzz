@@ -2,8 +2,9 @@
 
 namespace Lmzzz.JsonPath.Statements;
 
-public class Member : IStatement
+public class Member : IParentStatement
 {
+    public IStatement? Child { get; set; }
     public string Name { get; set; }
 
     public JsonNode? Evaluate(JsonPathContext context)
@@ -29,6 +30,6 @@ public class Member : IStatement
 
     public override string ToString()
     {
-        return $"[{Name}]";
+        return Child.ToChildString($"[{Name}]");
     }
 }

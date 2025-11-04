@@ -24,4 +24,9 @@ public static class StatementExtensions
             Current = root
         });
     }
+
+    public static string ToChildString(this IStatement child, string str)
+    {
+        return child is null ? str : $"{str}.{child.ToString()}";
+    }
 }

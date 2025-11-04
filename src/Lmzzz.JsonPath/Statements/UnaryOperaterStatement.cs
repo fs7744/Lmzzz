@@ -2,8 +2,9 @@
 
 namespace Lmzzz.JsonPath.Statements;
 
-public class UnaryOperaterStatement : IStatement
+public class UnaryOperaterStatement : IParentStatement
 {
+    public IStatement? Child { get; set; }
     public string Operator { get; set; }
     public IStatement Statement { get; set; }
 
@@ -16,11 +17,11 @@ public class UnaryOperaterStatement : IStatement
     {
         if (Operator.Equals("("))
         {
-            return $"({Statement})";
+            return Child.ToChildString($"({Statement})");
         }
         else
         {
-            return $"{Operator}({Statement})";
+            return Child.ToChildString($"{Operator}({Statement})");
         }
     }
 }

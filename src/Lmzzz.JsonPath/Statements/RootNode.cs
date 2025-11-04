@@ -2,7 +2,7 @@
 
 namespace Lmzzz.JsonPath.Statements;
 
-public class RootNode : IStatement
+public class RootNode : IParentStatement
 {
     public IStatement? Child { get; set; }
 
@@ -18,6 +18,6 @@ public class RootNode : IStatement
 
     public override string ToString()
     {
-        return Child is not null ? $"$.{Child.ToString()}" : "$";
+        return Child.ToChildString("$");
     }
 }

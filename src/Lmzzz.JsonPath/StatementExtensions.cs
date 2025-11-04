@@ -38,4 +38,9 @@ public static class StatementExtensions
         context.Current = node;
         return child.Evaluate(context);
     }
+
+    public static bool IsTrue(this JsonNode? jsonNode)
+    {
+        return jsonNode is not null && jsonNode.GetValueKind() == JsonValueKind.True;
+    }
 }

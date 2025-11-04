@@ -9,7 +9,19 @@ public class OrStatement : IStatement
 
     public JsonNode? Evaluate(JsonPathContext context)
     {
-        throw new NotImplementedException();
+        var n = context.Current;
+        if (Left.Evaluate(context).IsTrue())
+        {
+            return JsonValue.Create(true);
+        }
+
+        context.Current = n;
+        if (Right.Evaluate(context).IsTrue())
+        {
+            return JsonValue.Create(true);
+        }
+
+        return null;
     }
 
     public override string ToString()

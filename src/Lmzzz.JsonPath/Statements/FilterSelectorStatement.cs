@@ -22,7 +22,7 @@ public class FilterSelectorStatement : IParentStatement
             return new JsonArray(array.Select(x =>
             {
                 context.Current = x;
-                if (IsTrue(Statement.Evaluate(context)))
+                if (Statement.Evaluate(context).IsTrue())
                 {
                     return Child.EvaluateChild(x?.DeepClone(), context);
                 }
@@ -35,7 +35,7 @@ public class FilterSelectorStatement : IParentStatement
             return new JsonArray(o.Select(x =>
             {
                 context.Current = x.Value;
-                if (IsTrue(Statement.Evaluate(context)))
+                if (Statement.Evaluate(context).IsTrue())
                 {
                     return Child.EvaluateChild(x.Value?.DeepClone(), context);
                 }
@@ -43,17 +43,12 @@ public class FilterSelectorStatement : IParentStatement
                     return null;
             }).Where(static x => x is not null).ToArray());
         }
-        else if (IsTrue(Statement.Evaluate(context)))
+        else if (Statement.Evaluate(context).IsTrue())
         {
             return Child.EvaluateChild(n, context);
         }
 
         return null;
-    }
-
-    private bool IsTrue(JsonNode? jsonNode)
-    {
-        return jsonNode is not null && jsonNode.GetValueKind() == System.Text.Json.JsonValueKind.True;
     }
 
     public override string ToString()

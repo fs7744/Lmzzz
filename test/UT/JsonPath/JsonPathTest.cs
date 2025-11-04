@@ -69,6 +69,8 @@ public class JsonPathTest
     [InlineData("$.Array[?25==@.Age]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
     [InlineData("$[?@==-3.4]", "[-3.4]")]
     [InlineData("$[?@!=-3.4]", "[[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$.Array[?(@.Age != 25 && @.Name != 'Alice')]", "[{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[?(@.Age != 25 || @.Name != 'Alice')]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
     public void EvaluateJsonTest(string test, string r)
     {
         if (r == "$")
@@ -133,6 +135,9 @@ public class JsonPathTest
     [InlineData("$.Array.*['Name','Age']", "[\"Alice\",30,\"Bob\",25,\"Charlie\",35]")]
     [InlineData("$.Array[?25==@.Age]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
     [InlineData("$[?@==-3.4]", "[-3.4]")]
+    [InlineData("$[?@!=-3.4]", "[[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$.Array[?(@.Age != 25 && @.Name != 'Alice')]", "[{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[?(@.Age != 25 || @.Name != 'Alice')]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
     public void EvaluateObjectTest(string test, string r)
     {
         if (r == "$")

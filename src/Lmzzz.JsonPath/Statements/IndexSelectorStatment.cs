@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Nodes;
+﻿using System;
+using System.Text.Json.Nodes;
 
 namespace Lmzzz.JsonPath.Statements;
 
@@ -19,9 +20,9 @@ public class IndexSelectorStatment : IParentStatement
                 var index = array.Count + Index;
                 if (index < 0)
                     return null;
-                return array[index];
+                return Child.EvaluateChild(array[index], context);
             }
-            return array[Index];
+            return Child.EvaluateChild(array[Index], context);
         }
 
         return null;

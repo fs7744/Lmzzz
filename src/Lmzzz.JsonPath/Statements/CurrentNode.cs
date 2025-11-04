@@ -8,7 +8,7 @@ public class CurrentNode : IParentStatement
 
     public JsonNode? Evaluate(JsonPathContext context)
     {
-        throw new NotImplementedException();
+        return Child.EvaluateChild(context.Current, context);
     }
 
     public override string ToString()

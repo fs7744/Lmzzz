@@ -21,6 +21,7 @@ public class JsonPathTest
     private object data = new
     {
         Num = -3.4,
+        Nu = null as string,
         Array = new object[]
         {
             new { Name = "Alice", Age = 30 },
@@ -38,6 +39,8 @@ public class JsonPathTest
 
     [Theory]
     [InlineData("$", "$")]
+    [InlineData("$.Nu.xx", "null")]
+    [InlineData("$.Nu", "null")]
     [InlineData("$.Num", "-3.4")]
     [InlineData("$[\"Num\"]", "-3.4")]
     [InlineData("$['Num']", "-3.4")]
@@ -46,8 +49,10 @@ public class JsonPathTest
     [InlineData("$.Array[-10].Age", "null")]
     [InlineData("$.Array[-1].Age", "35")]
     [InlineData("$.Array[2].Age", "35")]
-    [InlineData("$.*", "[-3.4,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
-    [InlineData("$.*.*", "")]
+    [InlineData("$.*", "[-3.4,null,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$.*.*", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.*.*.*", "[\"Alice\",30,\"Bob\",25,\"Charlie\",35]")]
+    [InlineData("$.*.*.*.*", "[]")]
     public void EvaluateJsonTest(string test, string r)
     {
         if (r == "$")

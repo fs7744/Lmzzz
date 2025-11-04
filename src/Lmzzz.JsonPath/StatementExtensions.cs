@@ -29,4 +29,12 @@ public static class StatementExtensions
     {
         return child is null ? str : $"{str}.{child.ToString()}";
     }
+
+    public static JsonNode? EvaluateChild(this IStatement child, JsonNode? node, JsonPathContext context)
+    {
+        if (child is null)
+            return node;
+        context.Current = node;
+        return child.Evaluate(context);
+    }
 }

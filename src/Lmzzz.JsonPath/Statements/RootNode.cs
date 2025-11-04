@@ -8,12 +8,7 @@ public class RootNode : IParentStatement
 
     public JsonNode? Evaluate(JsonPathContext context)
     {
-        if (Child is not null)
-        {
-            context.Current = context.Root;
-            return Child.Evaluate(context);
-        }
-        return context.Root;
+        return Child.EvaluateChild(context.Root, context);
     }
 
     public override string ToString()

@@ -15,7 +15,9 @@ public class Member : IParentStatement
         if (context.Current is JsonObject o)
         {
             if (o.TryGetPropertyValue(Name, out var n))
-                return n;
+            {
+                return Child.EvaluateChild(n, context);
+            }
             else
                 return null;
         }

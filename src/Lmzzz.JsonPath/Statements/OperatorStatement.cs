@@ -22,17 +22,61 @@ public class OperatorStatement : IStatement
             case "!=":
                 return JsonNodeEquals(l, r) ? JsonValue.Create(false) : JsonValue.Create(true);
 
-            //case "<=":
-            //    return;
+            case "<=":
+                {
+                    if (l is null || r is null)
+                        return JsonValue.Create(false);
+                    switch (l.GetValueKind())
+                    {
+                        case System.Text.Json.JsonValueKind.Number:
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() <= r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
 
-            //case "<":
-            //    return;
+                        default:
+                            return JsonValue.Create(false);
+                    }
+                }
 
-            //case ">=":
-            //    return;
+            case "<":
+                {
+                    if (l is null || r is null)
+                        return JsonValue.Create(false);
+                    switch (l.GetValueKind())
+                    {
+                        case System.Text.Json.JsonValueKind.Number:
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() < r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
 
-            //case ">":
-            //    return;
+                        default:
+                            return JsonValue.Create(false);
+                    }
+                }
+
+            case ">=":
+                {
+                    if (l is null || r is null)
+                        return JsonValue.Create(false);
+                    switch (l.GetValueKind())
+                    {
+                        case System.Text.Json.JsonValueKind.Number:
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() >= r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
+
+                        default:
+                            return JsonValue.Create(false);
+                    }
+                }
+
+            case ">":
+                {
+                    if (l is null || r is null)
+                        return JsonValue.Create(false);
+                    switch (l.GetValueKind())
+                    {
+                        case System.Text.Json.JsonValueKind.Number:
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() > r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
+
+                        default:
+                            return JsonValue.Create(false);
+                    }
+                }
 
             default:
                 return null;

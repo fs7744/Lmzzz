@@ -7,12 +7,13 @@ public static class StatementExtensions
 {
     public static JsonNode? EvaluateObject<T>(this IStatement statement, T data, JsonNodeOptions? options = null)
     {
-        var root = JsonValue.Create(data, options);
-        return statement.Evaluate(new JsonPathContext()
-        {
-            Root = root,
-            Current = root
-        });
+        //var root = JsonValue.Create(data, options);
+        //return statement.Evaluate(new JsonPathContext()
+        //{
+        //    Root = root,
+        //    Current = root
+        //});
+        return EvaluateJson(statement, JsonSerializer.Serialize(data), options);
     }
 
     public static JsonNode? EvaluateJson(this IStatement statement, string json, JsonNodeOptions? options = null, JsonDocumentOptions documentOptions = default)

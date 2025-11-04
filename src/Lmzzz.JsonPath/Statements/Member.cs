@@ -16,7 +16,7 @@ public class Member : IParentStatement
         {
             if (o.TryGetPropertyValue(Name, out var n))
             {
-                return Child.EvaluateChild(n, context);
+                return Child.EvaluateChild(n?.DeepClone(), context);
             }
             else
                 return null;

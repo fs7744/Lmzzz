@@ -53,6 +53,16 @@ public class JsonPathTest
     [InlineData("$.*.*", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
     [InlineData("$.*.*.*", "[\"Alice\",30,\"Bob\",25,\"Charlie\",35]")]
     [InlineData("$.*.*.*.*", "[]")]
+    [InlineData("$.Array[0:1]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25}]")]
+    [InlineData("$.Array[0:1:2]", "[{\"Name\":\"Alice\",\"Age\":30}]")]
+    [InlineData("$.Array[:1:2]", "[{\"Name\":\"Alice\",\"Age\":30}]")]
+    [InlineData("$.Array[::]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[-5::]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[-5:-5:]", "[]")]
+    [InlineData("$.Array[::-1]", "[]")]
+    [InlineData("$.Array[::0]", "[]")]
+    [InlineData("$.Array[-5:5:]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[::].Age", "[30,25,35]")]
     public void EvaluateJsonTest(string test, string r)
     {
         if (r == "$")
@@ -88,6 +98,30 @@ public class JsonPathTest
 
     [Theory]
     [InlineData("$", "$")]
+    [InlineData("$.Nu.xx", "null")]
+    [InlineData("$.Nu", "null")]
+    [InlineData("$.Num", "-3.4")]
+    [InlineData("$[\"Num\"]", "-3.4")]
+    [InlineData("$['Num']", "-3.4")]
+    [InlineData("$.Array[1]", "{\"Name\":\"Bob\",\"Age\":25}")]
+    [InlineData("$.Array[0].Age", "30")]
+    [InlineData("$.Array[-10].Age", "null")]
+    [InlineData("$.Array[-1].Age", "35")]
+    [InlineData("$.Array[2].Age", "35")]
+    [InlineData("$.*", "[-3.4,null,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$.*.*", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.*.*.*", "[\"Alice\",30,\"Bob\",25,\"Charlie\",35]")]
+    [InlineData("$.*.*.*.*", "[]")]
+    [InlineData("$.Array[0:1]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25}]")]
+    [InlineData("$.Array[0:1:2]", "[{\"Name\":\"Alice\",\"Age\":30}]")]
+    [InlineData("$.Array[:1:2]", "[{\"Name\":\"Alice\",\"Age\":30}]")]
+    [InlineData("$.Array[::]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[-5::]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[-5:-5:]", "[]")]
+    [InlineData("$.Array[::-1]", "[]")]
+    [InlineData("$.Array[::0]", "[]")]
+    [InlineData("$.Array[-5:5:]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$.Array[::].Age", "[30,25,35]")]
     public void EvaluateObjectTest(string test, string r)
     {
         if (r == "$")

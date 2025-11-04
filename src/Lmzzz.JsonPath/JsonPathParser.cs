@@ -198,18 +198,6 @@ public class JsonPathParser
                 {
                     throw new NotSupportedException($"Cannot set child for statement of type {x[i].Item2.GetType().FullName}");
                 }
-                //if (x[i].Item2 is WildcardSelectorStatment ws)
-                //{
-                //    if (ws.Child == null)
-                //    {
-                //        ws.Child = current;
-                //        current = ws;
-                //    }
-                //    else
-                //        ws.Child = new LinkNode() { Current = x[i].Item2, Child = current };
-                //}
-                //else
-                //    current = new LinkNode() { Current = x[i].Item2, Child = current };
             }
             return current;
         }

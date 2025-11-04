@@ -16,6 +16,14 @@ public class Member : IParentStatement
         {
             if (o.TryGetPropertyValue(Name, out var n))
             {
+                //if (n is JsonArray array)
+                //{
+                //    if (array.Count == 0)
+                //        return Child is null ? n : null;
+
+                //    return new JsonArray(array.Select(x => Child.EvaluateChild(x?.DeepClone(), context)).Where(static x => x is not null).ToArray());
+                //}
+
                 return Child.EvaluateChild(n?.DeepClone(), context);
             }
             else

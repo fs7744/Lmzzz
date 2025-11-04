@@ -10,7 +10,35 @@ public class UnaryOperaterStatement : IParentStatement
 
     public JsonNode? Evaluate(JsonPathContext context)
     {
-        throw new NotImplementedException();
+        if (Operator.Equals("!"))
+        {
+            return Not(Child.EvaluateChild(Statement.Evaluate(context), context));
+        }
+        else
+        {
+            return Child.EvaluateChild(Statement.Evaluate(context), context);
+        }
+    }
+
+    private JsonNode? Not(JsonNode? jsonNode)
+    {
+        if (jsonNode is null)
+        {
+            return null;
+        }
+
+        if (jsonNode.GetValueKind() == System.Text.Json.JsonValueKind.True)
+        {
+            return JsonValue.Create(false);
+        }
+        else if (jsonNode.GetValueKind() == System.Text.Json.JsonValueKind.False)
+        {
+            return JsonValue.Create(true);
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public override string ToString()

@@ -61,9 +61,8 @@ public class JsonPathParser
 
     public static readonly Deferred<IStatement> LogicalExpr = Deferred<IStatement>(nameof(LogicalExpr));
 
-    public static readonly Parser<IStatement> FilterSelector = Char('?').And(S).And(LogicalExpr).Then<IStatement>(static x => new UnaryOperaterStatement()
+    public static readonly Parser<IStatement> FilterSelector = Char('?').And(S).And(LogicalExpr).Then<IStatement>(static x => new FilterSelectorStatement()
     {
-        Operator = x.Item1.ToString(),
         Statement = x.Item3
     }).Name(nameof(FilterSelector));
 

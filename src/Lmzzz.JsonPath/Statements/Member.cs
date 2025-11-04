@@ -22,10 +22,10 @@ public class Member : IParentStatement
                 return null;
         }
 
-        if (context.Current.GetValueKind() == System.Text.Json.JsonValueKind.Object)
-        {
-            //todo
-        }
+        //if (context.Current.GetValueKind() == System.Text.Json.JsonValueKind.Object)
+        //{
+        //    //todo
+        //}
 
         return null;
     }

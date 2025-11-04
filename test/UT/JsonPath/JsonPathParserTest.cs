@@ -447,6 +447,7 @@ public class JsonPathParserTest
     [InlineData("$.b[?@==null]", true, "$.[b].?((@ == null))")]
     [InlineData("$.c[?@.d==null]", true, "$.[c].?((@.[d] == null))")]
     [InlineData("$.null", true, "$.[null]")]
+    [InlineData("$.Array.*['Name','Age']", true, "$.[Array].*.[[Name],[Age]]")]
     public void JsonPathParsersTest(string test, bool r, string rr)
     {
         var p = JsonPathParser.Parser;

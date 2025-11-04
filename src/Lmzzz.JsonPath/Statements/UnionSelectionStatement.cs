@@ -15,7 +15,22 @@ public class UnionSelectionStatement : IParentStatement
 
     public JsonNode? Evaluate(JsonPathContext context)
     {
-        throw new NotImplementedException();
+        if (List == null || List.Length == 0 || context.Current is null)
+            return null;
+
+        return new JsonArray(Find(context).ToArray());
+    }
+
+    private IEnumerable<JsonNode?> Find(JsonPathContext context)
+    {
+        var n = context.Current;
+        foreach (var statement in List)
+        {
+            context.Current = n;
+            var result = Child.EvaluateChild(statement.Evaluate(context), context);
+            if (result is not null)
+                yield return result;
+        }
     }
 
     public override string ToString()

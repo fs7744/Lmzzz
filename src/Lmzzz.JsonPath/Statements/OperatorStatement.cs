@@ -17,10 +17,10 @@ public class OperatorStatement : IStatement
         switch (Operator)
         {
             case "==":
-                return JsonNodeEquals(l, r) ? JsonValue.Create(true) : JsonValue.Create(false);
+                return JsonNode.DeepEquals(l, r) ? JsonValue.Create(true) : JsonValue.Create(false);
 
             case "!=":
-                return JsonNodeEquals(l, r) ? JsonValue.Create(false) : JsonValue.Create(true);
+                return JsonNode.DeepEquals(l, r) ? JsonValue.Create(false) : JsonValue.Create(true);
 
             case "<=":
                 {
@@ -29,7 +29,7 @@ public class OperatorStatement : IStatement
                     switch (l.GetValueKind())
                     {
                         case System.Text.Json.JsonValueKind.Number:
-                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() <= r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.AsValue().TryGetValue<decimal>(out var lv) && r.AsValue().TryGetValue<decimal>(out var rv) && lv <= rv ? JsonValue.Create(true) : JsonValue.Create(false);
 
                         default:
                             return JsonValue.Create(false);
@@ -43,7 +43,7 @@ public class OperatorStatement : IStatement
                     switch (l.GetValueKind())
                     {
                         case System.Text.Json.JsonValueKind.Number:
-                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() < r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.AsValue().TryGetValue<decimal>(out var lv) && r.AsValue().TryGetValue<decimal>(out var rv) && lv < rv ? JsonValue.Create(true) : JsonValue.Create(false);
 
                         default:
                             return JsonValue.Create(false);
@@ -57,7 +57,7 @@ public class OperatorStatement : IStatement
                     switch (l.GetValueKind())
                     {
                         case System.Text.Json.JsonValueKind.Number:
-                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() >= r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.AsValue().TryGetValue<decimal>(out var lv) && r.AsValue().TryGetValue<decimal>(out var rv) && lv >= rv ? JsonValue.Create(true) : JsonValue.Create(false);
 
                         default:
                             return JsonValue.Create(false);
@@ -71,7 +71,7 @@ public class OperatorStatement : IStatement
                     switch (l.GetValueKind())
                     {
                         case System.Text.Json.JsonValueKind.Number:
-                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() > r.GetValue<decimal>() ? JsonValue.Create(true) : JsonValue.Create(false);
+                            return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.AsValue().TryGetValue<decimal>(out var lv) && r.AsValue().TryGetValue<decimal>(out var rv) && lv > rv ? JsonValue.Create(true) : JsonValue.Create(false);
 
                         default:
                             return JsonValue.Create(false);
@@ -80,32 +80,6 @@ public class OperatorStatement : IStatement
 
             default:
                 return null;
-        }
-    }
-
-    public static bool JsonNodeEquals(JsonNode? l, JsonNode? r)
-    {
-        if (l is null)
-            return r is null;
-        switch (l.GetValueKind())
-        {
-            case System.Text.Json.JsonValueKind.String:
-                return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.String && l.GetValue<string>() == r.GetValue<string>();
-
-            case System.Text.Json.JsonValueKind.Number:
-                return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.Number && l.GetValue<decimal>() == r.GetValue<decimal>();
-
-            case System.Text.Json.JsonValueKind.True:
-                return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.True;
-
-            case System.Text.Json.JsonValueKind.False:
-                return r is not null && r.GetValueKind() == System.Text.Json.JsonValueKind.False;
-
-            case System.Text.Json.JsonValueKind.Null:
-                return r is null || r.GetValueKind() == System.Text.Json.JsonValueKind.Null;
-
-            default:
-                return false;
         }
     }
 

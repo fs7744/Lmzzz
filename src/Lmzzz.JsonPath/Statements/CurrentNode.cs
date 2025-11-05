@@ -9,6 +9,9 @@ public class CurrentNode : IParentStatement
     public JsonNode? Evaluate(JsonPathContext context)
     {
         return Child.EvaluateChild(context.Current, context);
+        //if (Child is null)
+        //    return context.Current;
+        //return Child.EvaluateChilds(context);
     }
 
     public override string ToString()

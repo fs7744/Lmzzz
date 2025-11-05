@@ -19,29 +19,78 @@ public class FilterSelectorStatement : IParentStatement
             if (array.Count == 0)
                 return Child is null ? n : null;
 
-            return new JsonArray(array.Select(x =>
+            var list = new List<JsonNode?>();
+            foreach (var x in array)
             {
                 context.Current = x;
                 if (Statement.Evaluate(context).IsTrue())
                 {
-                    return Child.EvaluateChild(x?.DeepClone(), context);
+                    if (Child is null)
+                    {
+                        list.Add(x?.DeepClone());
+                    }
+                    else
+                    {
+                        context.Current = x;
+                        var a = Child.Evaluate(context);
+                        if (a is JsonArray ja)
+                        {
+                            list.AddRange(ja.Select(static item => item?.DeepClone()));
+                        }
+                        else if (a is not null)
+                            list.Add(a);
+                    }
                 }
-                else
-                    return null;
-            }).Where(static x => x is not null).ToArray());
+            }
+            return new JsonArray(list.ToArray());
+            //return new JsonArray(array.Select(x =>
+            //{
+            //    context.Current = x;
+            //    if (Statement.Evaluate(context).IsTrue())
+            //    {
+            //        return Child.EvaluateChild(x?.DeepClone(), context);
+            //    }
+            //    else
+            //        return null;
+            //}).Where(static x => x is not null).ToArray());
         }
         else if (n is JsonObject o)
         {
-            return new JsonArray(o.Select(x =>
+            var list = new List<JsonNode?>();
+            foreach (var x in o)
             {
                 context.Current = x.Value;
                 if (Statement.Evaluate(context).IsTrue())
                 {
-                    return Child.EvaluateChild(x.Value?.DeepClone(), context);
+                    if (Child is null)
+                    {
+                        list.Add(x.Value?.DeepClone());
+                    }
+                    else
+                    {
+                        context.Current = x.Value;
+                        var a = Child.Evaluate(context);
+                        if (a is JsonArray ja)
+                        {
+                            list.AddRange(ja.Select(static item => item?.DeepClone()));
+                        }
+                        else if (a is not null)
+                            list.Add(a);
+                    }
                 }
-                else
-                    return null;
-            }).Where(static x => x is not null).ToArray());
+            }
+            return new JsonArray(list.ToArray());
+
+            //return new JsonArray(o.Select(x =>
+            //{
+            //    context.Current = x.Value;
+            //    if (Statement.Evaluate(context).IsTrue())
+            //    {
+            //        return Child.EvaluateChild(x.Value?.DeepClone(), context);
+            //    }
+            //    else
+            //        return null;
+            //}).Where(static x => x is not null).ToArray());
         }
         else if (Statement.Evaluate(context).IsTrue())
         {

@@ -41,6 +41,6 @@ public static class StatementExtensions
 
     public static bool IsTrue(this JsonNode? jsonNode)
     {
-        return jsonNode is not null && jsonNode.GetValueKind() == JsonValueKind.True;
+        return jsonNode is not null && jsonNode.GetValueKind() == System.Text.Json.JsonValueKind.True;
     }
 }

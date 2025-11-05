@@ -67,16 +67,18 @@ public class JsonPathTest
     [InlineData("$['Num','Array'].Age", "[]")]
     [InlineData("$.Array.*['Name','Age']", "[\"Alice\",30,\"Bob\",25,\"Charlie\",35]")]
     [InlineData("$.Array[?25==@.Age]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
-    [InlineData("$[?!(@==-3.4)]", "[[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$[?!(@==-3.4)]", "[null,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
     [InlineData("$[?((@==-3.4))]", "[-3.4]")]
     [InlineData("$[?@==-3.4]", "[-3.4]")]
     [InlineData("$[?@<=-3.4]", "[-3.4]")]
     [InlineData("$[?@<-3.1]", "[-3.4]")]
     [InlineData("$[?@>-13.4]", "[-3.4]")]
     [InlineData("$[?@>=-3.4]", "[-3.4]")]
-    [InlineData("$[?@!=-3.4]", "[[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$[?@!=-3.4]", "[null,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$.Array[?(@.Age == 25.0)]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
     [InlineData("$.Array[?(@.Age != 25 && @.Name != 'Alice')]", "[{\"Name\":\"Charlie\",\"Age\":35}]")]
     [InlineData("$.Array[?(@.Age != 25 || @.Name != 'Alice')]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$[?length(@) >= 3].*.Age", "[30,25,35]")]
     public void EvaluateJsonTest(string test, string r)
     {
         if (r == "$")
@@ -140,16 +142,18 @@ public class JsonPathTest
     [InlineData("$['Num','Array'].Age", "[]")]
     [InlineData("$.Array.*['Name','Age']", "[\"Alice\",30,\"Bob\",25,\"Charlie\",35]")]
     [InlineData("$.Array[?25==@.Age]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
-    [InlineData("$[?!(@==-3.4)]", "[[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$[?!(@==-3.4)]", "[null,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
     [InlineData("$[?((@==-3.4))]", "[-3.4]")]
     [InlineData("$[?@==-3.4]", "[-3.4]")]
     [InlineData("$[?@<=-3.4]", "[-3.4]")]
     [InlineData("$[?@<-3.1]", "[-3.4]")]
     [InlineData("$[?@>-13.4]", "[-3.4]")]
     [InlineData("$[?@>=-3.4]", "[-3.4]")]
-    [InlineData("$[?@!=-3.4]", "[[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$[?@!=-3.4]", "[null,[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]]")]
+    [InlineData("$.Array[?(@.Age == 25.0)]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
     [InlineData("$.Array[?(@.Age != 25 && @.Name != 'Alice')]", "[{\"Name\":\"Charlie\",\"Age\":35}]")]
     [InlineData("$.Array[?(@.Age != 25 || @.Name != 'Alice')]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
+    [InlineData("$[?length(@) >= 3].*.Age", "[30,25,35]")]
     public void EvaluateObjectTest(string test, string r)
     {
         if (r == "$")

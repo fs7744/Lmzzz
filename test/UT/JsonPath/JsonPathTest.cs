@@ -79,6 +79,9 @@ public class JsonPathTest
     [InlineData("$.Array[?(@.Age != 25 && @.Name != 'Alice')]", "[{\"Name\":\"Charlie\",\"Age\":35}]")]
     [InlineData("$.Array[?(@.Age != 25 || @.Name != 'Alice')]", "[{\"Name\":\"Alice\",\"Age\":30},{\"Name\":\"Bob\",\"Age\":25},{\"Name\":\"Charlie\",\"Age\":35}]")]
     [InlineData("$[?length(@) >= 3].*.Age", "[30,25,35]")]
+    [InlineData("$[?count(@) >= 1].*.Age", "[30,25,35]")]
+    [InlineData("$.Array[?value(@.Age) ==25]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
+    [InlineData("$.Array[?search(@.Name,'^B.*')]", "[{\"Name\":\"Bob\",\"Age\":25}]")]
     public void EvaluateJsonTest(string test, string r)
     {
         if (r == "$")

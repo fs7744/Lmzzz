@@ -1,8 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
+using Json.Path;
 using Lmzzz.Chars.Fluent;
 using Lmzzz.JsonPath;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Benchmarks;
 
@@ -25,12 +27,14 @@ public class JsonPathBenchmarks
 
     private string json;
     private IStatement cache;
+    private readonly JsonPath pc;
 
     public JsonPathBenchmarks()
     {
         json = JsonSerializer.Serialize(data);
         JsonPathParser.Parser.TryParseResult(path, out var result, out var error);
         cache = result.Value;
+        pc = JsonPath.Parse(path);
     }
 
     [Benchmark]
@@ -51,5 +55,20 @@ public class JsonPathBenchmarks
     {
         Newtonsoft.Json.Linq.JToken token = Newtonsoft.Json.Linq.JToken.Parse(json);
         return token.SelectTokens(path);
+    }
+
+    [Benchmark]
+    public object JsonPathNetTest()
+    {
+        var p = JsonPath.Parse(path);
+        var instance = JsonNode.Parse(json);
+        return p.Evaluate(instance);
+    }
+
+    [Benchmark]
+    public object JsonPathNetCacheTest()
+    {
+        var instance = JsonNode.Parse(json);
+        return pc.Evaluate(instance);
     }
 }

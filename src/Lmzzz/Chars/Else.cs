@@ -13,6 +13,21 @@ public sealed class Else<T> : Parser<T>
         _value = value;
     }
 
+    public override ParseDelegate<T> GetDelegate()
+    {
+        var p = _parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<T> result) =>
+        {
+            context.EnterParser(this);
+            if (!p(context, ref result))
+            {
+                result.Set(result.Start, result.End, _value);
+            }
+            context.ExitParser(this);
+            return true;
+        };
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         context.EnterParser(this);

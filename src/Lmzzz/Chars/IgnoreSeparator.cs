@@ -33,4 +33,28 @@ public class IgnoreSeparator<T> : Parser<T>
         context.ExitParser(this);
         return false;
     }
+
+    public override ParseDelegate<T> GetDelegate()
+    {
+        var p = parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<T> result) =>
+        {
+            context.EnterParser(this);
+            var cursor = context.Cursor;
+
+            var start = cursor.Position;
+            context.InogreSeparator();
+
+            if (p(context, ref result))
+            {
+                context.ExitParser(this);
+                return true;
+            }
+
+            cursor.Reset(start);
+
+            context.ExitParser(this);
+            return false;
+        };
+    }
 }

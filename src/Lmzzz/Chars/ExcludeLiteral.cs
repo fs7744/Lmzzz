@@ -40,4 +40,9 @@ public class ExcludeLiteral : Parser<TextSpan>
         context.ExitParser(this);
         return false;
     }
+
+    public override ParseDelegate<TextSpan> GetDelegate()
+    {
+        return Parse;
+    }
 }

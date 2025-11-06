@@ -38,4 +38,36 @@ public class OneOrMany<T> : Parser<IReadOnlyList<T>>
         context.ExitParser(this);
         return true;
     }
+
+    public override ParseDelegate<IReadOnlyList<T>> GetDelegate()
+    {
+        var p = parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<IReadOnlyList<T>> result) =>
+        {
+            context.EnterParser(this);
+
+            var parsed = new ParseResult<T>();
+
+            if (!p(context, ref parsed))
+            {
+                return false;
+            }
+
+            var start = parsed.Start;
+            var results = new List<T>();
+
+            int end;
+
+            do
+            {
+                end = parsed.End;
+                results.Add(parsed.Value);
+            } while (p(context, ref parsed));
+
+            result.Set(start, end, results);
+
+            context.ExitParser(this);
+            return true;
+        };
+    }
 }

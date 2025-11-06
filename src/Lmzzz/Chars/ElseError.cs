@@ -26,4 +26,22 @@ public sealed class ElseError<T> : Parser<T>
         context.ExitParser(this);
         return true;
     }
+
+    public override ParseDelegate<T> GetDelegate()
+    {
+        var p = _parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<T> result) =>
+        {
+            context.EnterParser(this);
+
+            if (!p(context, ref result))
+            {
+                context.ExitParser(this);
+                throw new ParseException(_message, context.Cursor.Position);
+            }
+
+            context.ExitParser(this);
+            return true;
+        };
+    }
 }

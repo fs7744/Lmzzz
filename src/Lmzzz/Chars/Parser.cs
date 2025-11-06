@@ -1,10 +1,14 @@
 ﻿namespace Lmzzz.Chars.Fluent;
 
+public delegate bool ParseDelegate<T>(CharParseContext context, ref ParseResult<T> result);
+
 public abstract class Parser<T>
 {
     public string Name { get; set; }
 
     public abstract bool Parse(CharParseContext context, ref ParseResult<T> result);
+
+    public abstract ParseDelegate<T> GetDelegate();
 
     public bool TryParse(CharParseContext context, out T value, out ParseException? error)
     {

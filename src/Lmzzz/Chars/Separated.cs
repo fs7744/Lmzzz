@@ -13,6 +13,67 @@ public sealed class Separated<U, T> : Parser<IReadOnlyList<T>>
         this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
     }
 
+    public override ParseDelegate<IReadOnlyList<T>> GetDelegate()
+    {
+        var s = separator.GetDelegate();
+        var p = parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<IReadOnlyList<T>> result) =>
+        {
+            context.EnterParser(this);
+
+            List<T>? results = null;
+
+            var start = 0;
+            var end = context.Cursor.Position;
+
+            var first = true;
+            var parsed = new ParseResult<T>();
+            var separatorResult = new ParseResult<U>();
+
+            while (true)
+            {
+                if (!first)
+                {
+                    if (!s(context, ref separatorResult))
+                    {
+                        break;
+                    }
+                }
+
+                if (!p(context, ref parsed))
+                {
+                    if (!first)
+                    {
+                        // only separator was found, but not found value.
+                        context.Cursor.Reset(end);
+                        break;
+                    }
+
+                    context.ExitParser(this);
+                    return false;
+                }
+                else
+                {
+                    end = context.Cursor.Position;
+                }
+
+                if (first)
+                {
+                    results = [];
+                    start = parsed.Start;
+                    first = false;
+                }
+
+                results!.Add(parsed.Value);
+            }
+
+            result.Set(start, end.Offset, results ?? []);
+
+            context.ExitParser(this);
+            return true;
+        };
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<IReadOnlyList<T>> result)
     {
         context.EnterParser(this);

@@ -21,6 +21,11 @@ public class AnyLiteral : Parser<TextSpan>
         this.end = SearchValues.Create(end);
     }
 
+    public override ParseDelegate<TextSpan> GetDelegate()
+    {
+        return Parse;
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
     {
         context.EnterParser(this);

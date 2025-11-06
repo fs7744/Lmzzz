@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using Json.Path;
+using Lmzzz.Chars;
 using Lmzzz.Chars.Fluent;
 using Lmzzz.JsonPath;
 using System.Text.Json;
@@ -28,6 +29,7 @@ public class JsonPathBenchmarks
     private string json;
     private IStatement cache;
     private readonly JsonPath pc;
+    private readonly ParseDelegate<IStatement> d;
 
     public JsonPathBenchmarks()
     {
@@ -35,6 +37,14 @@ public class JsonPathBenchmarks
         JsonPathParser.Parser.TryParseResult(path, out var result, out var error);
         cache = result.Value;
         pc = JsonPath.Parse(path);
+        d = JsonPathParser.Parser.GetDelegate();
+    }
+
+    [Benchmark]
+    public object NoCacheTest()
+    {
+        JsonPathParser.Parser.TryParseResult(path, out var result, out var error);
+        return result.Value.EvaluateJson(json);
     }
 
     [Benchmark]
@@ -44,9 +54,10 @@ public class JsonPathBenchmarks
     }
 
     [Benchmark]
-    public object NoCacheTest()
+    public object DNoCacheTest()
     {
-        JsonPathParser.Parser.TryParseResult(path, out var result, out var error);
+        var result = new Lmzzz.ParseResult<IStatement>();
+        d(new CharParseContext(new StringCursor(path)), ref result);
         return result.Value.EvaluateJson(json);
     }
 
@@ -90,6 +101,14 @@ public class JsonPathBenchmarks
     public object OnlyParseTest()
     {
         JsonPathParser.Parser.TryParseResult(path, out var result, out var error);
+        return result.Value;
+    }
+
+    [Benchmark]
+    public object DOnlyParseTest()
+    {
+        var result = new Lmzzz.ParseResult<IStatement>();
+        d(new CharParseContext(new StringCursor(path)), ref result);
         return result.Value;
     }
 }

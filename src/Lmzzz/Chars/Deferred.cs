@@ -29,4 +29,9 @@ public sealed class Deferred<T> : Parser<T>
         context.ExitParser(this);
         return outcome;
     }
+
+    public override ParseDelegate<T> GetDelegate()
+    {
+        return Parse;
+    }
 }

@@ -28,4 +28,26 @@ public class Eof<T> : Parser<T>
         context.ExitParser(this);
         return false;
     }
+
+    public override ParseDelegate<T> GetDelegate()
+    {
+        var p = _parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<T> result) =>
+        {
+            context.EnterParser(this);
+
+            if (p(context, ref result))
+            {
+                context.InogreSeparator();
+                if (context.Cursor.Eof)
+                {
+                    context.ExitParser(this);
+                    return true;
+                }
+            }
+
+            context.ExitParser(this);
+            return false;
+        };
+    }
 }

@@ -15,6 +15,11 @@ public class TextLiteral : Parser<string>
         this.comparison = comparison;
     }
 
+    public override ParseDelegate<string> GetDelegate()
+    {
+        return Parse;
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<string> result)
     {
         context.EnterParser(this);

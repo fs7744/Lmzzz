@@ -2,6 +2,7 @@
 using Lmzzz.Chars.Fluent;
 using Lmzzz.JsonPath.Statements;
 using static Lmzzz.Chars.Fluent.Parsers;
+using Lmzzz.Chars;
 
 namespace UT.JsonPath;
 
@@ -452,6 +453,12 @@ public class JsonPathParserTest
     {
         var p = JsonPathParser.Parser;
         var b = p.TryParseResult(test, out var v, out var err);
+        Assert.Equal(r, b);
+        if (r)
+            Assert.Equal(rr, ToTestString(v.Value));
+
+        var pd = JsonPathParser.Parser.GetDelegate();
+        b = pd.Invoke(new CharParseContext(new StringCursor(test)), ref v);
         Assert.Equal(r, b);
         if (r)
             Assert.Equal(rr, ToTestString(v.Value));

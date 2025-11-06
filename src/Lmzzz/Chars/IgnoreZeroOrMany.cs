@@ -43,4 +43,36 @@ public class IgnoreZeroOrMany<T> : Parser<Nothing>
         context.ExitParser(this);
         return true;
     }
+
+    public override ParseDelegate<Nothing> GetDelegate()
+    {
+        var p = parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<Nothing> result) =>
+        {
+            context.EnterParser(this);
+
+            var start = 0;
+            var end = 0;
+
+            var first = true;
+            var parsed = new ParseResult<T>();
+
+            while (p(context, ref parsed))
+            {
+                if (first)
+                {
+                    first = false;
+                    start = parsed.Start;
+                }
+
+                end = parsed.End;
+            }
+
+            result = new ParseResult<Nothing>();
+            result.Set(start, end, Nothing.Value);
+
+            context.ExitParser(this);
+            return true;
+        };
+    }
 }

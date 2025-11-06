@@ -13,6 +13,25 @@ public class ZeroOrOne<T> : Parser<T>
         this.defaultValue = defaultValue;
     }
 
+    public override ParseDelegate<T> GetDelegate()
+    {
+        var p = parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<T> result) =>
+        {
+            context.EnterParser(this);
+
+            var parsed = new ParseResult<T>();
+
+            var success = p(context, ref parsed);
+
+            result.Set(parsed.Start, parsed.End, success ? parsed.Value : defaultValue);
+
+            // ZeroOrOne always succeeds
+            context.ExitParser(this);
+            return true;
+        };
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         context.EnterParser(this);

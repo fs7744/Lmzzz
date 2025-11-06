@@ -13,6 +13,28 @@ public sealed class Then<T, U> : Parser<U>
         this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
     }
 
+    public override ParseDelegate<U> GetDelegate()
+    {
+        var p = parser.GetDelegate();
+        return (CharParseContext context, ref ParseResult<U> result) =>
+        {
+            context.EnterParser(this);
+
+            var parsed = new ParseResult<T>();
+
+            if (p(context, ref parsed))
+            {
+                result.Set(parsed.Start, parsed.End, action(parsed.Value));
+
+                context.ExitParser(this);
+                return true;
+            }
+
+            context.ExitParser(this);
+            return false;
+        };
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<U> result)
     {
         context.EnterParser(this);

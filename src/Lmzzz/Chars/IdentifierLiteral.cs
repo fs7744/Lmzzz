@@ -44,4 +44,9 @@ public sealed class IdentifierLiteral : Parser<TextSpan>
         context.ExitParser(this);
         return true;
     }
+
+    public override ParseDelegate<TextSpan> GetDelegate()
+    {
+        return Parse;
+    }
 }

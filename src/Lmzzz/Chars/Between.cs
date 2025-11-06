@@ -15,6 +15,52 @@ public class Between<A, T, B> : Parser<T>
         this.after = after ?? throw new ArgumentNullException(nameof(after));
     }
 
+    public override ParseDelegate<T> GetDelegate()
+    {
+        var p = parser.GetDelegate();
+        var b = before.GetDelegate();
+        var a = after.GetDelegate();
+        return (CharParseContext context, ref ParseResult<T> result) =>
+        {
+            context.EnterParser(this);
+
+            var cursor = context.Cursor;
+
+            var start = cursor.Position;
+
+            var parsedA = new ParseResult<A>();
+
+            if (!b(context, ref parsedA))
+            {
+                context.ExitParser(this);
+
+                // Don't reset position since _before should do it
+                return false;
+            }
+
+            if (!p(context, ref result))
+            {
+                cursor.Reset(start);
+
+                context.ExitParser(this);
+                return false;
+            }
+
+            var parsedB = new ParseResult<B>();
+
+            if (!a(context, ref parsedB))
+            {
+                cursor.Reset(start);
+
+                context.ExitParser(this);
+                return false;
+            }
+
+            context.ExitParser(this);
+            return true;
+        };
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         context.EnterParser(this);

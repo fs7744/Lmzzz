@@ -38,4 +38,9 @@ public class CharLiteral : Parser<char>
         context.ExitParser(this);
         return false;
     }
+
+    public override ParseDelegate<char> GetDelegate()
+    {
+        return Parse;
+    }
 }

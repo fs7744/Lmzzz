@@ -33,4 +33,9 @@ public class IgnoreCharLiteral : Parser<Nothing>
         context.ExitParser(this);
         return true;
     }
+
+    public override ParseDelegate<Nothing> GetDelegate()
+    {
+        return Parse;
+    }
 }

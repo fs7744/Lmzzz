@@ -35,4 +35,33 @@ public sealed class OneOf<T> : Parser<T>
         context.ExitParser(this);
         return false;
     }
+
+    public override ParseDelegate<T> GetDelegate()
+    {
+        var ps = Parsers.Select(i => i.GetDelegate()).ToArray();
+        return (CharParseContext context, ref ParseResult<T> result) =>
+        {
+            context.EnterParser(this);
+
+            //context.Separator?.Invoke(context);
+
+            var cursor = context.Cursor;
+
+            var start = cursor.Position;
+
+            foreach (var item in ps.AsSpan())
+            {
+                if (item(context, ref result))
+                {
+                    context.ExitParser(this);
+                    return true;
+                }
+            }
+
+            cursor.Reset(start);
+
+            context.ExitParser(this);
+            return false;
+        };
+    }
 }

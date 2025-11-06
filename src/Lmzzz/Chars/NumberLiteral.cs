@@ -44,6 +44,11 @@ public sealed class NumberLiteral<T> : Parser<T>
         _allowExponent = (numberOptions & NumberOptions.AllowExponent) != 0;
     }
 
+    public override ParseDelegate<T> GetDelegate()
+    {
+        return Parse;
+    }
+
     public override bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         context.EnterParser(this);

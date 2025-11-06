@@ -14,7 +14,7 @@ public class IgnoreSeparator<T> : Parser<T>
         this.parser = parser;
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<T> result)
+    public bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         context.EnterParser(this);
         var cursor = context.Cursor;
@@ -32,5 +32,12 @@ public class IgnoreSeparator<T> : Parser<T>
 
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

@@ -11,7 +11,7 @@ public sealed class OneOf<T> : Parser<T>
 
     public Parser<T>[] Parsers { get; }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<T> result)
+    public bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         context.EnterParser(this);
 
@@ -34,5 +34,12 @@ public sealed class OneOf<T> : Parser<T>
 
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

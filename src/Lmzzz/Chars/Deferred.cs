@@ -15,7 +15,7 @@ public sealed class Deferred<T> : Parser<T>
         Parser = parser(this);
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<T> result)
+    public bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         if (Parser is null)
         {
@@ -28,5 +28,12 @@ public sealed class Deferred<T> : Parser<T>
 
         context.ExitParser(this);
         return outcome;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

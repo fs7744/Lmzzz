@@ -13,7 +13,7 @@ public sealed class Then<T, U> : Parser<U>
         this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<U> result)
+    public bool Parse(CharParseContext context, ref ParseResult<U> result)
     {
         context.EnterParser(this);
 
@@ -29,5 +29,12 @@ public sealed class Then<T, U> : Parser<U>
 
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

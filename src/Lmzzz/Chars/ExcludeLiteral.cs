@@ -12,7 +12,7 @@ public class ExcludeLiteral : Parser<TextSpan>
         this.exclude = SearchValues.Create(exclude);
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
+    public bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
     {
         context.EnterParser(this);
         var cursor = context.Cursor;
@@ -39,5 +39,12 @@ public class ExcludeLiteral : Parser<TextSpan>
         }
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

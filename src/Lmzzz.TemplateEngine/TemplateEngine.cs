@@ -20,7 +20,7 @@ public class TemplateEngineParser
     public static readonly Parser<IStatement> OP = AnyValue
         .And(IgnoreSeparator(Text("==")).Or(IgnoreSeparator(Text("!="))).Or(IgnoreSeparator(Text(">"))).Or(IgnoreSeparator(Text(">="))).Or(IgnoreSeparator(Text("<"))).Or(IgnoreSeparator(Text("<="))))
         .And(AnyValue)
-        .Then<IStatement>(static s => new OperaterStatement() { Left = s.Item1, Operater = s.Item2, Right = s.Item3 });
+        .Then(static s => new OperaterStatement() { Left = s.Item1, Operater = s.Item2, Right = s.Item3 } as IStatement);
 
     public static readonly Deferred<IStatement> Condition = Deferred<IStatement>();
 

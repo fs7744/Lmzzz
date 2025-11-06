@@ -14,7 +14,7 @@ public class IgnoreCharLiteral : Parser<Nothing>
         Value = c;
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<Nothing> result)
+    public bool Parse(CharParseContext context, ref ParseResult<Nothing> result)
     {
         context.EnterParser(this);
         var cursor = context.Cursor;
@@ -32,5 +32,12 @@ public class IgnoreCharLiteral : Parser<Nothing>
         }
         context.ExitParser(this);
         return true;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Lmzzz.Chars.Fluent;
 
-public abstract class Parser<T>
+public interface Parser<T>
 {
     public string Name { get; set; }
 
@@ -37,8 +37,8 @@ public abstract class Parser<T>
 
     #endregion Then
 
-    public override string ToString()
-    {
-        return Name == null ? base.ToString() : Name;
-    }
+    //public override string ToString()
+    //{
+    //    return Name == null ? base.ToString() : Name;
+    //}
 }

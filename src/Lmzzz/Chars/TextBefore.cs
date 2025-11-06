@@ -17,7 +17,7 @@ public class TextBefore<T> : Parser<TextSpan>
         this.consumeDelimiter = consumeDelimiter;
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
+    public bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
     {
         context.EnterParser(this);
 
@@ -78,5 +78,12 @@ public class TextBefore<T> : Parser<TextSpan>
 
             context.Cursor.Advance();
         }
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

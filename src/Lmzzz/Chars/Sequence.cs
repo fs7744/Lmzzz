@@ -13,7 +13,7 @@ public class Sequence<T1, T2> : Parser<ValueTuple<T1, T2>>
         this.parser2 = parser2 ?? throw new ArgumentNullException(nameof(parser2));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2>> result)
+    public bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2>> result)
     {
         context.EnterParser(this);
 
@@ -39,6 +39,13 @@ public class Sequence<T1, T2> : Parser<ValueTuple<T1, T2>>
         context.ExitParser(this);
         return false;
     }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
+    }
 }
 
 public class Sequence<T1, T2, T3> : Parser<ValueTuple<T1, T2, T3>>
@@ -52,7 +59,7 @@ public class Sequence<T1, T2, T3> : Parser<ValueTuple<T1, T2, T3>>
         this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3>> result)
+    public bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3>> result)
     {
         context.EnterParser(this);
 
@@ -84,6 +91,13 @@ public class Sequence<T1, T2, T3> : Parser<ValueTuple<T1, T2, T3>>
         context.ExitParser(this);
         return false;
     }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
+    }
 }
 
 public class Sequence<T1, T2, T3, T4> : Parser<ValueTuple<T1, T2, T3, T4>>
@@ -97,7 +111,7 @@ public class Sequence<T1, T2, T3, T4> : Parser<ValueTuple<T1, T2, T3, T4>>
         this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4>> result)
+    public bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4>> result)
     {
         context.EnterParser(this);
 
@@ -130,6 +144,13 @@ public class Sequence<T1, T2, T3, T4> : Parser<ValueTuple<T1, T2, T3, T4>>
         context.ExitParser(this);
         return false;
     }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
+    }
 }
 
 public class Sequence<T1, T2, T3, T4, T5> : Parser<ValueTuple<T1, T2, T3, T4, T5>>
@@ -143,7 +164,7 @@ public class Sequence<T1, T2, T3, T4, T5> : Parser<ValueTuple<T1, T2, T3, T4, T5
         this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5>> result)
+    public bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5>> result)
     {
         context.EnterParser(this);
 
@@ -177,6 +198,13 @@ public class Sequence<T1, T2, T3, T4, T5> : Parser<ValueTuple<T1, T2, T3, T4, T5
         context.ExitParser(this);
         return false;
     }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
+    }
 }
 
 public class Sequence<T1, T2, T3, T4, T5, T6> : Parser<ValueTuple<T1, T2, T3, T4, T5, T6>>
@@ -190,7 +218,7 @@ public class Sequence<T1, T2, T3, T4, T5, T6> : Parser<ValueTuple<T1, T2, T3, T4
         this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5, T6>> result)
+    public bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5, T6>> result)
     {
         context.EnterParser(this);
 
@@ -225,6 +253,13 @@ public class Sequence<T1, T2, T3, T4, T5, T6> : Parser<ValueTuple<T1, T2, T3, T4
         context.ExitParser(this);
         return false;
     }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
+    }
 }
 
 public class Sequence<T1, T2, T3, T4, T5, T6, T7> : Parser<ValueTuple<T1, T2, T3, T4, T5, T6, T7>>
@@ -238,7 +273,7 @@ public class Sequence<T1, T2, T3, T4, T5, T6, T7> : Parser<ValueTuple<T1, T2, T3
         this.lastParser = lastParser ?? throw new ArgumentNullException(nameof(lastParser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5, T6, T7>> result)
+    public bool Parse(CharParseContext context, ref ParseResult<ValueTuple<T1, T2, T3, T4, T5, T6, T7>> result)
     {
         context.EnterParser(this);
 
@@ -273,5 +308,12 @@ public class Sequence<T1, T2, T3, T4, T5, T6, T7> : Parser<ValueTuple<T1, T2, T3
 
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

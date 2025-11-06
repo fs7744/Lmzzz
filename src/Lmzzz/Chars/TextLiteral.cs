@@ -15,7 +15,7 @@ public class TextLiteral : Parser<string>
         this.comparison = comparison;
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<string> result)
+    public bool Parse(CharParseContext context, ref ParseResult<string> result)
     {
         context.EnterParser(this);
         var cursor = context.Cursor;
@@ -36,5 +36,12 @@ public class TextLiteral : Parser<string>
         }
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

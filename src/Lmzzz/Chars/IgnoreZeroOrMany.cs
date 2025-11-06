@@ -16,7 +16,7 @@ public class IgnoreZeroOrMany<T> : Parser<Nothing>
         this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<Nothing> result)
+    public bool Parse(CharParseContext context, ref ParseResult<Nothing> result)
     {
         context.EnterParser(this);
 
@@ -42,5 +42,12 @@ public class IgnoreZeroOrMany<T> : Parser<Nothing>
 
         context.ExitParser(this);
         return true;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

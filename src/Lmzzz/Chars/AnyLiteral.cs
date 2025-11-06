@@ -21,7 +21,7 @@ public class AnyLiteral : Parser<TextSpan>
         this.end = SearchValues.Create(end);
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
+    public bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
     {
         context.EnterParser(this);
 
@@ -132,5 +132,12 @@ public class AnyLiteral : Parser<TextSpan>
         }
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

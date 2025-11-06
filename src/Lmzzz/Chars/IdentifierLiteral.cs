@@ -20,7 +20,7 @@ public sealed class IdentifierLiteral : Parser<TextSpan>
         }
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
+    public bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
     {
         context.EnterParser(this);
 
@@ -43,5 +43,12 @@ public sealed class IdentifierLiteral : Parser<TextSpan>
 
         context.ExitParser(this);
         return true;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

@@ -11,7 +11,7 @@ public class ZeroOrMany<T> : Parser<IReadOnlyList<T>>
         this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<IReadOnlyList<T>> result)
+    public bool Parse(CharParseContext context, ref ParseResult<IReadOnlyList<T>> result)
     {
         context.EnterParser(this);
 
@@ -40,5 +40,12 @@ public class ZeroOrMany<T> : Parser<IReadOnlyList<T>>
 
         context.ExitParser(this);
         return true;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

@@ -21,7 +21,7 @@ public class CharLiteral : Parser<char>
         Value = c;
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<char> result)
+    public bool Parse(CharParseContext context, ref ParseResult<char> result)
     {
         context.EnterParser(this);
         var cursor = context.Cursor;
@@ -37,5 +37,12 @@ public class CharLiteral : Parser<char>
         }
         context.ExitParser(this);
         return false;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

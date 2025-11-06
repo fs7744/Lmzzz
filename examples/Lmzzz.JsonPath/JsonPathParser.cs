@@ -56,47 +56,47 @@ public class JsonPathParser
     //public static Parser<string> FunctionName = FunctionNameFirst.And(ZeroOrMany(FunctionNameChar)).Then<string>(static x => throw new NotImplementedException());
     public static readonly Parser<string> FunctionName = AnyExclude(name).Then<string>(static x => x.Span.ToString()).Name(nameof(FunctionName));
 
-    public static readonly Parser<IStatement> SliceSelector = Optional<int?>(Start.And(S).Then<int?>(static x => x.Item1), null).And(Char(':')).And(S).And(Optional<int?>(End.And(S).Then<int?>(static x => x.Item1), null)).And(Optional<int?>(Char(':').And(Optional<int?>(S.And(Step).Then<int?>(static x => x.Item2), null)).Then<int?>(static x => x.Item2))).Then<IStatement>(static x => new SliceStatement() { Start = x.Item1, End = x.Item4, Step = x.Item5 })
+    public static readonly Parser<IStatement> SliceSelector = Optional<int?>(Start.And(S).Then(static x => x.Item1 as int?), null).And(Char(':')).And(S).And(Optional<int?>(End.And(S).Then(static x => x.Item1 as int?), null)).And(Optional<int?>(Char(':').And(Optional<int?>(S.And(Step).Then(static x => x.Item2 as int?), null)).Then(static x => x.Item2 as int?))).Then(static x => new SliceStatement() { Start = x.Item1, End = x.Item4, Step = x.Item5 } as IStatement)
         .Name(nameof(SliceSelector));
 
     public static readonly Deferred<IStatement> LogicalExpr = Deferred<IStatement>(nameof(LogicalExpr));
 
-    public static readonly Parser<IStatement> FilterSelector = Char('?').And(S).And(LogicalExpr).Then<IStatement>(static x => new FilterSelectorStatement()
+    public static readonly Parser<IStatement> FilterSelector = Char('?').And(S).And(LogicalExpr).Then(static x => new FilterSelectorStatement()
     {
         Statement = x.Item3
-    }).Name(nameof(FilterSelector));
+    } as IStatement).Name(nameof(FilterSelector));
 
     public static readonly Parser<IStatement> Selector = NameSelector.Or(WildcardSelector).Or(SliceSelector).Or(IndexSelector).Or(FilterSelector).Name(nameof(Selector));
 
     public static readonly Parser<IStatement> ParenExpr = Optional(LogicalNotOp.And(S)).And(Char('(')).And(S).And(LogicalExpr).And(S).And(Char(')'))
-        .Then<IStatement>(static x => new UnaryOperaterStatement()
+        .Then(static x => new UnaryOperaterStatement()
         {
             Operator = x.Item1.Item1 == '!' ? "!" : "(",
             Statement = x.Item4
-        }).Name(nameof(ParenExpr));
+        } as IStatement).Name(nameof(ParenExpr));
 
     public static readonly Deferred<IReadOnlyList<(Nothing, IStatement)>> Segments = Deferred<IReadOnlyList<(Nothing, IStatement)>>(nameof(Segments));
 
     public static readonly Deferred<IStatement> FunctionExpr = Deferred<IStatement>(nameof(FunctionExpr));
     public static readonly Deferred<IStatement> JsonPathQuery = Deferred<IStatement>(nameof(JsonPathQuery));
-    public static readonly Parser<IStatement> RelQuery = CurrentNodeIdentifier.And(Segments).Then<IStatement>(static x => new CurrentNode() { Child = ConvertSegments(x.Item2) }).Name(nameof(RelQuery));
+    public static readonly Parser<IStatement> RelQuery = CurrentNodeIdentifier.And(Segments).Then(static x => new CurrentNode() { Child = ConvertSegments(x.Item2) } as IStatement).Name(nameof(RelQuery));
     public static readonly Parser<IStatement> Literal = Num.Or(StringLiteral.Then<IStatement>(static x => new StringValue(x.Span.ToString()))).Or(True).Or(False).Or(Null).Name(nameof(Literal));
-    public static readonly Parser<IStatement> NameSegment = Char('[').And(NameSelector).And(Char(']')).Then<IStatement>(static x => x.Item2).Or(Char('.').And(MemberNameShorthand).Then<IStatement>(static x => x.Item2)).Name(nameof(NameSegment));
-    public static readonly Parser<IStatement> IndexSegment = Char('[').And(IndexSelector).And(Char(']')).Then<IStatement>(static x => x.Item2).Name(nameof(IndexSegment));
+    public static readonly Parser<IStatement> NameSegment = Char('[').And(NameSelector).And(Char(']')).Then(static x => x.Item2).Or(Char('.').And(MemberNameShorthand).Then(static x => x.Item2)).Name(nameof(NameSegment));
+    public static readonly Parser<IStatement> IndexSegment = Char('[').And(IndexSelector).And(Char(']')).Then(static x => x.Item2).Name(nameof(IndexSegment));
 
     public static readonly Parser<IStatement> SingularQuerySegments = ZeroOrMany(S.And(NameSegment.Or(IndexSegment))).Then<IStatement>(ConvertSegments).Name(nameof(SingularQuerySegments));
 
-    public static readonly Parser<IStatement> RelSingularQuery = CurrentNodeIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => new CurrentNode() { Child = x.Item2 }).Name(nameof(RelSingularQuery));
-    public static readonly Parser<IStatement> AbsSingularQuery = RootIdentifier.And(SingularQuerySegments).Then<IStatement>(static x => new RootNode() { Child = x.Item2 }).Name(nameof(AbsSingularQuery));
+    public static readonly Parser<IStatement> RelSingularQuery = CurrentNodeIdentifier.And(SingularQuerySegments).Then(static x => new CurrentNode() { Child = x.Item2 } as IStatement).Name(nameof(RelSingularQuery));
+    public static readonly Parser<IStatement> AbsSingularQuery = RootIdentifier.And(SingularQuerySegments).Then(static x => new RootNode() { Child = x.Item2 } as IStatement).Name(nameof(AbsSingularQuery));
     public static readonly Parser<IStatement> SingularQuery = RelSingularQuery.Or(AbsSingularQuery).Name(nameof(SingularQuery));
     public static readonly Parser<IStatement> Comparable = Literal.Or(SingularQuery).Or(FunctionExpr).Name(nameof(Comparable));
-    public static readonly Parser<IStatement> ComparisonExpr = Comparable.And(S).And(ComparisonOp).And(S).And(Comparable).Then<IStatement>(static x => new OperatorStatement() { Left = x.Item1, Operator = x.Item3, Right = x.Item5 }).Name(nameof(ComparisonExpr));
+    public static readonly Parser<IStatement> ComparisonExpr = Comparable.And(S).And(ComparisonOp).And(S).And(Comparable).Then(static x => new OperatorStatement() { Left = x.Item1, Operator = x.Item3, Right = x.Item5 } as IStatement).Name(nameof(ComparisonExpr));
     public static readonly Parser<IStatement> FilterQuery = RelQuery.Or(JsonPathQuery).Name(nameof(FilterQuery));
     public static readonly Parser<IStatement> FunctionArgument = FilterQuery.Or(LogicalExpr).Or(FunctionExpr).Or(Literal).Name(nameof(FunctionArgument));
-    public static readonly Parser<IStatement> TestExpr = Optional(LogicalNotOp.And(S)).And(FilterQuery.Or(FunctionExpr)).Then<IStatement>(static x => x.Item1.Item1 == '!' ? new UnaryOperaterStatement() { Operator = "!", Statement = x.Item2 } : x.Item2).Name(nameof(TestExpr));
+    public static readonly Parser<IStatement> TestExpr = Optional(LogicalNotOp.And(S)).And(FilterQuery.Or(FunctionExpr)).Then(static x => x.Item1.Item1 == '!' ? new UnaryOperaterStatement() { Operator = "!", Statement = x.Item2 } : x.Item2).Name(nameof(TestExpr));
     public static readonly Parser<IStatement> BasicExpr = ParenExpr.Or(ComparisonExpr).Or(TestExpr).Name(nameof(BasicExpr));
 
-    public static readonly Parser<IStatement> LogicalAndExpr = BasicExpr.And(ZeroOrMany(S.And(Text("&&")).And(S).And(BasicExpr))).Then<IStatement>(static x =>
+    public static readonly Parser<IStatement> LogicalAndExpr = BasicExpr.And(ZeroOrMany(S.And(Text("&&")).And(S).And(BasicExpr))).Then(static x =>
     {
         IStatement current = x.Item1;
         if (x.Item2 != null && x.Item2.Count > 0)
@@ -109,7 +109,7 @@ public class JsonPathParser
         return current;
     }).Name(nameof(LogicalAndExpr));
 
-    public static readonly Parser<IStatement> LogicalOrExpr = LogicalAndExpr.And(ZeroOrMany(S.And(Text("||")).And(S).And(LogicalAndExpr))).Then<IStatement>(static x =>
+    public static readonly Parser<IStatement> LogicalOrExpr = LogicalAndExpr.And(ZeroOrMany(S.And(Text("||")).And(S).And(LogicalAndExpr))).Then(static x =>
     {
         IStatement current = x.Item1;
         if (x.Item2 != null && x.Item2.Count > 0)
@@ -123,7 +123,7 @@ public class JsonPathParser
     }).Name(nameof(LogicalOrExpr));
 
     public static readonly Parser<IStatement> BracketedSelection = Char('[').And(S).And(Selector).And(ZeroOrMany(S.And(Char(',')).And(S).And(Selector))).And(S).And(Char(']'))
-        .Then<IStatement>(static x =>
+        .Then(static x =>
     {
         var list = new List<IStatement> { x.Item3 };
         if (x.Item4 != null)
@@ -133,9 +133,9 @@ public class JsonPathParser
         return list.Count == 1 ? list[0] : new UnionSelectionStatement(list);
     }).Name(nameof(BracketedSelection));
 
-    public static readonly Parser<IStatement> ChildSegment = BracketedSelection.Or(Char('.').And(WildcardSelector.Or(MemberNameShorthand)).Then<IStatement>(static x => x.Item2)).Name(nameof(ChildSegment));
+    public static readonly Parser<IStatement> ChildSegment = BracketedSelection.Or(Char('.').And(WildcardSelector.Or(MemberNameShorthand)).Then(static x => x.Item2)).Name(nameof(ChildSegment));
 
-    public static readonly Parser<IStatement> DescendantSegment = Char('.').And(Char('.')).And(BracketedSelection.Or(WildcardSelector).Or(MemberNameShorthand)).Then<IStatement>(static x => new WildcardSelectorStatment() { Child = x.Item3 }).Name(nameof(DescendantSegment));
+    public static readonly Parser<IStatement> DescendantSegment = Char('.').And(Char('.')).And(BracketedSelection.Or(WildcardSelector).Or(MemberNameShorthand)).Then(static x => new WildcardSelectorStatment() { Child = x.Item3 } as IStatement).Name(nameof(DescendantSegment));
     public static readonly Parser<IStatement> Segment = ChildSegment.Or(DescendantSegment).Name(nameof(Segment));
 
     public static readonly Parser<IStatement> Parser;
@@ -145,7 +145,7 @@ public class JsonPathParser
         LogicalExpr.Parser = LogicalOrExpr;
         Segments.Parser = ZeroOrMany(S.And(Segment));
         //MemberNameShorthand.Parser = NameFirst.And(ZeroOrMany(NameChar)).Then<IStatement>(static x => new Member { Name = x.Item1 + new string(x.Item2.ToArray()) });
-        FunctionExpr.Parser = FunctionName.And(Char('(')).And(S).And(Optional(FunctionArgument.And(ZeroOrMany(S.And(Char(',')).And(S).And(FunctionArgument))))).And(S).And(Char(')')).Then<IStatement>(static x =>
+        FunctionExpr.Parser = FunctionName.And(Char('(')).And(S).And(Optional(FunctionArgument.And(ZeroOrMany(S.And(Char(',')).And(S).And(FunctionArgument))))).And(S).And(Char(')')).Then(static x =>
         {
             var args = new List<IStatement>();
             if (x.Item4.Item1 != null)
@@ -162,9 +162,9 @@ public class JsonPathParser
                 Arguments = args.Count == 0 ? Array.Empty<IStatement>() : args.ToArray()
             };
 
-            return func;
+            return func as IStatement;
         });
-        JsonPathQuery.Parser = RootIdentifier.And(Segments).Then<IStatement>(static x => new RootNode() { Child = ConvertSegments(x.Item2) });
+        JsonPathQuery.Parser = RootIdentifier.And(Segments).Then(static x => new RootNode() { Child = ConvertSegments(x.Item2) } as IStatement);
         Parser = JsonPathQuery.Eof().Name(nameof(Parser));
     }
 

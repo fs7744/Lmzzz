@@ -183,4 +183,6 @@ public static partial class Parsers
                 return result;
             });
     }
+
+    public static Parser<U> Then<T, U>(this Parser<T> parser, Func<T, U> conversion) => new Then<T, U>(parser, conversion);
 }

@@ -15,7 +15,7 @@ public class Between<A, T, B> : Parser<T>
         this.after = after ?? throw new ArgumentNullException(nameof(after));
     }
 
-    public override bool Parse(CharParseContext context, ref ParseResult<T> result)
+    public bool Parse(CharParseContext context, ref ParseResult<T> result)
     {
         context.EnterParser(this);
 
@@ -53,5 +53,12 @@ public class Between<A, T, B> : Parser<T>
 
         context.ExitParser(this);
         return true;
+    }
+
+    public string Name { get; set; }
+
+    public override string ToString()
+    {
+        return Name == null ? base.ToString() : Name;
     }
 }

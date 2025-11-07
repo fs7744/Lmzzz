@@ -21,6 +21,8 @@ public abstract class Parser<T>
                 value = localResult.Value;
                 return true;
             }
+            else
+                error = new ParseException("Failed", context.Cursor.Position);
         }
         catch (ParseException e)
         {

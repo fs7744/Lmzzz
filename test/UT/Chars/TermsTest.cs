@@ -17,7 +17,7 @@ public class TermsTest
 
         Assert.False(t.TryParse("}", out c, out err));
         Assert.Equal(Character.NullChar, c);
-        Assert.Null(err);
+        Assert.NotNull(err);
 
         Assert.True(t.TryParse(" \r\n  {", out c, out err));
         Assert.Equal('{', c);
@@ -34,7 +34,7 @@ public class TermsTest
 
         Assert.False(t.TryParse("se", out c, out err));
         Assert.Null(c);
-        Assert.Null(err);
+        Assert.NotNull(err);
 
         Assert.True(t.TryParse(" \r\n  SeleCt", out c, out err));
         Assert.Equal("select", c);
@@ -42,7 +42,7 @@ public class TermsTest
 
         Assert.False(t.TryParse(" \r\n  SeleCt 1", out c, out err));
         Assert.Null(c);
-        Assert.Null(err);
+        Assert.NotNull(err);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class TermsTest
 
         Assert.False(t.TryParse("\"", out c, out err));
         Assert.Null(c.ToString());
-        Assert.Null(err);
+        Assert.NotNull(err);
 
         Assert.True(t.TryParse("\"\"", out c, out err));
         Assert.Equal("", c);
@@ -78,7 +78,7 @@ public class TermsTest
 
         Assert.False(t.TryParse("'", out c, out err));
         Assert.Null(c.ToString());
-        Assert.Null(err);
+        Assert.NotNull(err);
 
         Assert.True(t.TryParse("''", out c, out err));
         Assert.Equal("", c);
@@ -93,10 +93,10 @@ public class TermsTest
         Assert.Null(err);
 
         Assert.False(t.TryParse("'1\\\\\\'2dasdadadad\\sdsdadad\\\\adas'", out c, out err));
-        Assert.Null(err);
+        Assert.NotNull(err);
 
         Assert.False(t.TryParse("'1\\\\\\'2dasdadadad\\", out c, out err));
-        Assert.Null(err);
+        Assert.NotNull(err);
     }
 
     [Fact]
@@ -116,7 +116,7 @@ public class TermsTest
 
         Assert.False(t.TryParse("se", out c, out err));
         Assert.Null(c);
-        Assert.Null(err);
+        Assert.NotNull(err);
     }
 
     [Fact]
@@ -155,7 +155,7 @@ public class TermsTest
 
         Assert.False(t.TryParse(" \r\n   xada/l;fslf大大大fpsalfas;f 大打发打发发发", out c, out err));
         Assert.Null(c.ToString());
-        Assert.Null(err);
+        Assert.NotNull(err);
 
         Assert.True(t.TryParse("{", out c, out err));
         Assert.Equal("", c.ToString());
@@ -198,7 +198,7 @@ public class TermsTest
 
         Assert.False(t.TryParse(" \r\n   xada/l;fslf大大大fpsalfas;f 大打发打发发发", out c, out err));
         Assert.Null(c.ToString());
-        Assert.Null(err);
+        Assert.NotNull(err);
     }
 
     [Fact]
@@ -260,7 +260,7 @@ public class TermsTest
 
         Assert.False(t.TryParse(" \r\n   ", out c, out err));
         Assert.Null(c);
-        Assert.Null(err);
+        Assert.NotNull(err);
     }
 
     [Fact]

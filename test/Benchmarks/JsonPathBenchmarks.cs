@@ -50,41 +50,41 @@ public class JsonPathBenchmarks
         return result.Value.EvaluateJson(json);
     }
 
-    //private Newtonsoft.Json.Linq.JToken testTo = Newtonsoft.Json.Linq.JToken.Parse("null");
+    private Newtonsoft.Json.Linq.JToken testTo = Newtonsoft.Json.Linq.JToken.Parse("null");
 
-    //[Benchmark]
-    //public object NewtonsoftOnlyParseTest()
-    //{
-    //    return testTo.SelectTokens(path);
-    //}
+    [Benchmark]
+    public object NewtonsoftOnlyParseTest()
+    {
+        return testTo.SelectTokens(path);
+    }
 
-    //[Benchmark]
-    //public object NewtonsoftTest()
-    //{
-    //    Newtonsoft.Json.Linq.JToken token = Newtonsoft.Json.Linq.JToken.Parse(json);
-    //    return token.SelectTokens(path);
-    //}
+    [Benchmark]
+    public object NewtonsoftTest()
+    {
+        Newtonsoft.Json.Linq.JToken token = Newtonsoft.Json.Linq.JToken.Parse(json);
+        return token.SelectTokens(path);
+    }
 
-    //[Benchmark]
-    //public object JsonPathNetTest()
-    //{
-    //    var p = JsonPath.Parse(path);
-    //    var instance = JsonNode.Parse(json);
-    //    return p.Evaluate(instance);
-    //}
+    [Benchmark]
+    public object JsonPathNetTest()
+    {
+        var p = JsonPath.Parse(path);
+        var instance = JsonNode.Parse(json);
+        return p.Evaluate(instance);
+    }
 
-    //[Benchmark]
-    //public object JsonPathNetCacheTest()
-    //{
-    //    var instance = JsonNode.Parse(json);
-    //    return pc.Evaluate(instance);
-    //}
+    [Benchmark]
+    public object JsonPathNetCacheTest()
+    {
+        var instance = JsonNode.Parse(json);
+        return pc.Evaluate(instance);
+    }
 
-    //[Benchmark]
-    //public object JsonPathNetOnlyParseTest()
-    //{
-    //    return JsonPath.Parse(path);
-    //}
+    [Benchmark]
+    public object JsonPathNetOnlyParseTest()
+    {
+        return JsonPath.Parse(path);
+    }
 
     [Benchmark]
     public object OnlyParseTest()

@@ -25,6 +25,7 @@ public class TemplateEngineTest
     [InlineData("(1 != 2.3 or (2 > s.d.d and 6 != 7)) and 3 !=4")]
     [InlineData("(1 != f(2.3) or (2 > s.d.d and 6 != 7)) and 3 !=4")]
     [InlineData("(1 != f(2.3) && z() || true || f(s.d))")]
+    [InlineData("! (1 != f(2.3) && z() || true || f(s.d))")]
     public void ConditionParserTest(string text)
     {
         var r = TemplateEngineParser.ConditionParser.TryParse(text, out var v, out var err);

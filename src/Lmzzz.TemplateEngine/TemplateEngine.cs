@@ -23,22 +23,22 @@ public class TemplateEngineParser
     public static readonly Parser<IStatement> OP = AnyValue
         .And(IgnoreSeparator(Text("==")).Or(IgnoreSeparator(Text("!="))).Or(IgnoreSeparator(Text(">"))).Or(IgnoreSeparator(Text(">="))).Or(IgnoreSeparator(Text("<"))).Or(IgnoreSeparator(Text("<="))))
         .And(AnyValue)
-        .Then<IStatement>(static s => new OperaterStatement() { Left = s.Item1, Operater = s.Item2, Right = s.Item3 }).Name(nameof(OP));
+        .Then<IStatement>(static s => StatementUtils.Create(s.Item2, s.Item1, s.Item3)).Name(nameof(OP));
 
     public static readonly Deferred<IStatement> Condition = Deferred<IStatement>(nameof(Condition));
 
     public static readonly Parser<IStatement> GroupExpression = Between(ParenOpen, Condition, ParenClose).Name(nameof(GroupExpression));
-    public static readonly Parser<IStatement> NotExpression = Between(IgnoreSeparator(Text("!(")), Condition, ParenClose).Then<IStatement>(static s => new UnaryStatement() { Operater = "not", Statement = s }).Name(nameof(NotExpression));
+    public static readonly Parser<IStatement> NotExpression = Between(IgnoreSeparator(Text("!")).And(ParenOpen), Condition, ParenClose).Then<IStatement>(static s => StatementUtils.Create("!", s)).Name(nameof(NotExpression));
 
     public static readonly Parser<IStatement> ConditionValue = OP.Or(IgnoreSeparator(FunctionExpr)).Or(BoolValue).Name(nameof(ConditionValue));
 
     public static readonly Parser<IStatement> Primary = NotExpression.Or(GroupExpression).Or(ConditionValue).Name(nameof(Primary));
 
     public static readonly Parser<IStatement> Conditions = Primary.LeftAssociative(
-               (IgnoreSeparator(Text("&&")), static (x, y) => new OperaterStatement() { Left = x, Operater = "and", Right = y }),
-               (IgnoreSeparator(Text("and", true)), static (x, y) => new OperaterStatement() { Left = x, Operater = "and", Right = y }),
-               (IgnoreSeparator(Text("||")), static (x, y) => new OperaterStatement() { Left = x, Operater = "or", Right = y }),
-               (IgnoreSeparator(Text("or", true)), static (x, y) => new OperaterStatement() { Left = x, Operater = "or", Right = y })
+               (IgnoreSeparator(Text("&&")), static (x, y) => StatementUtils.Create("&&", x, y)),
+               (IgnoreSeparator(Text("and", true)), static (x, y) => StatementUtils.Create("&&", x, y)),
+               (IgnoreSeparator(Text("||")), static (x, y) => StatementUtils.Create("||", x, y)),
+               (IgnoreSeparator(Text("or", true)), static (x, y) => StatementUtils.Create("||", x, y))
            ).Name(nameof(Conditions));
 
     static TemplateEngineParser()

@@ -1,7 +1,7 @@
 ﻿using Lmzzz.Chars.Fluent;
 using System.Collections.Immutable;
 
-namespace Lmzzz;
+namespace Lmzzz.Template.Inner;
 
 public interface IValueStatement : IStatement
 {

@@ -1,4 +1,4 @@
-﻿namespace Lmzzz;
+﻿namespace Lmzzz.Template.Inner;
 
 public class NullValueStatement : IValueStatement
 {

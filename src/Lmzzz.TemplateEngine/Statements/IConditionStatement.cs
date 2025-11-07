@@ -1,4 +1,4 @@
-﻿namespace Lmzzz;
+﻿namespace Lmzzz.Template.Inner;
 
 public interface IConditionStatement : IStatement
 {

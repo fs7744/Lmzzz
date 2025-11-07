@@ -15,7 +15,7 @@ public static partial class Parsers
 
     public static Parser<T> IgnoreSeparator<T>(Parser<T> parser) => new IgnoreSeparator<T>(parser);
 
-    public static Parser<T> Eof<T>(this Parser<T> parser) => new Eof<T>(parser);
+    public static Parser<T> Eof<T>(this Parser<T> parser, bool ignoreSeparator = true) => new Eof<T>(parser, ignoreSeparator);
 
     public static Parser<T> Else<T>(this Parser<T> parser, T value) => new Else<T>(parser, value);
 
@@ -27,17 +27,17 @@ public static partial class Parsers
 
     public static Parser<char> Char(char start, char end)
     {
-        return new CharLiteral(string.Join("", Enumerable.Range((int)start, (int)end - (int)start).Select(i => (char)i)));
+        return new CharLiterals(string.Join("", Enumerable.Range((int)start, (int)end - (int)start).Select(i => (char)i)));
     }
 
     public static Parser<char> Char(char[] chars)
     {
-        return new CharLiteral(string.Join("", chars));
+        return new CharLiterals(string.Join("", chars));
     }
 
     public static Parser<char> Char(string chars)
     {
-        return new CharLiteral(chars);
+        return new CharLiterals(chars);
     }
 
     public static Parser<Nothing> IgnoreChar(char c) => new IgnoreCharLiteral(c.ToString());
@@ -105,26 +105,40 @@ public static partial class Parsers
         {
             cs = c.Value;
         }
-        else if (parser is IgnoreSeparator<char> isc && isc.Parser is CharLiteral c1)
+        else if (parser is CharLiterals cc)
         {
-            cs = c1.Value;
+            cs = cc.Value;
+        }
+        else if (parser is IgnoreSeparator<char> isc)
+        {
+            if (isc.Parser is CharLiteral c1)
+                cs = c1.Value;
+            else if (isc.Parser is CharLiterals c2)
+                cs = c2.Value;
         }
 
         if (cs != null)
         {
             string csc = null;
-            if (or is CharLiteral cc)
+            if (or is CharLiteral scc)
             {
-                csc = cc.Value;
+                csc = scc.Value;
             }
-            else if (or is IgnoreSeparator<char> iscc && iscc.Parser is CharLiteral cc1)
+            else if (or is CharLiterals sccc)
             {
-                csc = cc1.Value;
+                cs = sccc.Value;
+            }
+            else if (or is IgnoreSeparator<char> iscc)
+            {
+                if (iscc.Parser is CharLiteral cc1)
+                    csc = cc1.Value;
+                else if (iscc.Parser is CharLiterals cc2)
+                    csc = cc2.Value;
             }
 
             if (csc != null)
             {
-                return new CharLiteral(cs + csc);
+                return new CharLiterals(cs + csc);
             }
         }
 
@@ -175,10 +189,16 @@ public static partial class Parsers
                 var result = x.Item1;
 
                 // (("-" | "+") multiplicative ) *
-                foreach (var op in x.Item2)
+                var xx = x.Item2;
+                for (int i = 0; i < xx.Count; i++)
                 {
+                    var op = xx[i];
                     result = op.Item1(result, op.Item2);
                 }
+                //foreach (var op in x.Item2)
+                //{
+                //    result = op.Item1(result, op.Item2);
+                //}
 
                 return result;
             });

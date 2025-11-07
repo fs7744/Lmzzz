@@ -5,10 +5,12 @@ namespace Lmzzz.Chars;
 public class Eof<T> : Parser<T>
 {
     private readonly Parser<T> _parser;
+    private readonly bool ignoreSeparator;
 
-    public Eof(Parser<T> parser)
+    public Eof(Parser<T> parser, bool ignoreSeparator)
     {
         _parser = parser;
+        this.ignoreSeparator = ignoreSeparator;
     }
 
     public override bool Parse(CharParseContext context, ref ParseResult<T> result)
@@ -17,7 +19,8 @@ public class Eof<T> : Parser<T>
 
         if (_parser.Parse(context, ref result))
         {
-            context.InogreSeparator();
+            if (ignoreSeparator)
+                context.InogreSeparator();
             if (context.Cursor.Eof)
             {
                 context.ExitParser(this);

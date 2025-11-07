@@ -15,8 +15,6 @@ public sealed class OneOf<T> : Parser<T>
     {
         context.EnterParser(this);
 
-        //context.Separator?.Invoke(context);
-
         var cursor = context.Cursor;
 
         var start = cursor.Position;

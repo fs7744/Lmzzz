@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Lmzzz.Template.Inner;
 
@@ -45,7 +46,7 @@ public class FieldStatement : IFieldStatement
             foreach (var item in Names)
             {
                 var fs = getters.GetOrAdd(item, static k => new ConcurrentDictionary<Type, Func<object, object>>());
-                var f = fs.GetOrAdd(c.GetType(), t => CreateGetter(t, item));
+                var f = fs.GetOrAdd(c.GetType(), static (t, i) => CreateGetter(t, i), item);
                 c = f(c);
                 if (c == null)
                     break;
@@ -57,9 +58,11 @@ public class FieldStatement : IFieldStatement
         return r;
     }
 
-    private object nullo = null;
+    private static readonly object nullo = null;
+    private static readonly MethodInfo GetValue = typeof(System.Array).GetMethod("GetValue", [typeof(int)]);
+    private static readonly PropertyInfo Length = typeof(System.Array).GetProperty("Length");
 
-    private Func<object, object> CreateGetter(Type type, string k)
+    private static Func<object, object> CreateGetter(Type type, string k)
     {
         if (type.IsGenericType && type.GetInterfaces().Any(x => x == typeof(System.Collections.IDictionary)))
         {
@@ -80,6 +83,31 @@ public class FieldStatement : IFieldStatement
                 }
             }
         }
+        else if (int.TryParse(k, out var i) && i >= 0)
+        {
+            if (type.BaseType == typeof(System.Array))
+            {
+                var pp = Expression.Parameter(typeof(object), "pp");
+                var a = Expression.Parameter(typeof(Array), "a");
+                var r = Expression.Variable(typeof(object), "r");
+                var mm = Expression.IfThen(Expression.LessThan(Expression.Constant(i), Expression.Property(a, Length)), Expression.Assign(r, Expression.Call(a, GetValue, Expression.Constant(i))));
+                return Expression.Lambda<Func<object, object>>(Expression.Block(new[] { a, r }, Expression.Assign(a, Expression.Convert(pp, typeof(System.Array))), mm, r), pp).Compile();
+            }
+            else if (type.IsGenericType && type.GetInterfaces().Any(x => x == typeof(System.Collections.ICollection)))
+            {
+                var l = type.GetProperty("Count");
+                var g = type.GetMethod("get_Item");
+                if (l != null && g != null)
+                {
+                    var pp = Expression.Parameter(typeof(object), "pp");
+                    var a = Expression.Parameter(type, "a");
+                    var r = Expression.Variable(typeof(object), "r");
+                    var mm = Expression.IfThen(Expression.LessThan(Expression.Constant(i), Expression.Property(a, l)), Expression.Assign(r, Expression.Convert(Expression.Call(a, g, Expression.Constant(i)), typeof(object))));
+                    return Expression.Lambda<Func<object, object>>(Expression.Block(new[] { a, r }, Expression.Assign(a, Expression.Convert(pp, type)), mm, r), pp).Compile();
+                }
+            }
+        }
+
         var p = type.GetProperty(k);
         if (p != null)
         {

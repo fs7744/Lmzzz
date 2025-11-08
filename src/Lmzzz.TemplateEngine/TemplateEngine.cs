@@ -12,13 +12,14 @@ public class TemplateEngineParser
     public static readonly Parser<IStatement> BoolValue = IgnoreSeparator(Text("true", true)).Then<IStatement>(static s => BoolValueStatement.True)
             .Or(IgnoreSeparator(Text("false", true)).Then<IStatement>(static s => BoolValueStatement.False)).Name(nameof(BoolValue));
 
+    public static readonly Parser<IStatement> StringValue = IgnoreSeparator(String('\'').Or(String())).Then<IStatement>(static s => new StringValueStatement(s)).Name(nameof(StringValue));
     public static readonly Parser<IStatement> NumberValue = IgnoreSeparator(Decimal()).Then<IStatement>(static s => new DecimalValueStatement(s)).Name(nameof(NumberValue));
-    public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), Identifier(Character.SVIdentifierStart, Character.SVIdentifierPart))).Then<IStatement>(static s => new FieldStatement(s)).Name(nameof(Field));
+    public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart))).Then<IStatement>(static s => new FieldStatement(s)).Name(nameof(Field));
 
     public static readonly Parser<char> ParenOpen = IgnoreSeparator(Char('(')).Name(nameof(ParenOpen));
     public static readonly Parser<char> ParenClose = IgnoreSeparator(Char(')')).Name(nameof(ParenClose));
     public static readonly Deferred<IStatement> FunctionExpr = Deferred<IStatement>(nameof(FunctionExpr));
-    public static readonly Parser<IStatement> AnyValue = NullValue.Or(BoolValue).Or(NumberValue).Or(IgnoreSeparator(FunctionExpr)).Or(Field).Name(nameof(AnyValue));
+    public static readonly Parser<IStatement> AnyValue = NullValue.Or(BoolValue).Or(StringValue).Or(IgnoreSeparator(FunctionExpr)).Or(NumberValue).Or(Field).Name(nameof(AnyValue));
 
     public static readonly Parser<IStatement> OP = AnyValue
         .And(IgnoreSeparator(Text("==")).Or(IgnoreSeparator(Text("!="))).Or(IgnoreSeparator(Text(">="))).Or(IgnoreSeparator(Text(">"))).Or(IgnoreSeparator(Text("<="))).Or(IgnoreSeparator(Text("<"))))
@@ -43,7 +44,7 @@ public class TemplateEngineParser
 
     static TemplateEngineParser()
     {
-        FunctionExpr.Parser = Identifier(Character.SVIdentifierStart, Character.SVIdentifierPart).And(ParenOpen)
+        FunctionExpr.Parser = Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart).And(ParenOpen)
             .And(Optional(AnyValue.And(ZeroOrMany(IgnoreSeparator(Char(',')).And(AnyValue))))).And(ParenClose).Then<IStatement>(static x =>
             {
                 var args = new List<IStatement>();

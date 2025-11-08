@@ -57,6 +57,19 @@ public class TemplateEngineTest
     [InlineData("f(2)")]
     [InlineData("f(s.d)")]
     [InlineData("z()")]
+    [InlineData("Regex(Str,'^9.*')")]
+    public void FunctionExprTest(string text)
+    {
+        var r = TemplateEngineParser.FunctionExpr.Eof().TryParse(text, out var v, out var err);
+        Assert.True(r);
+        Assert.NotNull(v);
+    }
+
+    [Theory]
+    [InlineData("f(2)")]
+    [InlineData("f(s.d)")]
+    [InlineData("z()")]
+    [InlineData("Regex(Str,'^9.*')")]
     public void ConditionValueTest(string text)
     {
         var r = TemplateEngineParser.ConditionValue.Eof().TryParse(text, out var v, out var err);
@@ -74,12 +87,37 @@ public class TemplateEngineTest
         Assert.NotNull(err.Position.ToString());
     }
 
-    private A data = new A { Int = 4, D = 5.5, IntD = new Dictionary<string, int>() { { "a99", 44 } } };
+    private A data = new A
+    {
+        Int = 4,
+        D = 5.5,
+        IntD = new Dictionary<string, int>() { { "a99", 44 }, { "99", 144 } },
+        Array = [2, 34, 55],
+        List = [2, 34, 55],
+        LinkedList = new LinkedList<int>([2, 34, 55]) { },
+        Str = "9sd"
+    };
 
     [Theory]
     [InlineData("Int", 4)]
     [InlineData("D", 5.5)]
     [InlineData("IntD.a99", 44)]
+    [InlineData("IntD.99", 144)]
+    [InlineData("Array.0", 2)]
+    [InlineData("Array.1", 34)]
+    [InlineData("Array.2", 55)]
+    [InlineData("Array.3", null)]
+    [InlineData("Array.90", null)]
+    [InlineData("List.0", 2)]
+    [InlineData("List.1", 34)]
+    [InlineData("List.2", 55)]
+    [InlineData("List.3", null)]
+    [InlineData("List.90", null)]
+    [InlineData("LinkedList.0", null)]
+    [InlineData("LinkedList.1", null)]
+    [InlineData("LinkedList.2", null)]
+    [InlineData("LinkedList.3", null)]
+    [InlineData("LinkedList.90", null)]
     public void FieldTest(string text, object d)
     {
         var r = TemplateEngineParser.Field.Eof().TryParse(text, out var v, out var err);
@@ -113,6 +151,8 @@ public class TemplateEngineTest
     [InlineData("!(null != null) && 1 == 3", false)]
     [InlineData("!(null != null) || 1 == 3", true)]
     [InlineData("!(null != null) or 1 == 3", true)]
+    [InlineData("Regex(Str,'^9.*')", true)]
+    [InlineData("Regex ( Str, '^7.*', 'ECMAScript')", false)]
     public void ConditionEvaluateTest(string text, object d)
     {
         var r = TemplateEngineParser.ConditionParser.TryParse(text, out var v, out var err);
@@ -129,6 +169,12 @@ public class A
     public double? Dd;
     public double? D;
     public int Int { get; set; }
-
+    public string Str { get; set; }
     public Dictionary<string, int> IntD { get; set; }
+
+    public int[] Array { get; set; }
+
+    public List<int> List { get; set; }
+
+    public LinkedList<int> LinkedList { get; set; }
 }

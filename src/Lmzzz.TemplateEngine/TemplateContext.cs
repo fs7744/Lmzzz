@@ -6,6 +6,8 @@ public class TemplateContext
 
     public Dictionary<string, object> Cache { get; }
 
+    public Dictionary<string, Func<TemplateContext, IStatement[], object?>> Functions { get; set; }
+
     public TemplateContext(object data)
     {
         Data = data;

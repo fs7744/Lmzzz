@@ -1,4 +1,6 @@
-﻿namespace Lmzzz.Template.Inner;
+﻿using System.Text;
+
+namespace Lmzzz.Template.Inner;
 
 public class TemplateContext
 {
@@ -7,6 +9,8 @@ public class TemplateContext
     public Dictionary<string, object> Cache { get; }
 
     public Dictionary<string, Func<TemplateContext, IStatement[], object?>> Functions { get; set; }
+
+    public StringBuilder StringBuilder { get; set; }
 
     public TemplateContext(object data)
     {

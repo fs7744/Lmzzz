@@ -73,4 +73,25 @@ public class TemplateEngineTest
         Assert.NotNull(err);
         Assert.NotNull(err.Position.ToString());
     }
+
+    [Theory]
+    [InlineData("Int", 4)]
+    [InlineData("D", 5.5)]
+    [InlineData("IntD.a99", 44)]
+    public void FieldTest(string text, object d)
+    {
+        var r = TemplateEngineParser.Field.Eof().TryParse(text, out var v, out var err);
+        Assert.True(r);
+        var data = new TemplateContext(new A { Int = 4, D = 5.5, IntD = new Dictionary<string, int>() { { "a99", 44 } } });
+        var f = v.Evaluate(data);
+        Assert.Equal(d, f);
+    }
+}
+
+public class A
+{
+    public double? D;
+    public int Int { get; set; }
+
+    public Dictionary<string, int> IntD { get; set; }
 }

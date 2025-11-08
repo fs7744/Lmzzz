@@ -67,8 +67,3 @@ public class TemplateEngineParser
         ConditionParser = ConditionParser.Eof();
     }
 }
-
-public class TemplateContext
-{
-    public object Data { get; set; }
-}

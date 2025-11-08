@@ -8,4 +8,9 @@ public class DecimalValueStatement : IValueStatement
     }
 
     public decimal Value { get; }
+
+    public object? Evaluate(TemplateContext context)
+    {
+        return Value;
+    }
 }

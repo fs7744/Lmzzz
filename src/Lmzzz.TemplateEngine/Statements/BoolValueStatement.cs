@@ -11,4 +11,9 @@ public class BoolValueStatement : IValueStatement, IConditionStatement
     }
 
     public bool Value { get; }
+
+    public object? Evaluate(TemplateContext context)
+    {
+        return Value;
+    }
 }

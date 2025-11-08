@@ -10,4 +10,9 @@ public class NotStatement : IUnaryStatement
     public IStatement Statement { get; }
 
     public string Operater => "!";
+
+    public object? Evaluate(TemplateContext context)
+    {
+        throw new NotImplementedException();
+    }
 }

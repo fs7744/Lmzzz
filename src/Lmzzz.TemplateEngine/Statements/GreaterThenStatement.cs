@@ -13,4 +13,9 @@ public class GreaterThenStatement : IOperaterStatement
         Left = left;
         Right = right;
     }
+
+    public object? Evaluate(TemplateContext context)
+    {
+        throw new NotImplementedException();
+    }
 }

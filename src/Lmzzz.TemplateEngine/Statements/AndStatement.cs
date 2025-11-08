@@ -16,6 +16,11 @@ public class AndStatement : IOperaterStatement
 
     public object? Evaluate(TemplateContext context)
     {
-        throw new NotImplementedException();
+        var l = Left.Evaluate(context);
+        var r = Right.Evaluate(context);
+        if (l is null || r is null)
+            return false;
+
+        return l is bool bl && r is bool br && bl && br;
     }
 }

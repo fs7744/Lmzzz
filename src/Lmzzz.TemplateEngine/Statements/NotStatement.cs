@@ -13,6 +13,9 @@ public class NotStatement : IUnaryStatement
 
     public object? Evaluate(TemplateContext context)
     {
-        throw new NotImplementedException();
+        var l = Statement.Evaluate(context);
+        if (l is null || l is not bool b)
+            return false;
+        else return !b;
     }
 }

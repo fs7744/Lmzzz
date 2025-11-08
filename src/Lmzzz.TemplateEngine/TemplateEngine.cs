@@ -21,7 +21,7 @@ public class TemplateEngineParser
     public static readonly Parser<IStatement> AnyValue = NullValue.Or(BoolValue).Or(NumberValue).Or(IgnoreSeparator(FunctionExpr)).Or(Field).Name(nameof(AnyValue));
 
     public static readonly Parser<IStatement> OP = AnyValue
-        .And(IgnoreSeparator(Text("==")).Or(IgnoreSeparator(Text("!="))).Or(IgnoreSeparator(Text(">"))).Or(IgnoreSeparator(Text(">="))).Or(IgnoreSeparator(Text("<"))).Or(IgnoreSeparator(Text("<="))))
+        .And(IgnoreSeparator(Text("==")).Or(IgnoreSeparator(Text("!="))).Or(IgnoreSeparator(Text(">="))).Or(IgnoreSeparator(Text(">"))).Or(IgnoreSeparator(Text("<="))).Or(IgnoreSeparator(Text("<"))))
         .And(AnyValue)
         .Then<IStatement>(static s => StatementUtils.Create(s.Item2, s.Item1, s.Item3)).Name(nameof(OP));
 

@@ -74,6 +74,8 @@ public class TemplateEngineTest
         Assert.NotNull(err.Position.ToString());
     }
 
+    private A data = new A { Int = 4, D = 5.5, IntD = new Dictionary<string, int>() { { "a99", 44 } } };
+
     [Theory]
     [InlineData("Int", 4)]
     [InlineData("D", 5.5)]
@@ -82,14 +84,49 @@ public class TemplateEngineTest
     {
         var r = TemplateEngineParser.Field.Eof().TryParse(text, out var v, out var err);
         Assert.True(r);
-        var data = new TemplateContext(new A { Int = 4, D = 5.5, IntD = new Dictionary<string, int>() { { "a99", 44 } } });
-        var f = v.Evaluate(data);
+        var dd = new TemplateContext(data);
+        var f = v.Evaluate(dd);
+        Assert.Equal(d, f);
+    }
+
+    [Theory]
+    [InlineData("4 == Int", true)]
+    [InlineData("Int == 4", true)]
+    [InlineData("D == null", false)]
+    [InlineData("D == 5.5", true)]
+    [InlineData("Dd == 5.5", false)]
+    [InlineData("Dd == Dd", true)]
+    [InlineData("4 != Int", false)]
+    [InlineData("Int != 4", false)]
+    [InlineData("D != null", true)]
+    [InlineData("D != 5.5", false)]
+    [InlineData("Dd != 5.5", true)]
+    [InlineData("Dd != Dd", false)]
+    [InlineData("D >= 5.5", true)]
+    [InlineData("D > 5.5", false)]
+    [InlineData("D <= 5.5", true)]
+    [InlineData("D < 5.5", false)]
+    [InlineData("!(D < 5.5)", true)]
+    [InlineData("!(null == null)", false)]
+    [InlineData("!(null != null)", true)]
+    [InlineData("!(null != null) and 1 == 3", false)]
+    [InlineData("!(null != null) && 1 == 3", false)]
+    [InlineData("!(null != null) || 1 == 3", true)]
+    [InlineData("!(null != null) or 1 == 3", true)]
+    public void ConditionEvaluateTest(string text, object d)
+    {
+        var r = TemplateEngineParser.ConditionParser.TryParse(text, out var v, out var err);
+        Assert.True(r);
+        Assert.NotNull(v);
+        var dd = new TemplateContext(data);
+        var f = v.Evaluate(dd);
         Assert.Equal(d, f);
     }
 }
 
 public class A
 {
+    public double? Dd;
     public double? D;
     public int Int { get; set; }
 

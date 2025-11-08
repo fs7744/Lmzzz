@@ -4,7 +4,7 @@ public class IfStatement : IStatement
 {
     public IfConditionStatement If { get; set; }
     public IEnumerable<IfConditionStatement> ElseIfs { get; set; }
-    public string? Else { get; set; }
+    public IStatement? Else { get; set; }
 
     public object? Evaluate(TemplateContext context)
     {
@@ -14,7 +14,7 @@ public class IfStatement : IStatement
         else if (ElseIfs != null && ElseIfs.Any(x => true.Equals(x.Evaluate(context))))
         { }
         else if (Else != null)
-            context.StringBuilder.Append(Else);
+            Else.Evaluate(context);
 
         return null;
     }

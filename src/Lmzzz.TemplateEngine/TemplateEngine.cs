@@ -42,20 +42,41 @@ public class TemplateEngineParser
                (IgnoreSeparator(Text("or", true)), static (x, y) => StatementUtils.Create("||", x, y))
            ).Name(nameof(Conditions));
 
-    public static readonly Parser<TextSpan> OriginStr = Any('@', escape: '\\');
+    public static readonly Parser<char> Sign = IgnoreSeparator(Char('@'));
 
-    public static readonly Parser<Nothing> Sign = IgnoreSeparator(IgnoreChar('@'));
+    public static readonly Parser<IStatement> ReplaceStr = Between(Char('@'), AnyValue, Sign).Then<IStatement>(static x => new ReplaceStatement(x));
+
+    public static readonly Parser<IStatement> OriginStr = Any('@', escape: '\\').Then<IStatement>(static x => new OriginStrStatement(x.Span.ToString()));
+
+    public static readonly Parser<IStatement> RStr = ZeroOrMany(ReplaceStr.Or(OriginStr)).Then<IStatement>(static x =>
+    {
+        if (x == null || x.Count == 0) return null;
+        var c = x[0];
+        var list = new List<IStatement>() { c };
+        for (var i = 1; i < x.Count; i++)
+        {
+            var n = x[i];
+            if (c is OriginStrStatement o && n is OriginStrStatement no)
+            {
+                o.Text += no.Text;
+                continue;
+            }
+            list.Add(n);
+            c = n;
+        }
+        return list.Count == 1 ? list.First() : new ArrayStatement(list.ToArray());
+    });
 
     public static readonly Parser<IStatement> If = Sign.And(IgnoreSeparator(Text("if", true))).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign)
-        .And(OriginStr)
-        .And(ZeroOrMany(Sign.And(IgnoreSeparator(Text("elseif", true))).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign).And(OriginStr)))
-        .And(Optional(Sign.And(IgnoreSeparator(Text("else", true))).And(Sign).And(OriginStr)))
+        .And(RStr)
+        .And(ZeroOrMany(Sign.And(IgnoreSeparator(Text("elseif", true))).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign).And(RStr)))
+        .And(Optional(Sign.And(IgnoreSeparator(Text("else", true))).And(Sign).And(RStr)))
         .And(Sign.And(IgnoreSeparator(Text("endif", true))).And(Sign))
         .Then<IStatement>(static x => new IfStatement()
         {
-            If = new IfConditionStatement(x.Item1.Item4, x.Item1.Item7.Span.ToString()),
-            ElseIfs = x.Item2 == null || x.Item2.Count == 0 ? null : x.Item2.Select(static y => new IfConditionStatement(y.Item4, y.Item7.Span.ToString())),
-            Else = x.Item3.Item2 != null ? x.Item3.Item4.Span.ToString() : null,
+            If = new IfConditionStatement(x.Item1.Item4, x.Item1.Item7),
+            ElseIfs = x.Item2 == null || x.Item2.Count == 0 ? null : x.Item2.Select(static y => new IfConditionStatement(y.Item4, y.Item7)),
+            Else = x.Item3.Item2 != null ? x.Item3.Item4 : null,
         })
         .Name(nameof(If));
 

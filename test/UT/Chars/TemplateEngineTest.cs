@@ -163,6 +163,30 @@ public class TemplateEngineTest
         Assert.Equal(d, f);
     }
 
+    //[Theory]
+    //[InlineData(" xx ", " xx ")]
+    //public void ReplaceStrTest(string text, string d)
+    //{
+    //    var r = TemplateEngineParser.ReplaceStr.Eof().TryParse(text, out var v, out var err);
+    //    Assert.True(r);
+    //    Assert.NotNull(v);
+    //    var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
+    //    v.Evaluate(dd);
+    //    Assert.Equal(d, dd.StringBuilder.ToString());
+    //}
+
+    [Theory]
+    [InlineData(" xx ", " xx ")]
+    public void RStrTest(string text, string d)
+    {
+        var r = TemplateEngineParser.RStr.Eof().TryParse(text, out var v, out var err);
+        Assert.True(r);
+        Assert.NotNull(v);
+        var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
+        v.Evaluate(dd);
+        Assert.Equal(d, dd.StringBuilder.ToString());
+    }
+
     [Theory]
     [InlineData("@ if(4 == Int) @ xx @endif@", " xx ")]
     public void IfEvaluateTest(string text, string d)

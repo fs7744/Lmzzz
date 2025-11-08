@@ -101,9 +101,10 @@ public class AnyLiteral : Parser<TextSpan>
 
                 if (!mustHasEnd)
                 {
+                    span = cursor.Span;
                     var start = cursor.Offset;
                     cursor.Advance(span.Length);
-                    result.Set(start, cursor.Offset, new TextSpan(sb.ToString(), 0, sb.Length));
+                    result.Set(start, cursor.Offset, new TextSpan(cursor.Buffer, 0, span.Length));
                     context.ExitParser(this);
                     return true;
                 }

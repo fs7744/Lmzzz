@@ -3,9 +3,9 @@
 public class IfConditionStatement : IStatement
 {
     private IStatement condition;
-    private string text;
+    private IStatement text;
 
-    public IfConditionStatement(IStatement condition, string text)
+    public IfConditionStatement(IStatement condition, IStatement text)
     {
         this.condition = condition;
         this.text = text;
@@ -15,7 +15,7 @@ public class IfConditionStatement : IStatement
     {
         if (true.Equals(condition.Evaluate(context)))
         {
-            context.StringBuilder.Append(text);
+            text.Evaluate(context);
             return true;
         }
         return false;

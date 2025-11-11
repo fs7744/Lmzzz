@@ -163,23 +163,11 @@ public class TemplateEngineTest
         Assert.Equal(d, f);
     }
 
-    //[Theory]
-    //[InlineData(" xx ", " xx ")]
-    //public void ReplaceStrTest(string text, string d)
-    //{
-    //    var r = TemplateEngineParser.ReplaceStr.Eof().TryParse(text, out var v, out var err);
-    //    Assert.True(r);
-    //    Assert.NotNull(v);
-    //    var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
-    //    v.Evaluate(dd);
-    //    Assert.Equal(d, dd.StringBuilder.ToString());
-    //}
-
     [Theory]
-    [InlineData(" xx ", " xx ")]
-    public void RStrTest(string text, string d)
+    [InlineData("@ xx @", "")]
+    public void ReplaceStrTest(string text, string d)
     {
-        var r = TemplateEngineParser.RStr.Eof().TryParse(text, out var v, out var err);
+        var r = TemplateEngineParser.ReplaceStr.Eof().TryParse(text, out var v, out var err);
         Assert.True(r);
         Assert.NotNull(v);
         var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
@@ -188,7 +176,23 @@ public class TemplateEngineTest
     }
 
     [Theory]
-    [InlineData("@ if(4 == Int) @ xx @endif@", " xx ")]
+    [InlineData(" xx ", " xx ")]
+    [InlineData("@ xx @", "")]
+    [InlineData("@ if(4 == Int)@@ if(4 == Int)@@ Int @dd@endif@ xx @ if(5 == Int)@@ Int @yy@endif@@endif@", "4dd xx ")]
+    public void TemplateValueTest(string text, string d)
+    {
+        var r = TemplateEngineParser.TemplateValue.Eof().TryParse(text, out var v, out var err);
+        Assert.True(r);
+        Assert.NotNull(v);
+        var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
+        v.Evaluate(dd);
+        Assert.Equal(d, dd.StringBuilder.ToString());
+    }
+
+    [Theory]
+    [InlineData("@ if(4 == Int)@ xx @endif@", " xx ")]
+    [InlineData("@ if(4 == Int)@@ Int @ xx @endif@", "4 xx ")]
+    [InlineData("@ if(4 == Int)@@ if(5 == Int)@@ Int @dd@endif@ xx @ if(4 == Int)@@ Int @yy@endif@@endif@", " xx 4yy")]
     public void IfEvaluateTest(string text, string d)
     {
         var r = TemplateEngineParser.If.Eof().TryParse(text, out var v, out var err);

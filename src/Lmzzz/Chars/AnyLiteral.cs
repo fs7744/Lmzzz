@@ -7,11 +7,13 @@ public class AnyLiteral : Parser<TextSpan>
 {
     private readonly SearchValues<char> end;
     private readonly bool mustHasEnd;
+    private readonly bool canEmpty;
     private readonly char? escape;
 
-    public AnyLiteral(string end, bool mustHasEnd, char? escape)
+    public AnyLiteral(string end, bool mustHasEnd, bool canEmpty, char? escape)
     {
         this.mustHasEnd = mustHasEnd;
+        this.canEmpty = canEmpty;
         this.escape = escape;
         if (escape.HasValue)
         {
@@ -89,7 +91,11 @@ public class AnyLiteral : Parser<TextSpan>
                     //    break;
                     //}
                 } while (true);
-
+                if (i == 0 && !canEmpty)
+                {
+                    context.ExitParser(this);
+                    return false;
+                }
                 if (i >= 0)
                 {
                     var start = cursor.Offset;
@@ -113,6 +119,11 @@ public class AnyLiteral : Parser<TextSpan>
             {
                 var span = cursor.Span;
                 var i = span.IndexOfAny(end);
+                if (i == 0 && !canEmpty)
+                {
+                    context.ExitParser(this);
+                    return false;
+                }
                 if (i >= 0)
                 {
                     var start = cursor.Offset;
@@ -121,6 +132,7 @@ public class AnyLiteral : Parser<TextSpan>
                     context.ExitParser(this);
                     return true;
                 }
+
                 if (!mustHasEnd)
                 {
                     var start = cursor.Offset;

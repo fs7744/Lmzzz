@@ -37,6 +37,8 @@ public abstract class Parser<T>
 
     public Parser<U> Then<U>(Func<T, U> conversion) => new Then<T, U>(this, conversion);
 
+    public Parser<T> AndIf(Func<CharParseContext, bool> when) => new AndIf<T>(this, when);
+
     #endregion Then
 
     public override string ToString()

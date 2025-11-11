@@ -44,34 +44,33 @@ public class TemplateEngineParser
 
     public static readonly Parser<char> Sign = IgnoreSeparator(Char('@'));
 
-    public static readonly Parser<IStatement> ReplaceStr = Between(Char('@'), AnyValue, Sign).Then<IStatement>(static x => new ReplaceStatement(x));
+    private static readonly Parser<string> _endif = IgnoreSeparator(Text("endif", true));
+    private static readonly Parser<string> _if = IgnoreSeparator(Text("if", true));
+    private static readonly Parser<string> _elseif = IgnoreSeparator(Text("elseif", true));
+    private static readonly Parser<string> _else = IgnoreSeparator(Text("else", true));
 
-    public static readonly Parser<IStatement> OriginStr = Any('@', escape: '\\').Then<IStatement>(static x => new OriginStrStatement(x.Span.ToString()));
-
-    public static readonly Parser<IStatement> RStr = ZeroOrMany(ReplaceStr.Or(OriginStr)).Then<IStatement>(static x =>
+    public static readonly Parser<IStatement> ReplaceStr = Between(Char('@').AndIf(static context =>
     {
-        if (x == null || x.Count == 0) return null;
-        var c = x[0];
-        var list = new List<IStatement>() { c };
-        for (var i = 1; i < x.Count; i++)
+        var s = context.Cursor.Position;
+        var r = new ParseResult<string>();
+        var rr = true;
+        if (_endif.Parse(context, ref r) || _if.Parse(context, ref r) || _elseif.Parse(context, ref r) || _else.Parse(context, ref r))
         {
-            var n = x[i];
-            if (c is OriginStrStatement o && n is OriginStrStatement no)
-            {
-                o.Text += no.Text;
-                continue;
-            }
-            list.Add(n);
-            c = n;
+            context.Cursor.Reset(s);
+            rr = false;
         }
-        return list.Count == 1 ? list.First() : new ArrayStatement(list.ToArray());
-    });
+        return rr;
+    }), AnyValue, Sign).Then<IStatement>(static x => new ReplaceStatement(x));
 
-    public static readonly Parser<IStatement> If = Sign.And(IgnoreSeparator(Text("if", true))).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign)
-        .And(RStr)
-        .And(ZeroOrMany(Sign.And(IgnoreSeparator(Text("elseif", true))).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign).And(RStr)))
-        .And(Optional(Sign.And(IgnoreSeparator(Text("else", true))).And(Sign).And(RStr)))
-        .And(Sign.And(IgnoreSeparator(Text("endif", true))).And(Sign))
+    public static readonly Parser<IStatement> OriginStr = Any('@', canEmpty: false, escape: '\\').Then<IStatement>(static x => new OriginStrStatement(x.Span.ToString()));
+
+    public static readonly Deferred<IStatement> TemplateValue = Deferred<IStatement>(nameof(TemplateValue));
+
+    public static readonly Parser<IStatement> If = Sign.And(_if).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign)
+        .And(TemplateValue)
+        .And(ZeroOrMany(Sign.And(_elseif).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign).And(TemplateValue)))
+        .And(Optional(Sign.And(_else).And(Sign).And(TemplateValue)))
+        .And(Sign.And(_endif).And(Sign))
         .Then<IStatement>(static x => new IfStatement()
         {
             If = new IfConditionStatement(x.Item1.Item4, x.Item1.Item7),
@@ -104,6 +103,24 @@ public class TemplateEngineParser
                 return func;
             });
         ConditionParser = Condition.Parser = Conditions;
+        TemplateValue.Parser = ZeroOrMany(If.Or(ReplaceStr).Or(OriginStr)).Then<IStatement>(static x =>
+        {
+            if (x == null || x.Count == 0) return null;
+            var c = x[0];
+            var list = new List<IStatement>() { c };
+            for (var i = 1; i < x.Count; i++)
+            {
+                var n = x[i];
+                if (c is OriginStrStatement o && n is OriginStrStatement no)
+                {
+                    o.Text += no.Text;
+                    continue;
+                }
+                list.Add(n);
+                c = n;
+            }
+            return list.Count == 1 ? list.First() : new ArrayStatement(list.ToArray());
+        });
         ConditionParser = ConditionParser.Eof();
     }
 }

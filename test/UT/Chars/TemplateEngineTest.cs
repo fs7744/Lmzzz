@@ -1,4 +1,4 @@
-﻿using Lmzzz;
+﻿using Lmzzz.Template;
 using Lmzzz.Chars.Fluent;
 using Lmzzz.Template.Inner;
 
@@ -178,15 +178,18 @@ public class TemplateEngineTest
     [Theory]
     [InlineData(" xx ", " xx ")]
     [InlineData("@ xx @", "")]
+    [InlineData("@ if(4 == Int)@ xx @endif@", " xx ")]
+    [InlineData("@ if(4 == Int)@@ Int @ xx @endif@", "4 xx ")]
     [InlineData("@ if(4 == Int)@@ if(4 == Int)@@ Int @dd@endif@ xx @ if(5 == Int)@@ Int @yy@endif@@endif@", "4dd xx ")]
     public void TemplateValueTest(string text, string d)
     {
-        var r = TemplateEngineParser.TemplateValue.Eof().TryParse(text, out var v, out var err);
-        Assert.True(r);
-        Assert.NotNull(v);
-        var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
-        v.Evaluate(dd);
-        Assert.Equal(d, dd.StringBuilder.ToString());
+        Assert.Equal(d, text.EvaluateTemplate(data));
+        //var r = TemplateEngineParser.TemplateValue.Eof().TryParse(text, out var v, out var err);
+        //Assert.True(r);
+        //Assert.NotNull(v);
+        //var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
+        //v.Evaluate(dd);
+        //Assert.Equal(d, dd.StringBuilder.ToString());
     }
 
     [Theory]

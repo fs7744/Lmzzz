@@ -66,6 +66,8 @@ public class TemplateEngineParser
 
     public static readonly Deferred<IStatement> TemplateValue = Deferred<IStatement>(nameof(TemplateValue));
 
+    public static readonly Parser<IStatement> Template = TemplateValue.Eof().Name(nameof(Template));
+
     public static readonly Parser<IStatement> If = Sign.And(_if).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign)
         .And(TemplateValue)
         .And(ZeroOrMany(Sign.And(_elseif).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign).And(TemplateValue)))

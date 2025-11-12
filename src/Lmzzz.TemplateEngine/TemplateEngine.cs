@@ -14,7 +14,8 @@ public class TemplateEngineParser
 
     public static readonly Parser<IStatement> StringValue = IgnoreSeparator(String('\'').Or(String())).Then<IStatement>(static s => new StringValueStatement(s)).Name(nameof(StringValue));
     public static readonly Parser<IStatement> NumberValue = IgnoreSeparator(Decimal()).Then<IStatement>(static s => new DecimalValueStatement(s)).Name(nameof(NumberValue));
-    public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart))).Then<IStatement>(static s => new FieldStatement(s)).Name(nameof(Field));
+    private static readonly Parser<TextSpan> FieldName = Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart);
+    public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), FieldName)).Then<IStatement>(static s => new FieldStatement(s)).Name(nameof(Field));
 
     public static readonly Parser<char> ParenOpen = IgnoreSeparator(Char('(')).Name(nameof(ParenOpen));
     public static readonly Parser<char> ParenClose = IgnoreSeparator(Char(')')).Name(nameof(ParenClose));
@@ -49,13 +50,15 @@ public class TemplateEngineParser
     private static readonly Parser<string> _if = IgnoreSeparator(Text("if", true));
     private static readonly Parser<string> _elseif = IgnoreSeparator(Text("elseif", true));
     private static readonly Parser<string> _else = IgnoreSeparator(Text("else", true));
+    private static readonly Parser<string> _for = IgnoreSeparator(Text("for", true));
+    private static readonly Parser<string> _endfor = IgnoreSeparator(Text("endfor", true));
 
     public static readonly Parser<IStatement> ReplaceStr = Between(Text("{{").AndIf(static context =>
     {
         var s = context.Cursor.Position;
         var r = new ParseResult<string>();
         var rr = true;
-        if (_endif.Parse(context, ref r) || _if.Parse(context, ref r) || _elseif.Parse(context, ref r) || _else.Parse(context, ref r))
+        if (_endif.Parse(context, ref r) || _if.Parse(context, ref r) || _elseif.Parse(context, ref r) || _else.Parse(context, ref r) || _for.Parse(context, ref r) || _endfor.Parse(context, ref r))
         {
             context.Cursor.Reset(s);
             rr = false;
@@ -82,6 +85,11 @@ public class TemplateEngineParser
         })
         .Name(nameof(If));
 
+    public static readonly Parser<IStatement> For = SignBegin.And(_for).And(ParenOpen).And(IgnoreSeparator(FieldName).And(IgnoreSeparator(Char(','))).And(IgnoreSeparator(FieldName)).And(IgnoreSeparator(Text("in", true)))).And(IgnoreSeparator(FunctionExpr).Or(Field)).And(ParenClose).And(SignEnd)
+        .And(TemplateValue)
+        .And(SignBegin).And(_endfor).And(SignEnd)
+        .Then<IStatement>(static x => new ForStatement() { ItemName = $"field_{x.Item1.Item4.Item1.Span.ToString()}", IndexName = $"field_{x.Item1.Item4.Item3.Span.ToString()}", Value = x.Item1.Item5, Statement = x.Item2 }).Name(nameof(For));
+
     static TemplateEngineParser()
 
     {
@@ -106,7 +114,7 @@ public class TemplateEngineParser
                 return func;
             });
         ConditionParser = Condition.Parser = Conditions;
-        TemplateValue.Parser = ZeroOrMany(If.Or(ReplaceStr).Or(OriginStr)).Then<IStatement>(static x =>
+        TemplateValue.Parser = ZeroOrMany(For.Or(If).Or(ReplaceStr).Or(OriginStr)).Then<IStatement>(static x =>
         {
             if (x == null || x.Count == 0) return null;
             var c = x[0];

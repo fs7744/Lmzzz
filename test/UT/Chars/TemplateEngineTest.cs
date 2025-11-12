@@ -181,6 +181,7 @@ public class TemplateEngineTest
     [InlineData("{{ if(4 == Int)}} xx {{endif}}", " xx ")]
     [InlineData("{{ if(4 == Int)}}{{ Int }} xx {{endif}}", "4 xx ")]
     [InlineData("{{ if(4 == Int)}}{{ if(4 == Int)}}{{ Int }}dd{{endif}} xx {{ if(5 == Int)}}{{ Int }}yy{{endif}}{{endif}}", "4dd xx ")]
+    [InlineData("{{ if(4 == Int)}}{{ for(_v,_i in Array)}} {{_i}}:{{_v}},{{endfor}}{{endif}}", " 0:2, 1:34, 2:55,")]
     public void TemplateValueTest(string text, string d)
     {
         Assert.Equal(d, text.EvaluateTemplate(data));
@@ -200,6 +201,18 @@ public class TemplateEngineTest
     public void IfEvaluateTest(string text, string d)
     {
         var r = TemplateEngineParser.If.Eof().TryParse(text, out var v, out var err);
+        Assert.True(r);
+        Assert.NotNull(v);
+        var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };
+        v.Evaluate(dd);
+        Assert.Equal(d, dd.StringBuilder.ToString());
+    }
+
+    [Theory]
+    [InlineData("{{ for(_v,_i in Array)}} {{_i}}:{{_v}},{{endfor}}", " 0:2, 1:34, 2:55,")]
+    public void ForEvaluateTest(string text, string d)
+    {
+        var r = TemplateEngineParser.For.Eof().TryParse(text, out var v, out var err);
         Assert.True(r);
         Assert.NotNull(v);
         var dd = new TemplateContext(data) { StringBuilder = new System.Text.StringBuilder() };

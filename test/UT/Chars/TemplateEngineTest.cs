@@ -164,7 +164,7 @@ public class TemplateEngineTest
     }
 
     [Theory]
-    [InlineData("@ xx @", "")]
+    [InlineData("{{ xx }}", "")]
     public void ReplaceStrTest(string text, string d)
     {
         var r = TemplateEngineParser.ReplaceStr.Eof().TryParse(text, out var v, out var err);
@@ -177,10 +177,10 @@ public class TemplateEngineTest
 
     [Theory]
     [InlineData(" xx ", " xx ")]
-    [InlineData("@ xx @", "")]
-    [InlineData("@ if(4 == Int)@ xx @endif@", " xx ")]
-    [InlineData("@ if(4 == Int)@@ Int @ xx @endif@", "4 xx ")]
-    [InlineData("@ if(4 == Int)@@ if(4 == Int)@@ Int @dd@endif@ xx @ if(5 == Int)@@ Int @yy@endif@@endif@", "4dd xx ")]
+    [InlineData("{{ xx }}", "")]
+    [InlineData("{{ if(4 == Int)}} xx {{endif}}", " xx ")]
+    [InlineData("{{ if(4 == Int)}}{{ Int }} xx {{endif}}", "4 xx ")]
+    [InlineData("{{ if(4 == Int)}}{{ if(4 == Int)}}{{ Int }}dd{{endif}} xx {{ if(5 == Int)}}{{ Int }}yy{{endif}}{{endif}}", "4dd xx ")]
     public void TemplateValueTest(string text, string d)
     {
         Assert.Equal(d, text.EvaluateTemplate(data));
@@ -193,9 +193,10 @@ public class TemplateEngineTest
     }
 
     [Theory]
-    [InlineData("@ if(4 == Int)@ xx @endif@", " xx ")]
-    [InlineData("@ if(4 == Int)@@ Int @ xx @endif@", "4 xx ")]
-    [InlineData("@ if(4 == Int)@@ if(5 == Int)@@ Int @dd@endif@ xx @ if(4 == Int)@@ Int @yy@endif@@endif@", " xx 4yy")]
+    [InlineData("{{ if(4 == Int)}} xx {{endif}}", " xx ")]
+    [InlineData("{{ if(4 == Int)}}{{ Int }} xx {{endif}}", "4 xx ")]
+    [InlineData("{{ if(4 == Int)}}{{ if(4 == Int)}}{{ Int }}dd{{endif}} xx {{ if(5 == Int)}}{{ Int }}yy{{endif}}{{endif}}", "4dd xx ")]
+    [InlineData("{{ if(4 == Int)}}{{ if(5 == Int)}}{{ Int }}dd{{endif}} xx {{ if(4 == Int)}}{{ Int }}yy{{endif}}{{endif}}", " xx 4yy")]
     public void IfEvaluateTest(string text, string d)
     {
         var r = TemplateEngineParser.If.Eof().TryParse(text, out var v, out var err);

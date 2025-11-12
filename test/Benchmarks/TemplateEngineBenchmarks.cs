@@ -28,7 +28,7 @@ public class TemplateEngineBenchmarks
 
     public TemplateEngineBenchmarks()
     {
-        _ifcached = "@ if(4 == Int)@@ if(5 == Int)@@ Int @dd@endif@ xx @ if(4 == Int)@@ Int @yy@endif@@endif@".ToTemplate();
+        _ifcached = "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ Int }}dd{{endif}} xx {{ if(4 == Int)}}{{ Int }}yy{{endif}}{{endif}}".ToTemplate();
         _ScribanIfCached = Template.Parse("{{ if int ==4;  if 5 == int ; $\"{int}dd xx \" ; end ;   if 4 == int ; $\" xx {int}yy\" ; end ;end; }}");
         var source = "{% if 4 == Int %} {% if 5 == Int %} {{ Int }}dd  xx {% elsif  4 == Int %} xx {{Int}}yy{% endif %}{% endif %}";
         f = new FluidParser();
@@ -38,7 +38,7 @@ public class TemplateEngineBenchmarks
     [Benchmark, BenchmarkCategory("if")]
     public string IfNoCache()
     {
-        return "@ if(4 == Int)@@ if(5 == Int)@@ Int @dd@endif@ xx @ if(4 == Int)@@ Int @yy@endif@@endif@".EvaluateTemplate(data);
+        return "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ Int }}dd{{endif}} xx {{ if(4 == Int)}}{{ Int }}yy{{endif}}{{endif}}".EvaluateTemplate(data);
     }
 
     [Benchmark, BenchmarkCategory("if")]

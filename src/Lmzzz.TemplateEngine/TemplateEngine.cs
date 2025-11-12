@@ -42,14 +42,15 @@ public class TemplateEngineParser
                (IgnoreSeparator(Text("or", true)), static (x, y) => StatementUtils.Create("||", x, y))
            ).Name(nameof(Conditions));
 
-    public static readonly Parser<char> Sign = IgnoreSeparator(Char('@'));
+    public static readonly Parser<string> SignBegin = IgnoreSeparator(Text("{{"));
+    public static readonly Parser<string> SignEnd = IgnoreSeparator(Text("}}"));
 
     private static readonly Parser<string> _endif = IgnoreSeparator(Text("endif", true));
     private static readonly Parser<string> _if = IgnoreSeparator(Text("if", true));
     private static readonly Parser<string> _elseif = IgnoreSeparator(Text("elseif", true));
     private static readonly Parser<string> _else = IgnoreSeparator(Text("else", true));
 
-    public static readonly Parser<IStatement> ReplaceStr = Between(Char('@').AndIf(static context =>
+    public static readonly Parser<IStatement> ReplaceStr = Between(Text("{{").AndIf(static context =>
     {
         var s = context.Cursor.Position;
         var r = new ParseResult<string>();
@@ -60,19 +61,19 @@ public class TemplateEngineParser
             rr = false;
         }
         return rr;
-    }), AnyValue, Sign).Then<IStatement>(static x => new ReplaceStatement(x));
+    }), AnyValue, SignEnd).Then<IStatement>(static x => new ReplaceStatement(x));
 
-    public static readonly Parser<IStatement> OriginStr = Any('@', canEmpty: false, escape: '\\').Then<IStatement>(static x => new OriginStrStatement(x.Span.ToString()));
+    public static readonly Parser<IStatement> OriginStr = Any('{', canEmpty: false, escape: '\\').Then<IStatement>(static x => new OriginStrStatement(x.Span.ToString()));
 
     public static readonly Deferred<IStatement> TemplateValue = Deferred<IStatement>(nameof(TemplateValue));
 
     public static readonly Parser<IStatement> Template = TemplateValue.Eof().Name(nameof(Template));
 
-    public static readonly Parser<IStatement> If = Sign.And(_if).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign)
+    public static readonly Parser<IStatement> If = SignBegin.And(_if).And(ParenOpen).And(Conditions).And(ParenClose).And(SignEnd)
         .And(TemplateValue)
-        .And(ZeroOrMany(Sign.And(_elseif).And(ParenOpen).And(Conditions).And(ParenClose).And(Sign).And(TemplateValue)))
-        .And(Optional(Sign.And(_else).And(Sign).And(TemplateValue)))
-        .And(Sign.And(_endif).And(Sign))
+        .And(ZeroOrMany(SignBegin.And(_elseif).And(ParenOpen).And(Conditions).And(ParenClose).And(SignEnd).And(TemplateValue)))
+        .And(Optional(SignBegin.And(_else).And(SignEnd).And(TemplateValue)))
+        .And(SignBegin.And(_endif).And(SignEnd))
         .Then<IStatement>(static x => new IfStatement()
         {
             If = new IfConditionStatement(x.Item1.Item4, x.Item1.Item7),

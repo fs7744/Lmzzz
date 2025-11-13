@@ -1,0 +1,23 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<VersionSuffix>$(VersionSuffix)</VersionSuffix>
+		<Version>0.0.1.0</Version>
+		<AssemblyVersion>$(Version)</AssemblyVersion>
+		<FileVersion>$(Version)</FileVersion>
+		<Version Condition=" '$(VersionSuffix)' != '' ">$(Version)$(VersionSuffix)</Version>
+		<Authors>Victor.x.qu</Authors>
+		<Company>Victor.x.qu</Company>
+		<Copyright>@2025 Victor.x.qu</Copyright>
+		<PackageProjectUrl>https://github.com/fs7744/Lmzzz</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/fs7744/Lmzzz</RepositoryUrl>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>BSD3-Clause</PackageLicenseExpression>
+		<TargetFramework>net10.0</TargetFramework>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="../../README.md" Pack="true" PackagePath="/" />
+	</ItemGroup>
+</Project>

@@ -2,10 +2,10 @@
 using Benchmarks;
 
 //var a = new TemplateEngineBenchmarks();
-//var aa = a.IfNoCache();
-//var aaa = a.IfCached();
-//var aaaa = a.ScribanIfNoCache();
-//var aaaaa = a.ScribanIfCached();
-//var f = a.FluidIfNoCache();
-//var ff = a.FluidIfCached();
+//var aa = a.ForNoCache();
+//var aaa = a.ForCached();
+//var aaaa = a.ScribanForNoCache();
+//var aaaaa = a.ScribanForCached();
+//var f = a.FluidForNoCache();
+//var ff = a.FluidForCached();
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);

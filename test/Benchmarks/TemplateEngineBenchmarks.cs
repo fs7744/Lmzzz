@@ -24,6 +24,9 @@ public class TemplateEngineBenchmarks
     private IStatement _ifcached;
     private Template _ScribanIfCached;
     private IFluidTemplate _FluidIfCached;
+    private IStatement _forCached;
+    private IFluidTemplate _FluidForCached;
+    private readonly Template _ScribanForCached;
     private readonly FluidParser f;
 
     public TemplateEngineBenchmarks()
@@ -33,6 +36,12 @@ public class TemplateEngineBenchmarks
         var source = "{% if 4 == Int %} {% if 5 == Int %} {{ Int }}dd  xx {% elsif  4 == Int %} xx {{Int}}yy{% endif %}{% endif %}";
         f = new FluidParser();
         f.TryParse(source, out _FluidIfCached, out var error);
+
+        _forCached = "{{ for(_v,_i in Array)}} {{_i}}:{{_v}},{{endfor}}".ToTemplate();
+        _ScribanForCached = Template.Parse("{{ for $i in (0..(array.size-1)) }} {{$i}}:{{array[$i]}},{{end}}");
+
+        source = "{% for i in Array %} {{forloop.index}}:{{i}},{% endfor %}";
+        f.TryParse(source, out _FluidForCached, out error);
     }
 
     [Benchmark, BenchmarkCategory("if")]
@@ -82,6 +91,55 @@ public class TemplateEngineBenchmarks
         var context = new Fluid.TemplateContext(data);
 
         return _FluidIfCached.Render(context);
+    }
+
+    [Benchmark, BenchmarkCategory("for")]
+    public string ForNoCache()
+    {
+        return "{{ for(_v,_i in Array)}} {{_i}}:{{_v}},{{endfor}}".EvaluateTemplate(data);
+    }
+
+    [Benchmark, BenchmarkCategory("for")]
+    public string ForCached()
+    {
+        return _forCached.Evaluate(data);
+    }
+
+    [Benchmark, BenchmarkCategory("for")]
+    public string ScribanForNoCache()
+    {
+        var template = Template.Parse("{{ for $i in (0..(array.size-1)) }} {{$i}}:{{array[$i]}},{{end}}");
+        return template.Render(data);
+    }
+
+    [Benchmark, BenchmarkCategory("for")]
+    public string ScribanForCached()
+    {
+        return _ScribanForCached.Render(data);
+    }
+
+    [Benchmark, BenchmarkCategory("for")]
+    public string FluidForNoCache()
+    {
+        var source = "{% for i in Array %} {{forloop.index}}:{{i}},{% endfor %}";
+        if (f.TryParse(source, out var template, out var error))
+        {
+            var context = new Fluid.TemplateContext(data);
+
+            return template.Render(context);
+        }
+        else
+        {
+            return error;
+        }
+    }
+
+    [Benchmark, BenchmarkCategory("for")]
+    public string FluidForCached()
+    {
+        var context = new Fluid.TemplateContext(data);
+
+        return _FluidForCached.Render(context);
     }
 
     public class A

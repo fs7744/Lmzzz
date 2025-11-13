@@ -1,6 +1,4 @@
-﻿using Lmzzz.Chars.Fluent;
-
-namespace Lmzzz.Chars;
+﻿namespace Lmzzz.Chars.Fluent;
 
 public sealed class Deferred<T> : Parser<T>
 {

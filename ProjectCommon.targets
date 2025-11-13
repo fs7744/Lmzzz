@@ -12,7 +12,6 @@
 		<RepositoryUrl>https://github.com/fs7744/Lmzzz</RepositoryUrl>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageLicenseExpression>BSD3-Clause</PackageLicenseExpression>
 		<TargetFramework>net10.0</TargetFramework>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>

@@ -157,6 +157,7 @@ public class TemplateEngineTest
     [InlineData("LinkedList.2", null)]
     [InlineData("LinkedList.3", null)]
     [InlineData("LinkedList.90", null)]
+    [InlineData("Array.Length", 3)]
     public void FieldTest(string text, object d)
     {
         var r = TemplateEngineParser.Field.Eof().TryParse(text, out var v, out var err);

@@ -16,23 +16,24 @@ public class ForStatement : IStatement
 
         if (v is IEnumerable e)
         {
-            var c = context.Scope();
+            context.Scope();
             var index = 0;
-            //if (!c.Cache.TryGetValue(ItemName, out var o))
-            //    o = null;
+            if (!context.Cache.TryGetValue(ItemName, out var o))
+                o = null;
 
-            //if (!c.Cache.TryGetValue(IndexName, out var oi))
-            //    oi = null;
+            if (!context.Cache.TryGetValue(IndexName, out var oi))
+                oi = null;
             foreach (var item in e)
             {
-                c.Cache[ItemName] = item;
-                c.Cache[IndexName] = index;
+                context.Cache[ItemName] = item;
+                context.Cache[IndexName] = index;
                 index++;
 
-                Statement.Evaluate(c);
+                Statement.Evaluate(context);
             }
-            //c.Cache[ItemName] = o;
-            //c.Cache[IndexName] = oi;
+            context.Cache[ItemName] = o;
+            context.Cache[IndexName] = oi;
+            context.LeaveScope();
         }
 
         return null;

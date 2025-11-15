@@ -32,8 +32,6 @@ public class FunctionStatement : IConditionStatement
     {
         if (Functions.TryGetValue(Name, out var f))
             return f(context, Arguments);
-        else if (context.Functions != null && context.Functions.TryGetValue(Name, out f))
-            return f(context, Arguments);
         else return null;
     }
 

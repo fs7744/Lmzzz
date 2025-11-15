@@ -3,6 +3,9 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <Description>fluent parser</Description>
+	  <PackageId>Lmzzz</PackageId>
+	  <Title>fluent parser</Title>
   </PropertyGroup>
 
   <ItemGroup>

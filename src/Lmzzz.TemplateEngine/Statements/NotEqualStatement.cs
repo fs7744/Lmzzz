@@ -27,7 +27,15 @@ public class NotEqualStatement : IOperaterStatement
             return !(r is null);
         if (r is null)
             return true;
-        if (l is decimal dl)
+        if (EqualStatement.EqualityComparers.TryGetValue(l.GetType(), out var eq))
+        {
+            return !eq(l, r);
+        }
+        else if (EqualStatement.EqualityComparers.TryGetValue(r.GetType(), out eq))
+        {
+            return !eq(r, l);
+        }
+        else if (l is decimal dl)
         {
             return dl != Convert.ToDecimal(r);
         }

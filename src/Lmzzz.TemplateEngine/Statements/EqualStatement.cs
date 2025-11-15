@@ -2,6 +2,8 @@
 
 public class EqualStatement : IOperaterStatement
 {
+    public static readonly Dictionary<Type, Func<object, object, bool>> EqualityComparers = new Dictionary<Type, Func<object, object, bool>>();
+
     public IStatement Left { get; }
 
     public string Operater => "==";
@@ -27,7 +29,15 @@ public class EqualStatement : IOperaterStatement
             return r is null;
         if (r is null)
             return false;
-        if (l is decimal dl)
+        if (EqualityComparers.TryGetValue(l.GetType(), out var eq))
+        {
+            return eq(l, r);
+        }
+        else if (EqualityComparers.TryGetValue(r.GetType(), out eq))
+        {
+            return eq(r, l);
+        }
+        else if (l is decimal dl)
         {
             return dl == Convert.ToDecimal(r);
         }

@@ -1,11 +1,61 @@
-﻿using Lmzzz.Template;
-using Lmzzz.Chars.Fluent;
+﻿using Lmzzz.Chars.Fluent;
+using Lmzzz.Template;
 using Lmzzz.Template.Inner;
+using Microsoft.AspNetCore.Http;
 
 namespace UT.Chars;
 
 public class TemplateEngineTest
 {
+    private A data = new A
+    {
+        Int = 4,
+        D = 5.5,
+        IntD = new Dictionary<string, int>() { { "a99", 44 }, { "99", 144 } },
+        Array = [2, 34, 55],
+        List = [2, 34, 55],
+        LinkedList = new LinkedList<int>([2, 34, 55]) { },
+        Str = "9sd",
+    };
+
+    public TemplateEngineTest()
+    {
+        data.HttpContext = new DefaultHttpContext();
+        var req = data.HttpContext.Request;
+        req.Path = "/testp/dsd/fsdfx/fadasd3/中";
+        req.Method = "GET";
+        req.Host = new HostString("x.com");
+        req.Scheme = "https";
+        req.Protocol = "HTTP/1.1";
+        req.ContentType = "json";
+        req.QueryString = new QueryString("?s=123&d=456&f=789");
+        req.IsHttps = true;
+        for (int i = 0; i < 10; i++)
+        {
+            req.Headers.Add($"x-{i}", new string[] { $"v-{i}", $"x-{i}", $"s-{i}" });
+        }
+        EqualStatement.EqualityComparers[typeof(PathString)] = (l, r) =>
+        {
+            if (l is PathString pl)
+            {
+                if (pl.HasValue)
+                {
+                    if (r is PathString pr)
+                    {
+                        return pl == pr;
+                    }
+                    else if (r is string rs)
+                    {
+                        return pl.Value == rs;
+                    }
+                }
+                else
+                    return false;
+            }
+            return false;
+        };
+    }
+
     [Theory]
     [InlineData("true == 1")]
     [InlineData("true")]
@@ -87,17 +137,6 @@ public class TemplateEngineTest
         Assert.NotNull(err.Position.ToString());
     }
 
-    private A data = new A
-    {
-        Int = 4,
-        D = 5.5,
-        IntD = new Dictionary<string, int>() { { "a99", 44 }, { "99", 144 } },
-        Array = [2, 34, 55],
-        List = [2, 34, 55],
-        LinkedList = new LinkedList<int>([2, 34, 55]) { },
-        Str = "9sd"
-    };
-
     [Theory]
     [InlineData("Int", 4)]
     [InlineData("D", 5.5)]
@@ -153,6 +192,8 @@ public class TemplateEngineTest
     [InlineData("!(null != null) or 1 == 3", true)]
     [InlineData("Regex(Str,'^9.*')", true)]
     [InlineData("Regex ( Str, '^7.*', 'ECMAScript')", false)]
+    [InlineData("HttpContext.Request.Path == '/testp/dsd/fsdfx/fadasd3/中'", true)]
+    [InlineData("'/testp/dsd/fsdfx/fadasd3/中' == HttpContext.Request.Path", true)]
     public void ConditionEvaluateTest(string text, object d)
     {
         var r = TemplateEngineParser.ConditionParser.TryParse(text, out var v, out var err);
@@ -234,4 +275,6 @@ public class A
     public List<int> List { get; set; }
 
     public LinkedList<int> LinkedList { get; set; }
+
+    public HttpContext HttpContext { get; set; }
 }

@@ -3,6 +3,9 @@
 	<PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+		<Description>Template Engine by Lmzzz</Description>
+		<PackageId>Lmzzz.TemplateEngine</PackageId>
+		<Title>Template Engine by Lmzzz</Title>
   </PropertyGroup>
 
   <ItemGroup>

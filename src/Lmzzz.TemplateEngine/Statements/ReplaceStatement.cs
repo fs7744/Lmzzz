@@ -2,6 +2,7 @@
 
 public class ReplaceStatement : IStatement
 {
+    public static readonly Dictionary<Type, Func<object, string>> ConvertToStrings = new Dictionary<Type, Func<object, string>>();
     private IStatement statement;
 
     public ReplaceStatement(IStatement statement)
@@ -13,7 +14,12 @@ public class ReplaceStatement : IStatement
     {
         var r = statement.Evaluate(context);
         if (r is not null)
-            context.StringBuilder.Append(r.ToString());
+        {
+            if (ConvertToStrings.TryGetValue(r.GetType(), out var f))
+                context.StringBuilder.Append(f(r));
+            else
+                context.StringBuilder.Append(r);
+        }
         return null;
     }
 }

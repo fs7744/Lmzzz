@@ -8,10 +8,10 @@ public class IfStatement : IStatement
 
     public object? Evaluate(TemplateContext context)
     {
-        if (true.Equals(If.Evaluate(context)))
+        if (If.EvaluateCondition(context))
         {
         }
-        else if (ElseIfs != null && ElseIfs.Any(x => true.Equals(x.Evaluate(context))))
+        else if (ElseIfs != null && ElseIfs.Any(x => x.EvaluateCondition(context)))
         { }
         else if (Else != null)
             Else.Evaluate(context);

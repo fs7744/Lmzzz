@@ -2,6 +2,7 @@
 
 public interface IConditionStatement : IStatement
 {
+    public bool EvaluateCondition(TemplateContext context);
 }
 
 public interface IOperaterStatement : IConditionStatement

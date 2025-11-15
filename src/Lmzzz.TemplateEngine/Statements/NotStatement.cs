@@ -13,6 +13,11 @@ public class NotStatement : IUnaryStatement
 
     public object? Evaluate(TemplateContext context)
     {
+        return EvaluateCondition(context);
+    }
+
+    public bool EvaluateCondition(TemplateContext context)
+    {
         var l = Statement.Evaluate(context);
         if (l is null || l is not bool b)
             return false;

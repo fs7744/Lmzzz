@@ -16,6 +16,11 @@ public class EqualStatement : IOperaterStatement
 
     public object? Evaluate(TemplateContext context)
     {
+        return EvaluateCondition(context);
+    }
+
+    public bool EvaluateCondition(TemplateContext context)
+    {
         var l = Left.Evaluate(context);
         var r = Right.Evaluate(context);
         if (l is null)

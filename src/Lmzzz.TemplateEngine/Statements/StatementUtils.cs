@@ -2,7 +2,7 @@
 
 public class StatementUtils
 {
-    public static IOperaterStatement Create(string operater, IStatement left, IStatement right)
+    public static IConditionStatement Create(string operater, IStatement left, IStatement right)
     {
         switch (operater)
         {
@@ -35,7 +35,7 @@ public class StatementUtils
         }
     }
 
-    public static IUnaryStatement Create(string operater, IStatement statement)
+    public static IConditionStatement Create(string operater, IStatement statement)
     {
         switch (operater)
         {

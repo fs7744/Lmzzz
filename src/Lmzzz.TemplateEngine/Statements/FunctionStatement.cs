@@ -2,7 +2,7 @@
 
 namespace Lmzzz.Template.Inner;
 
-public class FunctionStatement : IStatement
+public class FunctionStatement : IConditionStatement
 {
     public string Name { get; set; }
     public IStatement[] Arguments { get; set; }
@@ -35,5 +35,12 @@ public class FunctionStatement : IStatement
         else if (context.Functions != null && context.Functions.TryGetValue(Name, out f))
             return f(context, Arguments);
         else return null;
+    }
+
+    public bool EvaluateCondition(TemplateContext context)
+    {
+        var r = Evaluate(context);
+        if (r is bool b) return b;
+        else return false;
     }
 }

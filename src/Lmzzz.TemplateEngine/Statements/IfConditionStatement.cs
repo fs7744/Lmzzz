@@ -1,11 +1,11 @@
 ﻿namespace Lmzzz.Template.Inner;
 
-public class IfConditionStatement : IStatement
+public class IfConditionStatement : IConditionStatement
 {
-    private IStatement condition;
+    private IConditionStatement condition;
     private IStatement text;
 
-    public IfConditionStatement(IStatement condition, IStatement text)
+    public IfConditionStatement(IConditionStatement condition, IStatement text)
     {
         this.condition = condition;
         this.text = text;
@@ -13,7 +13,12 @@ public class IfConditionStatement : IStatement
 
     public object? Evaluate(TemplateContext context)
     {
-        if (true.Equals(condition.Evaluate(context)))
+        return EvaluateCondition(context);
+    }
+
+    public bool EvaluateCondition(TemplateContext context)
+    {
+        if (condition.EvaluateCondition(context))
         {
             text.Evaluate(context);
             return true;

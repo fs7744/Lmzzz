@@ -45,6 +45,8 @@ public abstract class HttpContextFieldConvertor
         return new ActionConditionStatement(action);
     }
 
+    public abstract string Key();
+
     public abstract IHttpConditionStatement ConvertEqual(IStatement statement);
 
     public abstract bool TryConvertStringFunc(IStatement statement, out Func<HttpContext, string> func);

@@ -10,6 +10,8 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 {
     public DefaultTemplateEngineFactory()
     {
+        AddFieldConvertor(new RequestPathHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestHostHttpContextFieldConvertor());
         TemplateEngine.SetOptimizer(OptimizeTemplateEngine);
     }
 
@@ -76,8 +78,10 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         return false;
     }
 
-    private static readonly Dictionary<string, HttpContextFieldConvertor> fieldConvertor = new Dictionary<string, HttpContextFieldConvertor>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, HttpContextFieldConvertor> fieldConvertor = new Dictionary<string, HttpContextFieldConvertor>(StringComparer.OrdinalIgnoreCase);
+
+    public static void AddFieldConvertor(HttpContextFieldConvertor c)
     {
-        { "field_Request.Path", new RequestPathHttpContextFieldConvertor() }
-    };
+        fieldConvertor[c.Key()] = c;
+    }
 }

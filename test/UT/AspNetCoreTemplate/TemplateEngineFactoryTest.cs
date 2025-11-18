@@ -34,6 +34,12 @@ public class TemplateEngineFactoryTest
     [InlineData("Request.Path == Request.Path", true)]
     [InlineData("Request.Path == F", false)]
     [InlineData("Request.Path == Features", false)]
+    [InlineData("Request.Host == '/testp'", false)]
+    [InlineData("Request.Host == 'x.com'", true)]
+    [InlineData("Request.Host == null", false)]
+    [InlineData("Request.Host == Request.Host", true)]
+    [InlineData("Request.Host == F", false)]
+    [InlineData("Request.Host == Features", false)]
     public void ConvertRouteFunctionTest(string text, bool r)
     {
         var f = te.ConvertRouteFunction(text);

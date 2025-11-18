@@ -2,10 +2,12 @@
 using Benchmarks;
 
 var a = new TemplateEngineBenchmarks();
-var aa = a.ForNoCache();
-var aaa = a.ForCached();
+var aa = a.ScribanIfNoCache();
+var aaa = a.ScribanIfCached();
 var aaaa = a.IfCached();
 var aaaaa = a.IfNoCache();
-var f = a.FluidForNoCache();
-var ff = a.FluidForCached();
+var aaaaf = a.IfCachedWhenFieldDefined();
+var aaaaaf = a.IfNoCacheWhenFieldDefined();
+var f = a.FluidIfNoCache();
+var ff = a.FluidIfCached();
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);

@@ -3,6 +3,7 @@ using BenchmarkDotNet.Configs;
 using Fluid;
 using Lmzzz;
 using Lmzzz.Template;
+using Microsoft.AspNetCore.Http;
 using Scriban;
 
 namespace Benchmarks;
@@ -13,12 +14,7 @@ public class TemplateEngineBenchmarks
     private A data = new A
     {
         Int = 4,
-        D = 5.5,
-        IntD = new Dictionary<string, int>() { { "a99", 44 }, { "99", 144 } },
         Array = [2, 34, 55],
-        List = [2, 34, 55],
-        LinkedList = new LinkedList<int>([2, 34, 55]) { },
-        Str = "9sd"
     };
 
     private IStatement _ifcached;
@@ -51,9 +47,9 @@ public class TemplateEngineBenchmarks
             }
             return false;
         };
-        _ifcached = "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ Int }}dd{{endif}} xx {{ if(4 == Int)}}{{ Int }}yy{{endif}}{{endif}}".ToTemplate();
-        _ScribanIfCached = Template.Parse("{{ if int ==4;  if 5 == int ; $\"{int}dd xx \" ; end ;   if 4 == int ; $\" xx {int}yy\" ; end ;end; }}");
-        var source = "{% if 4 == Int %} {% if 5 == Int %} {{ Int }}dd  xx {% elsif  4 == Int %} xx {{Int}}yy{% endif %}{% endif %}";
+        _ifcached = "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ HttpContext.Request.ContentType }}dd{{endif}} xx {{ if(4 == Int)}}{{ HttpContext.Request.ContentType }}yy{{endif}}{{endif}}".ToTemplate();
+        _ScribanIfCached = Template.Parse("{{ if int ==4;  if 5 == int ; $\"{httpContext.Request.ContentType}dd xx \" ; end ;   if 4 == int ; $\" xx {httpContext}yy\" ; end ;end; }}");
+        var source = "{% if 4 == Int %} {% if 5 == Int %} {{ HttpContext.Request.ContentType }}dd  xx {% elsif  4 == Int %} xx {{HttpContext.Request.ContentType}}yy{% endif %}{% endif %}";
         f = new FluidParser();
         f.TryParse(source, out _FluidIfCached, out var error);
 
@@ -62,12 +58,32 @@ public class TemplateEngineBenchmarks
 
         source = "{% for i in Array %} {{forloop.index}}:{{i}},{% endfor %}";
         f.TryParse(source, out _FluidForCached, out error);
+        data.HttpContext = new DefaultHttpContext();
+        var req = data.HttpContext.Request;
+        req.Path = "/testp/dsd/fsdfx/fadasd3/中";
+        req.Method = "GET";
+        req.Host = new HostString("x.com");
+        req.Scheme = "https";
+        req.Protocol = "HTTP/1.1";
+        req.ContentType = "json";
+        req.QueryString = new QueryString("?s=123&d=456&f=789");
+        req.IsHttps = true;
+        for (int i = 0; i < 10; i++)
+        {
+            req.Headers.Add($"x-{i}", new string[] { $"v-{i}", $"x-{i}", $"s-{i}" });
+        }
     }
 
     [Benchmark, BenchmarkCategory("if")]
     public string IfNoCache()
     {
-        return "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ Int }}dd{{endif}} xx {{ if(4 == Int)}}{{ Int }}yy{{endif}}{{endif}}".EvaluateTemplate(data);
+        return "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ HttpContext.Request.ContentType }}dd{{endif}} xx {{ if(4 == Int)}}{{ HttpContext.Request.ContentType }}yy{{endif}}{{endif}}".EvaluateTemplate(data);
+    }
+
+    [Benchmark, BenchmarkCategory("if")]
+    public string IfNoCacheWhenFieldDefined()
+    {
+        return "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ HttpContext.Request.ContentType }}dd{{endif}} xx {{ if(4 == Int)}}{{ HttpContext.Request.ContentType }}yy{{endif}}{{endif}}".EvaluateTemplate(data, FieldStatementMode.Defined);
     }
 
     [Benchmark, BenchmarkCategory("if")]
@@ -77,9 +93,15 @@ public class TemplateEngineBenchmarks
     }
 
     [Benchmark, BenchmarkCategory("if")]
+    public string IfCachedWhenFieldDefined()
+    {
+        return _ifcached.Evaluate(data, FieldStatementMode.Defined);
+    }
+
+    [Benchmark, BenchmarkCategory("if")]
     public string ScribanIfNoCache()
     {
-        var template = Template.Parse("{{ if int ==4;  if 5 == int ; $\"{int}dd xx \" ; end ;   if 4 == int ; $\" xx {int}yy\" ; end ;end; }}");
+        var template = Template.Parse("{{ if int ==4;  if 5 == int ; $\"{httpcontext.request.contenttype}dd xx \" ; end ;   if 4 == int ; $\" xx {httpContext}yy\" ; end ;end; }}");
         return template.Render(data);
     }
 
@@ -92,7 +114,7 @@ public class TemplateEngineBenchmarks
     [Benchmark, BenchmarkCategory("if")]
     public string FluidIfNoCache()
     {
-        var source = "{% if 4 == Int %} {% if 5 == Int %} {{ Int }}dd  xx {% elsif  4 == Int %} xx {{Int}}yy{% endif %}{% endif %}";
+        var source = "{% if 4 == Int %} {% if 5 == Int %} {{ HttpContext.Request.ContentType }}dd  xx {% elsif  4 == Int %} xx {{HttpContext.Request.ContentType}}yy{% endif %}{% endif %}";
         if (f.TryParse(source, out var template, out var error))
         {
             var context = new Fluid.TemplateContext(data);
@@ -164,16 +186,8 @@ public class TemplateEngineBenchmarks
 
     public class A
     {
-        public double? Dd;
-        public double? D;
         public int Int { get; set; }
-        public string Str { get; set; }
-        public Dictionary<string, int> IntD { get; set; }
-
+        public HttpContext HttpContext { get; set; }
         public int[] Array { get; set; }
-
-        public List<int> List { get; set; }
-
-        public LinkedList<int> LinkedList { get; set; }
     }
 }

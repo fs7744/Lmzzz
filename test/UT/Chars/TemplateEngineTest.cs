@@ -16,6 +16,7 @@ public class TemplateEngineTest
         List = [2, 34, 55],
         LinkedList = new LinkedList<int>([2, 34, 55]) { },
         Str = "9sd",
+        ArrayNull = [null, new { a = new { a = 333 } }]
     };
 
     public TemplateEngineTest()
@@ -140,9 +141,13 @@ public class TemplateEngineTest
     [Theory]
     [InlineData("Int", 4)]
     [InlineData("D", 5.5)]
+    [InlineData("IntDNull.a99", null)]
     [InlineData("IntD.a99", 44)]
     [InlineData("IntD.99", 144)]
     [InlineData("Array.0", 2)]
+    [InlineData("ArrayNull.0", null)]
+    [InlineData("ArrayNull.0.a", null)]
+    [InlineData("ArrayNull.1.a.a", 333)]
     [InlineData("Array.1", 34)]
     [InlineData("Array.2", 55)]
     [InlineData("Array.3", null)]
@@ -158,11 +163,45 @@ public class TemplateEngineTest
     [InlineData("LinkedList.3", null)]
     [InlineData("LinkedList.90", null)]
     [InlineData("Array.Length", 3)]
-    public void FieldTest(string text, object d)
+    public void FieldRuntimeModeTest(string text, object d)
     {
         var r = TemplateEngineParser.Field.Eof().TryParse(text, out var v, out var err);
         Assert.True(r);
         var dd = new TemplateContext(data);
+        var f = v.Evaluate(dd);
+        Assert.Equal(d, f);
+    }
+
+    [Theory]
+    [InlineData("Int", 4)]
+    [InlineData("D", 5.5)]
+    [InlineData("IntDNull.a99", null)]
+    [InlineData("IntD.a99", 44)]
+    [InlineData("IntD.99", 144)]
+    [InlineData("Array.0", 2)]
+    [InlineData("ArrayNull.0", null)]
+    [InlineData("ArrayNull.0.a", null)]
+    [InlineData("ArrayNull.1.a.a", null)]
+    [InlineData("Array.1", 34)]
+    [InlineData("Array.2", 55)]
+    [InlineData("Array.3", null)]
+    [InlineData("Array.90", null)]
+    [InlineData("List.0", 2)]
+    [InlineData("List.1", 34)]
+    [InlineData("List.2", 55)]
+    [InlineData("List.3", null)]
+    [InlineData("List.90", null)]
+    [InlineData("LinkedList.0", null)]
+    [InlineData("LinkedList.1", null)]
+    [InlineData("LinkedList.2", null)]
+    [InlineData("LinkedList.3", null)]
+    [InlineData("LinkedList.90", null)]
+    [InlineData("Array.Length", 3)]
+    public void FieldDefinedModeTest(string text, object d)
+    {
+        var r = TemplateEngineParser.Field.Eof().TryParse(text, out var v, out var err);
+        Assert.True(r);
+        var dd = new TemplateContext(data) { FieldMode = FieldStatementMode.Defined };
         var f = v.Evaluate(dd);
         Assert.Equal(d, f);
     }
@@ -278,4 +317,7 @@ public class A
     public LinkedList<int> LinkedList { get; set; }
 
     public HttpContext HttpContext { get; set; }
+
+    public Dictionary<string, int> IntDNull { get; set; }
+    public object[] ArrayNull { get; set; }
 }

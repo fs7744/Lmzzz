@@ -9,10 +9,10 @@ public static class TemplateEngineExtensions
 {
     private static readonly ObjectPool<StringBuilder> pool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
 
-    public static string EvaluateTemplate(this string template, object data)
+    public static string EvaluateTemplate(this string template, object data, FieldStatementMode fieldMode = FieldStatementMode.Runtime)
     {
         var t = template.ToTemplate();
-        return Evaluate(t, data);
+        return Evaluate(t, data, fieldMode);
     }
 
     public static IStatement ToTemplate(this string template)
@@ -22,12 +22,12 @@ public static class TemplateEngineExtensions
         return t;
     }
 
-    public static string Evaluate(this IStatement template, object data)
+    public static string Evaluate(this IStatement template, object data, FieldStatementMode fieldMode = FieldStatementMode.Runtime)
     {
         var sb = pool.Get();
         try
         {
-            var c = new TemplateContext(data) { StringBuilder = sb };
+            var c = new TemplateContext(data) { StringBuilder = sb, FieldMode = fieldMode };
             template.Evaluate(c);
             return sb.ToString();
         }

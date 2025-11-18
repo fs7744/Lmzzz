@@ -12,6 +12,8 @@ public class FieldStatement : IFieldStatement
 
     private readonly string key;
 
+    public string Key => key;
+
     private static readonly ConcurrentDictionary<string, ConcurrentDictionary<Type, Func<object, object>>> getters = new();
     private static readonly Func<object, object> Null = _ => null;
 

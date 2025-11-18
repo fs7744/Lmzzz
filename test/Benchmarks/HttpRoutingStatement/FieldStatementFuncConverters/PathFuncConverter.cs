@@ -44,7 +44,7 @@ internal class PathFuncConverter : StringFuncConverter
         return c =>
         {
             var path = c.Request.Path.Value;
-            return string.Equals(path, str, StringComparison.OrdinalIgnoreCase);
+            return path == str;
         };
     }
 }

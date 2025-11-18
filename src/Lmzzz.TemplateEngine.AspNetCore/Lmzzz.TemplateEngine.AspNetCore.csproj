@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="../../ProjectCommon.targets" />
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Template Engine for AspNetCore  by Lmzzz</Description>
+		<PackageId>Lmzzz.TemplateEngine.AspNetCore</PackageId>
+		<Title>Template Engine for AspNetCore  by Lmzzz</Title>
+		<RootNamespace>Lmzzz.AspNetCoreTemplate</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Lmzzz.TemplateEngine\Lmzzz.TemplateEngine.csproj" />
+	</ItemGroup>
+
+</Project>

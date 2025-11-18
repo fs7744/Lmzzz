@@ -287,7 +287,7 @@ public static partial class StatementParser
                     var rd = r(c);
                     if (ld is string s)
                     {
-                        return string.Equals(s, rd?.ToString(), StringComparison.OrdinalIgnoreCase);
+                        return s == rd?.ToString();
                     }
                     else if (ld is bool lb)
                     {

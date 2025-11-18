@@ -6,4 +6,5 @@ public interface IValueStatement : IStatement
 
 public interface IFieldStatement : IValueStatement
 {
+    public string Key { get; }
 }

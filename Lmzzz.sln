@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11205.157 d18.0
+VisualStudioVersion = 18.0.11205.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		ProjectCommon.targets = ProjectCommon.targets
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lmzzz.TemplateEngine.AspNetCore", "src\Lmzzz.TemplateEngine.AspNetCore\Lmzzz.TemplateEngine.AspNetCore.csproj", "{8D6ACF57-35F3-4CEC-ABE5-AE14029021BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{5AA97352-B8BE-4582-868C-FB89CCBA4004}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AA97352-B8BE-4582-868C-FB89CCBA4004}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AA97352-B8BE-4582-868C-FB89CCBA4004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D6ACF57-35F3-4CEC-ABE5-AE14029021BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D6ACF57-35F3-4CEC-ABE5-AE14029021BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D6ACF57-35F3-4CEC-ABE5-AE14029021BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D6ACF57-35F3-4CEC-ABE5-AE14029021BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +81,7 @@ Global
 		{1D722D56-CAC4-4C2F-B52D-A06A05A50E7E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{BE12DB68-994A-4645-8CA2-586C463174C4} = {FBA1C60D-863F-4361-9F16-E99F2294A4C9}
 		{5AA97352-B8BE-4582-868C-FB89CCBA4004} = {FBA1C60D-863F-4361-9F16-E99F2294A4C9}
+		{8D6ACF57-35F3-4CEC-ABE5-AE14029021BD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43EA562D-D6F9-4C22-B96C-6DCA35AAF437}

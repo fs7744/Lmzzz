@@ -13,6 +13,6 @@ using Benchmarks;
 var a = new Path_HttpRoutingStatementParserBenchmarks();
 a.LmzzzPathEqual();
 a.PathEqualV2();
-a.LmzzzPathComplex();
-a.Complex();
+a.PathEqualString();
+a.PathEqual();
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);

@@ -5,9 +5,10 @@ using System.Text;
 
 namespace Lmzzz.Template;
 
-public static class TemplateEngineExtensions
+public static class TemplateEngine
 {
     private static readonly ObjectPool<StringBuilder> pool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
+    private static Func<IStatement, IStatement> optimizer;
 
     public static string EvaluateTemplate(this string template, object data, FieldStatementMode fieldMode = FieldStatementMode.Runtime)
     {
@@ -35,5 +36,23 @@ public static class TemplateEngineExtensions
         {
             pool.Return(sb);
         }
+    }
+
+    internal static T Optimize<T>(T statement) where T : IStatement
+    {
+        if (optimizer != null)
+        {
+            var o = optimizer(statement);
+            if (o is T t)
+            {
+                return t;
+            }
+        }
+        return statement;
+    }
+
+    public static void SetOptimizer(Func<IStatement, IStatement> optimizer)
+    {
+        TemplateEngine.optimizer = optimizer;
     }
 }

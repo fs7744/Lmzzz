@@ -14,7 +14,7 @@ public class TemplateEngineParser
     public static readonly Parser<IStatement> StringValue = IgnoreSeparator(String('\'').Or(String())).Then<IStatement>(static s => new StringValueStatement(s)).Name(nameof(StringValue));
     public static readonly Parser<IStatement> NumberValue = IgnoreSeparator(Decimal()).Then<IStatement>(static s => new DecimalValueStatement(s)).Name(nameof(NumberValue));
     private static readonly Parser<TextSpan> FieldName = Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart);
-    public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), FieldName)).Then<IStatement>(static s => new FieldStatement(s)).Name(nameof(Field));
+    public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), FieldName)).Then<IStatement>(static s => TemplateEngine.Optimize(new FieldStatement(s))).Name(nameof(Field));
 
     public static readonly Parser<char> ParenOpen = IgnoreSeparator(Char('(')).Name(nameof(ParenOpen));
     public static readonly Parser<char> ParenClose = IgnoreSeparator(Char(')')).Name(nameof(ParenClose));
@@ -24,22 +24,22 @@ public class TemplateEngineParser
     public static readonly Parser<IConditionStatement> OP = AnyValue
         .And(IgnoreSeparator(Text("==")).Or(IgnoreSeparator(Text("!="))).Or(IgnoreSeparator(Text(">="))).Or(IgnoreSeparator(Text(">"))).Or(IgnoreSeparator(Text("<="))).Or(IgnoreSeparator(Text("<"))))
         .And(AnyValue)
-        .Then<IConditionStatement>(static s => StatementUtils.Create(s.Item2, s.Item1, s.Item3)).Name(nameof(OP));
+        .Then<IConditionStatement>(static s => TemplateEngine.Optimize(StatementUtils.Create(s.Item2, s.Item1, s.Item3))).Name(nameof(OP));
 
     public static readonly Deferred<IConditionStatement> Condition = Deferred<IConditionStatement>(nameof(Condition));
 
     public static readonly Parser<IConditionStatement> GroupExpression = Between(ParenOpen, Condition, ParenClose).Name(nameof(GroupExpression));
-    public static readonly Parser<IConditionStatement> NotExpression = Between(IgnoreSeparator(Text("!")).And(ParenOpen), Condition, ParenClose).Then<IConditionStatement>(static s => StatementUtils.Create("!", s)).Name(nameof(NotExpression));
+    public static readonly Parser<IConditionStatement> NotExpression = Between(IgnoreSeparator(Text("!")).And(ParenOpen), Condition, ParenClose).Then(static s => TemplateEngine.Optimize(StatementUtils.Create("!", s))).Name(nameof(NotExpression));
 
     public static readonly Parser<IConditionStatement> ConditionValue = OP.Or(IgnoreSeparator(FunctionExpr).Then(static x => x as IConditionStatement)).Or(BoolValue).Name(nameof(ConditionValue));
 
     public static readonly Parser<IConditionStatement> Primary = NotExpression.Or(GroupExpression).Or(ConditionValue).Name(nameof(Primary));
 
     public static readonly Parser<IConditionStatement> Conditions = Primary.LeftAssociative(
-               (IgnoreSeparator(Text("&&")), static (x, y) => StatementUtils.Create("&&", x, y)),
-               (IgnoreSeparator(Text("and", true)), static (x, y) => StatementUtils.Create("&&", x, y)),
-               (IgnoreSeparator(Text("||")), static (x, y) => StatementUtils.Create("||", x, y)),
-               (IgnoreSeparator(Text("or", true)), static (x, y) => StatementUtils.Create("||", x, y))
+               (IgnoreSeparator(Text("&&")), static (x, y) => TemplateEngine.Optimize(StatementUtils.Create("&&", x, y))),
+               (IgnoreSeparator(Text("and", true)), static (x, y) => TemplateEngine.Optimize(StatementUtils.Create("&&", x, y))),
+               (IgnoreSeparator(Text("||")), static (x, y) => TemplateEngine.Optimize(StatementUtils.Create("||", x, y))),
+               (IgnoreSeparator(Text("or", true)), static (x, y) => TemplateEngine.Optimize(StatementUtils.Create("||", x, y)))
            ).Name(nameof(Conditions));
 
     public static readonly Parser<string> SignBegin = IgnoreSeparator(Text("{{"));
@@ -63,9 +63,9 @@ public class TemplateEngineParser
             rr = false;
         }
         return rr;
-    }), AnyValue, SignEnd).Then<IStatement>(static x => new ReplaceStatement(x));
+    }), AnyValue, SignEnd).Then<IStatement>(static x => TemplateEngine.Optimize(new ReplaceStatement(x)));
 
-    public static readonly Parser<IStatement> OriginStr = Any('{', canEmpty: false, escape: '\\').Then<IStatement>(static x => new OriginStrStatement(x.Span.ToString()));
+    public static readonly Parser<IStatement> OriginStr = Any('{', canEmpty: false, escape: '\\').Then<IStatement>(static x => TemplateEngine.Optimize(new OriginStrStatement(x.Span.ToString())));
 
     public static readonly Deferred<IStatement> TemplateValue = Deferred<IStatement>(nameof(TemplateValue));
 
@@ -76,18 +76,18 @@ public class TemplateEngineParser
         .And(ZeroOrMany(SignBegin.And(_elseif).And(ParenOpen).And(Conditions).And(ParenClose).And(SignEnd).And(TemplateValue)))
         .And(Optional(SignBegin.And(_else).And(SignEnd).And(TemplateValue)))
         .And(SignBegin.And(_endif).And(SignEnd))
-        .Then<IStatement>(static x => new IfStatement()
+        .Then<IStatement>(static x => TemplateEngine.Optimize(new IfStatement()
         {
             If = new IfConditionStatement(x.Item1.Item4, x.Item1.Item7),
             ElseIfs = x.Item2 == null || x.Item2.Count == 0 ? null : x.Item2.Select(static y => new IfConditionStatement(y.Item4, y.Item7)),
             Else = x.Item3.Item2 != null ? x.Item3.Item4 : null,
-        })
+        }))
         .Name(nameof(If));
 
     public static readonly Parser<IStatement> For = SignBegin.And(_for).And(ParenOpen).And(IgnoreSeparator(FieldName).And(IgnoreSeparator(Char(','))).And(IgnoreSeparator(FieldName)).And(IgnoreSeparator(Text("in", true)))).And(IgnoreSeparator(FunctionExpr).Or(Field)).And(ParenClose).And(SignEnd)
         .And(TemplateValue)
         .And(SignBegin).And(_endfor).And(SignEnd)
-        .Then<IStatement>(static x => new ForStatement() { ItemName = $"field_{x.Item1.Item4.Item1.Span.ToString()}", IndexName = $"field_{x.Item1.Item4.Item3.Span.ToString()}", Value = x.Item1.Item5, Statement = x.Item2 }).Name(nameof(For));
+        .Then<IStatement>(static x => TemplateEngine.Optimize(new ForStatement() { ItemName = $"field_{x.Item1.Item4.Item1.Span.ToString()}", IndexName = $"field_{x.Item1.Item4.Item3.Span.ToString()}", Value = x.Item1.Item5, Statement = x.Item2 })).Name(nameof(For));
 
     static TemplateEngineParser()
 
@@ -110,7 +110,7 @@ public class TemplateEngineParser
                     Arguments = args.Count == 0 ? Array.Empty<IStatement>() : args.ToArray()
                 };
 
-                return func;
+                return TemplateEngine.Optimize<IStatement>(func);
             });
         ConditionParser = Condition.Parser = Conditions;
         TemplateValue.Parser = ZeroOrMany(For.Or(If).Or(ReplaceStr).Or(OriginStr)).Then<IStatement>(static x =>
@@ -129,7 +129,7 @@ public class TemplateEngineParser
                 list.Add(n);
                 c = n;
             }
-            return list.Count == 1 ? list.First() : new ArrayStatement(list.ToArray());
+            return TemplateEngine.Optimize(list.Count == 1 ? list.First() : new ArrayStatement(list.ToArray()));
         });
         ConditionParser = ConditionParser.Eof();
     }

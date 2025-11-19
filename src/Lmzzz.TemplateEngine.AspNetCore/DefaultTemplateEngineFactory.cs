@@ -12,6 +12,14 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
     {
         AddFieldConvertor(new RequestPathHttpContextFieldConvertor());
         AddFieldConvertor(new RequestHostHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestContentTypeHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestProtocolHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestQueryStringHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestSchemeHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestMethodHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestHasFormContentTypeHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestIsHttpsHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestContentLengthHttpContextFieldConvertor());
         TemplateEngine.SetOptimizer(OptimizeTemplateEngine);
     }
 
@@ -71,6 +79,23 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         if (statement is IHttpConditionStatement s)
         {
             func = c => s.EvaluateHttp(c) ? true.ToString() : false.ToString();
+            return true;
+        }
+
+        func = null;
+        return false;
+    }
+
+    public static bool TryGetBoolFunc(IStatement statement, out Func<HttpContext, bool> func)
+    {
+        if (statement is FieldStatement f && fieldConvertor.TryGetValue(f.Key, out var c) && c.TryConvertBoolFunc(statement, out func))
+        {
+            return true;
+        }
+
+        if (statement is IHttpConditionStatement s)
+        {
+            func = c => s.EvaluateHttp(c) ? true : false;
             return true;
         }
 

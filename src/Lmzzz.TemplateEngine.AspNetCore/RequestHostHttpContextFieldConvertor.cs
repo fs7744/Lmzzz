@@ -1,5 +1,6 @@
 ﻿using Lmzzz.Template.Inner;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
@@ -29,6 +30,12 @@ public class RequestHostHttpContextFieldConvertor : HttpContextFieldConvertor
     public override string Key()
     {
         return "field_Request.Host";
+    }
+
+    public override bool TryConvertBoolFunc(IStatement statement, out Func<HttpContext, bool> func)
+    {
+        func = AlwaysFalseFunc;
+        return true;
     }
 
     public override bool TryConvertStringFunc(IStatement statement, out Func<HttpContext, string> func)

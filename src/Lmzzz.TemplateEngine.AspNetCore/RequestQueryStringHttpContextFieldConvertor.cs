@@ -3,32 +3,32 @@ using Microsoft.AspNetCore.Http;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
-public class RequestPathHttpContextFieldConvertor : HttpContextFieldConvertor
+public class RequestQueryStringHttpContextFieldConvertor : HttpContextFieldConvertor
 {
     private readonly IHttpConditionStatement isnull;
 
-    public RequestPathHttpContextFieldConvertor()
+    public RequestQueryStringHttpContextFieldConvertor()
     {
-        isnull = CreateAction(c => c.Request.Path.Value is null);
+        isnull = CreateAction(c => c.Request.QueryString.Value is null);
     }
 
     public override IHttpConditionStatement ConvertEqual(IStatement statement)
     {
         if (TryGetString(statement, out var str))
         {
-            return CreateAction(c => str == c.Request.Path.Value);
+            return CreateAction(c => str == c.Request.QueryString.Value);
         }
         else if (statement is NullValueStatement)
             return isnull;
         else if (DefaultTemplateEngineFactory.TryGetStringFunc(statement, out var f))
-            return CreateAction(c => f(c) == c.Request.Path.Value);
+            return CreateAction(c => f(c) == c.Request.QueryString.Value);
         else
             return null;
     }
 
     public override string Key()
     {
-        return "field_Request.Path";
+        return "field_Request.QueryString";
     }
 
     public override bool TryConvertBoolFunc(IStatement statement, out Func<HttpContext, bool> func)
@@ -39,7 +39,7 @@ public class RequestPathHttpContextFieldConvertor : HttpContextFieldConvertor
 
     public override bool TryConvertStringFunc(IStatement statement, out Func<HttpContext, string> func)
     {
-        func = static c => c.Request.Path.Value;
+        func = static c => c.Request.QueryString.Value;
         return true;
     }
 }

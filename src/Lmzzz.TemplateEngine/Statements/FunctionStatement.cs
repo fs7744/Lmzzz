@@ -32,7 +32,7 @@ public class FunctionStatement : IConditionStatement
                 var t = args[0].Evaluate(context);
                 foreach (var item in args.Skip(1))
                 {
-                    if(t == item.Evaluate(context)) return true;
+                    if(EqualStatement.Eqs(t, item.Evaluate(context))) return true;
                 }
                 return false;
             }
@@ -48,11 +48,20 @@ public class FunctionStatement : IConditionStatement
                     {
                         if(string.Equals(ts, its, StringComparison.OrdinalIgnoreCase)) return true;
                     }
-                    if(t == o) return true;
+                    if(EqualStatement.Eqs(t, o)) return true;
                 }
                 return false;
             }
-        }
+        },
+        { "EqualIgnoreCase", (context, args) =>
+            {
+                if(args == null || args.Length < 2) return false;
+                var t = args[0].Evaluate(context);
+                if(t is null || t is not string ts) return false;
+                var s = args[1].Evaluate(context);
+                if(s == null || s is not string rs) return false;
+                return string.Equals(ts, rs, StringComparison.OrdinalIgnoreCase);
+            } }
     };
 
     public object? Evaluate(TemplateContext context)

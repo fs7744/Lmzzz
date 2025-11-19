@@ -25,6 +25,11 @@ public class EqualStatement : IOperaterStatement
     {
         var l = Left.Evaluate(context);
         var r = Right.Evaluate(context);
+        return Eqs(l, r);
+    }
+
+    public static bool Eqs(object? l, object? r)
+    {
         if (l is null)
             return r is null;
         if (r is null)
@@ -39,7 +44,7 @@ public class EqualStatement : IOperaterStatement
         }
         else if (l is string s)
         {
-            return l == r?.ToString();
+            return string.Equals(l, r?.ToString());
         }
         else if (l is decimal dl)
         {

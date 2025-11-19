@@ -37,7 +37,7 @@ public class NotEqualStatement : IOperaterStatement
         }
         else if (l is string s)
         {
-            return l != r?.ToString();
+            return !string.Equals(l, r?.ToString());
         }
         else if (l is decimal dl)
         {

@@ -21,6 +21,11 @@ public class TemplateEngineFactoryTest
         req.ContentType = "json";
         req.QueryString = new QueryString("?s=123&d=456&f=789");
         req.IsHttps = true;
+        req.ContentLength = 1;
+        HttpContext.TraceIdentifier = "t111";
+        HttpContext.Response.ContentLength = 1;
+        HttpContext.Response.ContentType = "json";
+        HttpContext.Response.StatusCode = 400;
         for (int i = 0; i < 10; i++)
         {
             req.Headers.Add($"x-{i}", new string[] { $"v-{i}", $"x-{i}", $"s-{i}" });
@@ -34,6 +39,12 @@ public class TemplateEngineFactoryTest
     [InlineData("1 == null", false)]
     [InlineData("1 == true", false)]
     [InlineData("1 == '/testp'", false)]
+    [InlineData("TraceIdentifier == '/testp'", false)]
+    [InlineData("TraceIdentifier == 't111'", true)]
+    [InlineData("TraceIdentifier == null", false)]
+    [InlineData("TraceIdentifier == TraceIdentifier", true)]
+    [InlineData("TraceIdentifier == F", false)]
+    [InlineData("TraceIdentifier == Features", false)]
     [InlineData("Request.Path == '/testp'", false)]
     [InlineData("Request.Path == '/testp/dsd/fsdfx/fadasd3/中'", true)]
     [InlineData("Request.Path == null", false)]
@@ -88,6 +99,36 @@ public class TemplateEngineFactoryTest
     [InlineData("Request.IsHttps == Request.IsHttps", true)]
     [InlineData("Request.IsHttps == F", false)]
     [InlineData("Request.IsHttps == Features", false)]
+    [InlineData("Request.ContentLength == '/testp'", false)]
+    [InlineData("Request.ContentLength == 1", true)]
+    [InlineData("Request.ContentLength == null", false)]
+    [InlineData("Request.ContentLength == Request.ContentLength", true)]
+    [InlineData("Request.ContentLength == F", false)]
+    [InlineData("Request.ContentLength == Features", false)]
+    [InlineData("Response.ContentLength == '/testp'", false)]
+    [InlineData("Response.ContentLength == 1", true)]
+    [InlineData("Response.ContentLength == null", false)]
+    [InlineData("Response.ContentLength == Request.ContentLength", true)]
+    [InlineData("Response.ContentLength == F", false)]
+    [InlineData("Response.ContentLength == Features", false)]
+    [InlineData("Response.ContentType == '/testp'", false)]
+    [InlineData("Response.ContentType == 'json'", true)]
+    [InlineData("Response.ContentType == null", false)]
+    [InlineData("Response.ContentType == Response.ContentType", true)]
+    [InlineData("Response.ContentType == F", false)]
+    [InlineData("Response.ContentType == Features", false)]
+    [InlineData("Response.HasStarted == '/testp'", false)]
+    [InlineData("Response.HasStarted == false", true)]
+    [InlineData("Response.HasStarted == null", false)]
+    [InlineData("Response.HasStarted == Response.HasStarted", true)]
+    [InlineData("Response.HasStarted == F", false)]
+    [InlineData("Response.HasStarted == Features", false)]
+    [InlineData("Response.StatusCode == '/testp'", false)]
+    [InlineData("Response.StatusCode == 400", true)]
+    [InlineData("Response.StatusCode == null", false)]
+    [InlineData("Response.StatusCode == Response.StatusCode", true)]
+    [InlineData("Response.StatusCode == F", false)]
+    [InlineData("Response.StatusCode == Features", false)]
     public void ConvertRouteFunctionTest(string text, bool r)
     {
         var f = te.ConvertRouteFunction(text);

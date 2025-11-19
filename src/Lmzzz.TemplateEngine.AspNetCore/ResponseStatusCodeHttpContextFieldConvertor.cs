@@ -3,24 +3,15 @@ using Microsoft.AspNetCore.Http;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
-public class RequestContentLengthHttpContextFieldConvertor : HttpContextFieldConvertor
+public class ResponseStatusCodeHttpContextFieldConvertor : HttpContextFieldConvertor
 {
-    private readonly IHttpConditionStatement isnull;
-
-    public RequestContentLengthHttpContextFieldConvertor()
-    {
-        isnull = CreateAction(c => !c.Request.ContentLength.HasValue);
-    }
-
     public override IHttpConditionStatement ConvertEqual(IStatement statement)
     {
         if (TryGetDecimal(statement, out var d))
         {
-            return CreateAction(c => d == c.Request.ContentLength);
+            return CreateAction(c => d == c.Response.StatusCode);
         }
-        else if (statement is NullValueStatement)
-            return isnull;
-        else if (statement is StringValueStatement || statement is BoolValueStatement)
+        else if (statement is NullValueStatement || statement is StringValueStatement || statement is BoolValueStatement)
             return AlwaysFalse;
         else
             return null;
@@ -28,7 +19,7 @@ public class RequestContentLengthHttpContextFieldConvertor : HttpContextFieldCon
 
     public override string Key()
     {
-        return "field_Request.ContentLength";
+        return "field_Response.StatusCode";
     }
 
     public override bool TryConvertBoolFunc(IStatement statement, out Func<HttpContext, bool> func)
@@ -39,7 +30,7 @@ public class RequestContentLengthHttpContextFieldConvertor : HttpContextFieldCon
 
     public override bool TryConvertStringFunc(IStatement statement, out Func<HttpContext, string> func)
     {
-        func = static c => c.Request.ContentLength?.ToString();
+        func = static c => c.Response.StatusCode.ToString();
         return true;
     }
 }

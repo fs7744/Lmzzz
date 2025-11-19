@@ -3,6 +3,9 @@ using Lmzzz.Chars.Fluent;
 using Lmzzz.Template;
 using Lmzzz.Template.Inner;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
@@ -56,8 +59,45 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         {
             r = OptimizeEqualStatement(equalStatement);
         }
+        else if (statement is FunctionStatement fs)
+        {
+            r = OptimizeFuncStatement(fs);
+        }
+        else if (statement is NotStatement sn)
+        {
+            if (sn.Statement is ActionConditionStatement actionCondition)
+            {
+                var ss = actionCondition.action;
+                return new ActionConditionStatement(c => !ss(c));
+            }
+        }
+        else if (statement is AndStatement asn)
+        {
+            if (asn.Left is ActionConditionStatement actionCondition && asn.Right is ActionConditionStatement actionConditionr)
+            {
+                var ss = actionCondition.action;
+                var ssr = actionConditionr.action;
+                return new ActionConditionStatement(c => ss(c) && ssr(c));
+            }
+        }
+        else if (statement is OrStatement aso)
+        {
+            if (aso.Left is ActionConditionStatement actionCondition && aso.Right is ActionConditionStatement actionConditionr)
+            {
+                var ss = actionCondition.action;
+                var ssr = actionConditionr.action;
+                return new ActionConditionStatement(c => ss(c) || ssr(c));
+            }
+        }
 
         return r ?? statement;
+    }
+
+    private static IStatement OptimizeFuncStatement(FunctionStatement fs)
+    {
+        if (funcConvertor.TryGetValue(fs.Name, out var func))
+            return func(fs);
+        return null;
     }
 
     private static IHttpConditionStatement OptimizeEqualStatement(EqualStatement equalStatement)
@@ -70,7 +110,6 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         {
             return c.ConvertEqual(equalStatement.Left);
         }
-
         return null;
     }
 
@@ -108,10 +147,32 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         return false;
     }
 
-    private static readonly Dictionary<string, HttpContextFieldConvertor> fieldConvertor = new Dictionary<string, HttpContextFieldConvertor>(StringComparer.OrdinalIgnoreCase);
-
     public static void AddFieldConvertor(HttpContextFieldConvertor c)
     {
         fieldConvertor[c.Key()] = c;
     }
+
+    private static readonly Dictionary<string, HttpContextFieldConvertor> fieldConvertor = new Dictionary<string, HttpContextFieldConvertor>(StringComparer.OrdinalIgnoreCase);
+
+    private static readonly Dictionary<string, Func<FunctionStatement, IStatement>> funcConvertor = new Dictionary<string, Func<FunctionStatement, IStatement>>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Regex", fs=>
+        {
+            var ss = fs.Arguments.Length > 3 ? (fs.Arguments[3] is StringValueStatement v ? v.Value : null ): null;
+            var o = Enum.TryParse<RegexOptions>(ss , true, out var r) ? r : RegexOptions.Compiled;
+            if (fs.Arguments[0] is StringValueStatement s && fs.Arguments[1] is StringValueStatement svv )
+            {
+                var reg = new Regex(svv.Value, o);
+                return new BoolConditionStatement(reg.IsMatch(s.Value));
+            }
+            else if (fs.Arguments[0] is FieldStatement f && fs.Arguments[1] is StringValueStatement sv
+                && fieldConvertor.TryGetValue(f.Key, out var c) && c.TryConvertStringFunc(null, out var func))
+            {
+                var reg = new Regex(sv.Value, o);
+                return new ActionConditionStatement(c => reg.IsMatch(func(c)));
+            }
+            else
+                return null;
+        } }
+    };
 }

@@ -10,6 +10,8 @@ public abstract class HttpContextFieldConvertor
     public static readonly Func<HttpContext, bool> AlwaysFalseFunc = c => false;
     public static readonly Func<HttpContext, bool> AlwaysTrueFunc = c => true;
 
+    public virtual bool IsGeneric() => false;
+
     public bool TryGetString(IStatement statement, out string str)
     {
         if (statement is StringValueStatement s)
@@ -92,4 +94,6 @@ public abstract class HttpContextFieldConvertor
     public abstract bool TryConvertStringFunc(IStatement statement, out Func<HttpContext, string> func);
 
     public abstract bool TryConvertBoolFunc(IStatement statement, out Func<HttpContext, bool> func);
+
+    public virtual IStatement ConvertFieldStatement(FieldStatement field) => null;
 }

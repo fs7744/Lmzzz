@@ -97,6 +97,24 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         {
             return HttpContextFieldConvertor.AlwaysTrue;
         }
+        else if (statement is FieldStatement field)
+        {
+            if (fieldConvertor.TryGetValue(field.Key, out var c))
+            {
+                r = c.ConvertFieldStatement(field);
+                if (r != null)
+                    return r;
+            }
+            foreach (var item in GenericConvertors)
+            {
+                if (field.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
+                {
+                    r = item.ConvertFieldStatement(field);
+                    if (r != null)
+                        return r;
+                }
+            }
+        }
 
         return r ?? statement;
     }
@@ -157,8 +175,13 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 
     public static void AddFieldConvertor(HttpContextFieldConvertor c)
     {
-        fieldConvertor[c.Key()] = c;
+        if (c.IsGeneric())
+            GenericConvertors.Add(c);
+        else
+            fieldConvertor[c.Key()] = c;
     }
+
+    private static readonly List<HttpContextFieldConvertor> GenericConvertors = new List<HttpContextFieldConvertor>();
 
     private static readonly Dictionary<string, HttpContextFieldConvertor> fieldConvertor = new Dictionary<string, HttpContextFieldConvertor>(StringComparer.OrdinalIgnoreCase);
 

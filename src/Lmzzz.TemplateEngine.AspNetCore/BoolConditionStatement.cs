@@ -3,27 +3,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
-public class BoolConditionStatement : IHttpConditionStatement
+public class BoolConditionStatement : BoolValueStatement, IHttpConditionStatement
 {
-    internal readonly bool value;
-
-    public BoolConditionStatement(bool v)
+    public BoolConditionStatement(bool v) : base(v)
     {
-        this.value = v;
-    }
-
-    public object? Evaluate(TemplateContext context)
-    {
-        return value;
-    }
-
-    public bool EvaluateCondition(TemplateContext context)
-    {
-        return value;
     }
 
     public bool EvaluateHttp(HttpContext context)
     {
-        return value;
+        return Value;
     }
 }

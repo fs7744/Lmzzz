@@ -6,13 +6,13 @@ namespace Lmzzz.Template.Inner;
 public class TemplateEngineParser
 {
     public static readonly Parser<IConditionStatement> ConditionParser;
-    public static readonly Parser<IStatement> NullValue = IgnoreSeparator(Text("null")).Then<IStatement>(static s => NullValueStatement.Value).Name(nameof(NullValue));
+    public static readonly Parser<IStatement> NullValue = IgnoreSeparator(Text("null")).Then<IStatement>(static s => TemplateEngine.Optimize(NullValueStatement.Value)).Name(nameof(NullValue));
 
-    public static readonly Parser<IConditionStatement> BoolValue = IgnoreSeparator(Text("true", true)).Then<IConditionStatement>(static s => BoolValueStatement.True)
-            .Or(IgnoreSeparator(Text("false", true)).Then<IConditionStatement>(static s => BoolValueStatement.False)).Name(nameof(BoolValue));
+    public static readonly Parser<IConditionStatement> BoolValue = IgnoreSeparator(Text("true", true)).Then<IConditionStatement>(static s => TemplateEngine.Optimize(BoolValueStatement.True))
+            .Or(IgnoreSeparator(Text("false", true)).Then<IConditionStatement>(static s => TemplateEngine.Optimize(BoolValueStatement.False))).Name(nameof(BoolValue));
 
-    public static readonly Parser<IStatement> StringValue = IgnoreSeparator(String('\'').Or(String())).Then<IStatement>(static s => new StringValueStatement(s)).Name(nameof(StringValue));
-    public static readonly Parser<IStatement> NumberValue = IgnoreSeparator(Decimal()).Then<IStatement>(static s => new DecimalValueStatement(s)).Name(nameof(NumberValue));
+    public static readonly Parser<IStatement> StringValue = IgnoreSeparator(String('\'').Or(String())).Then<IStatement>(static s => TemplateEngine.Optimize(new StringValueStatement(s))).Name(nameof(StringValue));
+    public static readonly Parser<IStatement> NumberValue = IgnoreSeparator(Decimal()).Then<IStatement>(static s => TemplateEngine.Optimize(new DecimalValueStatement(s))).Name(nameof(NumberValue));
     private static readonly Parser<TextSpan> FieldName = Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart);
     public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), FieldName)).Then<IStatement>(static s => TemplateEngine.Optimize(new FieldStatement(s))).Name(nameof(Field));
 

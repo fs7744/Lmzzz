@@ -89,6 +89,14 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
                 return new ActionConditionStatement(c => ss(c) || ssr(c));
             }
         }
+        else if (statement == BoolValueStatement.False)
+        {
+            return HttpContextFieldConvertor.AlwaysFalse;
+        }
+        else if (statement == BoolValueStatement.True)
+        {
+            return HttpContextFieldConvertor.AlwaysTrue;
+        }
 
         return r ?? statement;
     }

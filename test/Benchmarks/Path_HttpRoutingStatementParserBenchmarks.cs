@@ -29,6 +29,7 @@ public class Path_HttpRoutingStatementParserBenchmarks
     private readonly Func<HttpContext, bool> _PathIn;
     private readonly Func<HttpContext, bool> _PathInV2;
     private readonly HashSet<string> set;
+    private Func<HttpContext, bool> _LmzzzPathIn;
     private readonly Regex queryRegx;
     private readonly Func<HttpContext, bool> _PathComplex;
     private readonly Func<HttpContext, bool> _PathComplexV2;
@@ -164,7 +165,7 @@ public class Path_HttpRoutingStatementParserBenchmarks
         regx = new Regex(@"^[/]testp.*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         _PathRegx = StatementParser.ConvertToFunc("Path ~= '^[/]testp.*'");
         _PathRegxV2 = HttpRoutingStatementParser.ConvertToFunction("Path ~= '^[/]testp.*'");
-        _LmzzzRegx = te.ConvertRouteFunction("Regex(Request.Path,'^[/]testp.*')");
+        _LmzzzRegx = te.ConvertRouteFunction("Regex(Request.Path,'^[/]testp.*', 9)");
         _PathEqual = StatementParser.ConvertToFunc("Path = '/testp'");
         _PathEqualV2 = HttpRoutingStatementParser.ConvertToFunction("Path = '/testp'");
         _LmzzzEqual = te.ConvertRouteFunction("Request.Path == '/testp'");
@@ -177,6 +178,7 @@ public class Path_HttpRoutingStatementParserBenchmarks
         _PathIn = StatementParser.ConvertToFunc("Path in ('/testp','/testp/DSD/fsdfx/fadasd3/中')");
         _PathInV2 = HttpRoutingStatementParser.ConvertToFunction("Path in ('/testp','/testp/DSD/fsdfx/fadasd3/中')");
         set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "/testp", "/testp/DSD/fsdfx/fadasd3/中" };
+        _LmzzzPathIn = te.ConvertRouteFunction("InIgnoreCase(Request.Path,'/testp','/testp/DSD/fsdfx/fadasd3/中')");
 
         var w = "IsHttps = true and Path = '/testp/dsd/fsdfx/fadasd3/中' AND Method = \"GET\" AND Host = \"x.com\" AND Scheme = \"https\" AND Protocol = \"HTTP/1.1\" AND ContentType = \"json\" AND QueryString ~= 's[=].*' and not(Scheme = \"http\")";
         _PathComplex = StatementParser.ConvertToFunc(w);
@@ -294,23 +296,29 @@ public class Path_HttpRoutingStatementParserBenchmarks
         var b = _LmzzzRegx(HttpContext);
     }
 
-    //[Benchmark(Baseline = true), BenchmarkCategory("In")]
-    //public void PathInString()
-    //{
-    //    var b = set.Contains(HttpContext.Request.Path.Value);
-    //}
+    [Benchmark(Baseline = true), BenchmarkCategory("In")]
+    public void PathInString()
+    {
+        var b = set.Contains(HttpContext.Request.Path.Value);
+    }
 
-    //[Benchmark, BenchmarkCategory("In")]
-    //public void PathIn()
-    //{
-    //    var b = _PathIn(HttpContext);
-    //}
+    [Benchmark, BenchmarkCategory("In")]
+    public void PathIn()
+    {
+        var b = _PathIn(HttpContext);
+    }
 
-    //[Benchmark, BenchmarkCategory("In")]
-    //public void PathInV2()
-    //{
-    //    var b = _PathInV2(HttpContext);
-    //}
+    [Benchmark, BenchmarkCategory("In")]
+    public void PathInV2()
+    {
+        var b = _PathInV2(HttpContext);
+    }
+
+    [Benchmark, BenchmarkCategory("In")]
+    public void LmzzzPathIn()
+    {
+        var b = _LmzzzPathIn(HttpContext);
+    }
 
     [Benchmark(Baseline = true), BenchmarkCategory("bool")]
     public void IsHttps()

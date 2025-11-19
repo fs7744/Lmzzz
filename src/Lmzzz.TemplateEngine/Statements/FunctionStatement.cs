@@ -25,6 +25,33 @@ public class FunctionStatement : IConditionStatement
                 var reg = Regexs.GetOrAdd($"{rs}_{o}", static (k,oo)=> new Regex(oo.rs, oo.o), (rs, o));
                 return reg.IsMatch(ts);
             }
+        },
+        { "in", (context, args) =>
+            {
+                if(args == null || args.Length <= 1) return false;
+                var t = args[0].Evaluate(context);
+                foreach (var item in args.Skip(1))
+                {
+                    if(t == item.Evaluate(context)) return true;
+                }
+                return false;
+            }
+        },
+        { "InIgnoreCase", (context, args) =>
+            {
+                if(args == null || args.Length <= 1) return false;
+                var t = args[0].Evaluate(context);
+                foreach (var item in args.Skip(1))
+                {
+                    var o = item.Evaluate(context);
+                    if(t is string ts && o is string its)
+                    {
+                        if(string.Equals(ts, its, StringComparison.OrdinalIgnoreCase)) return true;
+                    }
+                    if(t == o) return true;
+                }
+                return false;
+            }
         }
     };
 

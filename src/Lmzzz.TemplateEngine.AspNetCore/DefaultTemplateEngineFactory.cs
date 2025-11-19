@@ -4,6 +4,8 @@ using Lmzzz.Template;
 using Lmzzz.Template.Inner;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
@@ -158,8 +160,21 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
     {
         { "Regex", fs=>
         {
-            var ss = fs.Arguments.Length > 3 ? (fs.Arguments[3] is StringValueStatement v ? v.Value : null ): null;
-            var o = Enum.TryParse<RegexOptions>(ss , true, out var r) ? r : RegexOptions.Compiled;
+            var o =RegexOptions.Compiled;
+            if(fs.Arguments.Length >= 3)
+            {
+                if(fs.Arguments[2] is StringValueStatement v)
+                {
+                    if(v.Value != null && Enum.TryParse<RegexOptions>(v.Value , true, out var r))
+                    {
+                        o = r;
+                    }
+                }
+                else if(fs.Arguments[2] is DecimalValueStatement d)
+                {
+                    o = (RegexOptions)Convert.ToInt32(d.Value);
+                }
+            }
             if (fs.Arguments[0] is StringValueStatement s && fs.Arguments[1] is StringValueStatement svv )
             {
                 var reg = new Regex(svv.Value, o);
@@ -173,6 +188,60 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
             }
             else
                 return null;
+        } },
+        { "In", fs =>
+        {
+            if(fs.Arguments.Length <= 1) return HttpContextFieldConvertor.AlwaysFalse;
+
+            if (fs.Arguments[0] is FieldStatement f
+                && fieldConvertor.TryGetValue(f.Key, out var c))
+            {
+                if(fs.Arguments.Skip(1).All(static i => i is StringValueStatement))
+                {
+                    if(c.TryConvertStringFunc(null, out var func))
+                    {
+                       var a = fs.Arguments.Skip(1).Select(static i => (i as StringValueStatement).Value).Distinct().ToFrozenSet();
+                        return new ActionConditionStatement(c => a.Contains(func(c)));
+                    }
+                }
+                else if(fs.Arguments.Skip(1).All(static i => i is BoolValueStatement))
+                {
+                    if(c.TryConvertBoolFunc(null, out var func))
+                    {
+                        var a = fs.Arguments.Skip(1).Select(static i => (i as BoolValueStatement).Value).Distinct().ToArray();
+                        return new ActionConditionStatement(c => a.Contains(func(c)));
+                    }
+                }
+            }
+
+            return null;
+        } },
+        { "InIgnoreCase", fs =>
+        {
+            if(fs.Arguments.Length <= 1) return HttpContextFieldConvertor.AlwaysFalse;
+
+            if (fs.Arguments[0] is FieldStatement f
+                && fieldConvertor.TryGetValue(f.Key, out var c))
+            {
+                if(fs.Arguments.Skip(1).All(static i => i is StringValueStatement))
+                {
+                    if(c.TryConvertStringFunc(null, out var func))
+                    {
+                       var a = fs.Arguments.Skip(1).Select(static i => (i as StringValueStatement).Value).Distinct(StringComparer.OrdinalIgnoreCase).ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+                        return new ActionConditionStatement(c => a.Contains(func(c)));
+                    }
+                }
+                else if(fs.Arguments.Skip(1).All(static i => i is BoolValueStatement))
+                {
+                    if(c.TryConvertBoolFunc(null, out var func))
+                    {
+                        var a = fs.Arguments.Skip(1).Select(static i => (i as BoolValueStatement).Value).Distinct().ToArray();
+                        return new ActionConditionStatement(c => a.Contains(func(c)));
+                    }
+                }
+            }
+
+            return null;
         } }
     };
 }

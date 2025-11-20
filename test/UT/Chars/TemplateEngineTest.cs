@@ -143,6 +143,8 @@ public class TemplateEngineTest
     [InlineData("D", 5.5)]
     [InlineData("IntDNull.a99", null)]
     [InlineData("IntD.a99", 44)]
+    [InlineData("IntD.['a99']", 44)]
+    [InlineData("['IntD'].['a99']", 44)]
     [InlineData("IntD.99", 144)]
     [InlineData("Array.0", 2)]
     [InlineData("ArrayNull.0", null)]
@@ -234,6 +236,7 @@ public class TemplateEngineTest
     [InlineData("Regex ( Str, '^7.*', 'ECMAScript')", false)]
     [InlineData("HttpContext.Request.Path == '/testp/dsd/fsdfx/fadasd3/中'", true)]
     [InlineData("'/testp/dsd/fsdfx/fadasd3/中' == HttpContext.Request.Path", true)]
+    [InlineData("'/testp/dsd/fsdfx/fadasd3/中' == ['HttpContext'].['Request'].['Path']", true)]
     public void ConditionEvaluateTest(string text, object d)
     {
         var r = TemplateEngineParser.ConditionParser.TryParse(text, out var v, out var err);

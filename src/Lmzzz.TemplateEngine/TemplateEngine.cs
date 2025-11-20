@@ -13,7 +13,7 @@ public class TemplateEngineParser
 
     public static readonly Parser<IStatement> StringValue = IgnoreSeparator(String('\'').Or(String())).Then<IStatement>(static s => TemplateEngine.Optimize(new StringValueStatement(s))).Name(nameof(StringValue));
     public static readonly Parser<IStatement> NumberValue = IgnoreSeparator(Decimal()).Then<IStatement>(static s => TemplateEngine.Optimize(new DecimalValueStatement(s))).Name(nameof(NumberValue));
-    private static readonly Parser<TextSpan> FieldName = Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart);
+    private static readonly Parser<TextSpan> FieldName = Identifier(Character.SVIdentifierPart, Character.SVIdentifierPart).Or(Between(Char('['), IgnoreSeparator(String('\'').Or(String())), IgnoreSeparator(Char(']'))));
     public static readonly Parser<IStatement> Field = IgnoreSeparator(Separated(Char('.'), FieldName)).Then<IStatement>(static s => TemplateEngine.Optimize(new FieldStatement(s))).Name(nameof(Field));
 
     public static readonly Parser<char> ParenOpen = IgnoreSeparator(Char('(')).Name(nameof(ParenOpen));

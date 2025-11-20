@@ -7,7 +7,7 @@ namespace Lmzzz.Template;
 
 public static class TemplateEngine
 {
-    private static readonly ObjectPool<StringBuilder> pool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
+    public static readonly ObjectPool<StringBuilder> Pool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
     private static Func<IStatement, IStatement> optimizer;
 
     public static string EvaluateTemplate(this string template, object data, FieldStatementMode fieldMode = FieldStatementMode.Runtime)
@@ -25,7 +25,7 @@ public static class TemplateEngine
 
     public static string Evaluate(this IStatement template, object data, FieldStatementMode fieldMode = FieldStatementMode.Runtime)
     {
-        var sb = pool.Get();
+        var sb = Pool.Get();
         try
         {
             var c = new TemplateContext(data) { StringBuilder = sb, FieldMode = fieldMode };
@@ -34,7 +34,7 @@ public static class TemplateEngine
         }
         finally
         {
-            pool.Return(sb);
+            Pool.Return(sb);
         }
     }
 

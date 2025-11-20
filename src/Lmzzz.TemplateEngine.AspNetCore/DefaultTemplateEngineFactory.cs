@@ -5,7 +5,9 @@ using Lmzzz.Template.Inner;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.IO;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
@@ -49,6 +51,22 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
     public Func<HttpContext, string> ConvertTemplate(string template)
     {
         var s = TemplateEngine.ToTemplate(template);
+        if (s is IHttpTemplateStatement t)
+        {
+            return c =>
+            {
+                var sb = TemplateEngine.Pool.Get();
+                try
+                {
+                    t.EvaluateHttpTemplate(c, sb);
+                    return sb.ToString();
+                }
+                finally
+                {
+                    TemplateEngine.Pool.Return(sb);
+                }
+            };
+        }
         return c => s.Evaluate(c);
     }
 
@@ -99,24 +117,83 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         }
         else if (statement is FieldStatement field)
         {
-            if (fieldConvertor.TryGetValue(field.Key, out var c))
+            r = OptimizeFieldStatement(field);
+        }
+        else if (statement is OriginStrStatement originStrStatement)
+        {
+            return new HttpTemplateOriginStrStatement(originStrStatement.Text);
+        }
+        else if (statement is ReplaceStatement replaceStatement)
+        {
+            r = OptimizeHttpTemplateReplaceStatement(replaceStatement);
+        }
+        else if (statement is ArrayStatement arrayStatement)
+        {
+            if (arrayStatement.Statements.All(static i => i is IHttpTemplateStatement))
             {
-                r = c.ConvertFieldStatement(field);
-                if (r != null)
-                    return r;
-            }
-            foreach (var item in GenericConvertors)
-            {
-                if (field.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
-                {
-                    r = item.ConvertFieldStatement(field);
-                    if (r != null)
-                        return r;
-                }
+                r = new HttpTemplateArrayStatement(arrayStatement.Statements.Select(static i => i as IHttpTemplateStatement).ToArray());
             }
         }
 
         return r ?? statement;
+    }
+
+    private static IStatement OptimizeFieldStatement(FieldStatement field)
+    {
+        if (fieldConvertor.TryGetValue(field.Key, out var c))
+        {
+            var r = c.ConvertFieldStatement(field);
+            if (r != null)
+                return r;
+        }
+        foreach (var item in GenericConvertors)
+        {
+            if (field.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
+            {
+                var r = item.ConvertFieldStatement(field);
+                if (r != null)
+                    return r;
+            }
+        }
+        return null;
+    }
+
+    private static IStatement OptimizeHttpTemplateReplaceStatement(ReplaceStatement replaceStatement)
+    {
+        if (replaceStatement is IHttpTemplateStatement)
+        {
+            return replaceStatement;
+        }
+        else if (replaceStatement.Statement is IHttpTemplateStatement)
+        {
+            return replaceStatement.Statement;
+        }
+        else if (replaceStatement.Statement is StringValueStatement stringValueStatement)
+        {
+            return new HttpTemplateOriginStrStatement(stringValueStatement.Value);
+        }
+        else if (replaceStatement.Statement is DecimalValueStatement decimalValueStatement)
+        {
+            return new HttpTemplateOriginStrStatement(decimalValueStatement.Value.ToString());
+        }
+        else if (replaceStatement.Statement is BoolValueStatement boolValueStatement)
+        {
+            return new HttpTemplateOriginStrStatement(boolValueStatement.Value.ToString());
+        }
+        else if (replaceStatement.Statement is NullValueStatement nullValueStatement)
+        {
+            return new HttpTemplateOriginStrStatement(string.Empty);
+        }
+        else if (replaceStatement.Statement is FieldStatement fieldStatement)
+        {
+            if (fieldConvertor.TryGetValue(fieldStatement.Key, out var c))
+            {
+                if (c.TryConvertStringFunc(fieldStatement, out var func))
+                    return new HttpTemplateReplaceStatementFunc(replaceStatement.Statement, func);
+            }
+        }
+
+        return null;
     }
 
     private static IStatement OptimizeFuncStatement(FunctionStatement fs)

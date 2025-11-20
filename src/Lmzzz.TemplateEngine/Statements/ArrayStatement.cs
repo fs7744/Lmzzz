@@ -3,6 +3,7 @@
 public class ArrayStatement : IStatement
 {
     private IStatement[] statements;
+    public IStatement[] Statements => statements;
 
     public ArrayStatement(IStatement[] statements)
     {

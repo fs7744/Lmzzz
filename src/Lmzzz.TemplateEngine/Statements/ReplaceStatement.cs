@@ -4,6 +4,7 @@ public class ReplaceStatement : IStatement
 {
     public static readonly Dictionary<Type, Func<object, string>> ConvertToStrings = new Dictionary<Type, Func<object, string>>();
     private IStatement statement;
+    public IStatement Statement => statement;
 
     public ReplaceStatement(IStatement statement)
     {

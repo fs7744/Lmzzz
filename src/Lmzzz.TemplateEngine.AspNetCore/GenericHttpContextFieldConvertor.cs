@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Lmzzz.Template.Inner;
+using Microsoft.AspNetCore.Http;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
 public abstract class GenericHttpContextFieldConvertor : HttpContextFieldConvertor
 {
-    public override bool IsGeneric() => true;
-
     public override IHttpConditionStatement ConvertEqual(IStatement statement)
     {
         return null;
@@ -21,6 +20,11 @@ public abstract class GenericHttpContextFieldConvertor : HttpContextFieldConvert
     {
         func = null;
         return false;
+    }
+
+    public virtual IHttpConditionStatement GenericConvertEqual(FieldStatement field, IStatement statement)
+    {
+        return null;
     }
 }
 

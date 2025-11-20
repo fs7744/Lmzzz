@@ -42,4 +42,9 @@ public class TraceIdentifierHttpContextFieldConvertor : HttpContextFieldConverto
         func = static c => c.TraceIdentifier;
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.TraceIdentifier);
+    }
 }

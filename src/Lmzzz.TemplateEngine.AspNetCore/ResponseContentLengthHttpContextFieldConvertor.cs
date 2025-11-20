@@ -42,4 +42,9 @@ public class ResponseContentLengthHttpContextFieldConvertor : HttpContextFieldCo
         func = static c => c.Response.ContentLength?.ToString();
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.Response.ContentLength);
+    }
 }

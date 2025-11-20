@@ -44,4 +44,9 @@ public class RequestHasFormContentTypeHttpContextFieldConvertor : HttpContextFie
         func = static c => c.Request.HasFormContentType.ToString();
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.HasFormContentType);
+    }
 }

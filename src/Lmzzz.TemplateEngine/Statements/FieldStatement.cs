@@ -1,4 +1,5 @@
 ﻿using Lmzzz.Chars.Fluent;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
@@ -11,6 +12,8 @@ public class FieldStatement : IFieldStatement
     public IReadOnlyList<string> Names { get; }
 
     private readonly string key;
+    protected Func<object, object> func;
+    protected Func<object, object> runtimeFunc;
 
     public string Key => key;
 
@@ -21,12 +24,12 @@ public class FieldStatement : IFieldStatement
     {
         Names = names;
         key = $"field_{string.Join(".", Names)}";
+        this.func = CreateGetter(key, names, FieldStatementMode.Defined);
+        this.runtimeFunc = CreateGetter(key, names, FieldStatementMode.Runtime);
     }
 
-    public FieldStatement(IReadOnlyList<TextSpan> names)
+    public FieldStatement(IReadOnlyList<TextSpan> names) : this(names.Select(i => i.ToString()).ToImmutableList())
     {
-        Names = names.Select(i => i.ToString()).ToImmutableList();
-        key = $"field_{string.Join(".", Names)}";
     }
 
     public override string ToString()
@@ -37,23 +40,36 @@ public class FieldStatement : IFieldStatement
     public object? Evaluate(TemplateContext context)
     {
         if (context.scopeCount > 0 && context.Cache.TryGetValue(key, out var value)) { return value; }
-
-        object? r;
-        if (context.Data is null)
+        if (context.FieldMode == FieldStatementMode.Defined)
         {
-            r = null;
+            return func(context.Data);
+        }
+        else
+            return runtimeFunc(context.Data);
+    }
+
+    public static Func<object, object> CreateGetter(IEnumerable<string> names, FieldStatementMode fieldMode)
+    {
+        return CreateGetter($"field_{string.Join(".", names)}", names.ToImmutableList(), fieldMode);
+    }
+
+    public static Func<object, object> CreateGetter(string key, IReadOnlyList<string> names, FieldStatementMode fieldMode)
+    {
+        if (fieldMode == FieldStatementMode.Defined)
+        {
+            var fs = getters.GetOrAdd(key, static k => new ConcurrentDictionary<Type, Func<object, object>>());
+            return c =>
+            {
+                if (c == null) return c;
+                return fs.GetOrAdd(c.GetType(), static (t, i) => CreateGet(t, i), names)(c);
+            };
         }
         else
         {
-            object c = context.Data;
-            if (context.FieldMode == FieldStatementMode.Defined)
+            return c =>
             {
-                var fs = getters.GetOrAdd(key, static k => new ConcurrentDictionary<Type, Func<object, object>>());
-                r = fs.GetOrAdd(c.GetType(), static (t, i) => CreateGet(t, i), Names)(c);
-            }
-            else
-            {
-                foreach (var item in Names)
+                if (c == null) return c;
+                foreach (var item in names)
                 {
                     var fs = getters.GetOrAdd(item, static k => new ConcurrentDictionary<Type, Func<object, object>>());
                     var f = fs.GetOrAdd(c.GetType(), static (t, i) => CreateGetter(t, i), item);
@@ -61,11 +77,9 @@ public class FieldStatement : IFieldStatement
                     if (c == null)
                         break;
                 }
-                r = c;
-            }
+                return c;
+            };
         }
-
-        return r;
     }
 
     private static Func<object, object> CreateGet(Type t, IReadOnlyList<string> names)

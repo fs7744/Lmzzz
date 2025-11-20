@@ -42,4 +42,9 @@ public class RequestSchemeHttpContextFieldConvertor : HttpContextFieldConvertor
         func = static c => c.Request.Scheme;
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.Scheme);
+    }
 }

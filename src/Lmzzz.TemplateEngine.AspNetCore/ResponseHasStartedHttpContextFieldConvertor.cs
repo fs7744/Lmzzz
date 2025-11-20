@@ -44,4 +44,9 @@ public class ResponseHasStartedHttpContextFieldConvertor : HttpContextFieldConve
         func = static c => c.Response.HasStarted.ToString();
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.Response.HasStarted);
+    }
 }

@@ -42,4 +42,9 @@ public class RequestContentTypeHttpContextFieldConvertor : HttpContextFieldConve
         func = static c => c.Request.ContentType;
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.ContentType);
+    }
 }

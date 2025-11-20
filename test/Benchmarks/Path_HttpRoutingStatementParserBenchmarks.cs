@@ -42,6 +42,7 @@ public class Path_HttpRoutingStatementParserBenchmarks
     private readonly Func<HttpContext, bool> _headersRegexV2;
     private readonly Func<HttpContext, string> _t;
     private readonly Func<HttpContext, string> _LmzzzT;
+    private readonly Func<HttpContext, string> _LmzzzT2;
     private readonly Func<HttpContext, bool> _LmzzzEqual;
     private Regex regx;
     private Func<HttpContext, bool> _PathRegx;
@@ -53,100 +54,6 @@ public class Path_HttpRoutingStatementParserBenchmarks
 
     public Path_HttpRoutingStatementParserBenchmarks()
     {
-        //TemplateEngine.SetOptimizer(s =>
-        //{
-        //    if (s is EqualStatement equalStatement)
-        //    {
-        //        if (equalStatement.Left is FieldStatement f)
-        //        {
-        //            if (f.ToString().Equals("field_Request.Path", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                if (equalStatement.Right is StringValueStatement sv)
-        //                {
-        //                    var ss = sv.Value;
-        //                    return new ActionConditionStatement(c => string.Equals(((HttpContext)c.Data).Request.Path.Value, ss, StringComparison.OrdinalIgnoreCase));
-        //                }
-        //            }
-        //            else if (f.ToString().Equals("field_Request.IsHttps", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                if (equalStatement.Right is BoolValueStatement sv)
-        //                {
-        //                    var ss = sv.Value;
-        //                    return new ActionConditionStatement(ss ? (c => ((HttpContext)c.Data).Request.IsHttps) : c => !((HttpContext)c.Data).Request.IsHttps);
-        //                }
-        //            }
-        //            else if (f.ToString().Equals("field_Request.Method", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                if (equalStatement.Right is StringValueStatement sv)
-        //                {
-        //                    var ss = sv.Value;
-        //                    return new ActionConditionStatement(c => string.Equals(((HttpContext)c.Data).Request.Method, ss, StringComparison.OrdinalIgnoreCase));
-        //                }
-        //            }
-        //            else if (f.ToString().Equals("field_Request.Host", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                if (equalStatement.Right is StringValueStatement sv)
-        //                {
-        //                    var ss = sv.Value;
-        //                    return new ActionConditionStatement(c => string.Equals(((HttpContext)c.Data).Request.Host.ToString(), ss, StringComparison.OrdinalIgnoreCase));
-        //                }
-        //            }
-        //            else if (f.ToString().Equals("field_Request.Scheme", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                if (equalStatement.Right is StringValueStatement sv)
-        //                {
-        //                    var ss = sv.Value;
-        //                    return new ActionConditionStatement(c => string.Equals(((HttpContext)c.Data).Request.Scheme, ss, StringComparison.OrdinalIgnoreCase));
-        //                }
-        //            }
-        //            else if (f.ToString().Equals("field_Request.Protocol", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                if (equalStatement.Right is StringValueStatement sv)
-        //                {
-        //                    var ss = sv.Value;
-        //                    return new ActionConditionStatement(c => string.Equals(((HttpContext)c.Data).Request.Protocol, ss, StringComparison.OrdinalIgnoreCase));
-        //                }
-        //            }
-        //            else if (f.ToString().Equals("field_Request.ContentType", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                if (equalStatement.Right is StringValueStatement sv)
-        //                {
-        //                    var ss = sv.Value;
-        //                    return new ActionConditionStatement(c => string.Equals(((HttpContext)c.Data).Request.ContentType, ss, StringComparison.OrdinalIgnoreCase));
-        //                }
-        //            }
-        //        }
-        //    }
-        //    else if (s is NotStatement sn)
-        //    {
-        //        if (sn.Statement is ActionConditionStatement actionCondition)
-        //        {
-        //            var ss = actionCondition.action;
-        //            return new ActionConditionStatement(c => !ss(c));
-        //        }
-        //    }
-        //    else if (s is AndStatement asn)
-        //    {
-        //        if (asn.Left is ActionConditionStatement actionCondition && asn.Right is ActionConditionStatement actionConditionr)
-        //        {
-        //            var ss = actionCondition.action;
-        //            var ssr = actionConditionr.action;
-        //            return new ActionConditionStatement(c => ss(c) && ssr(c));
-        //        }
-        //    }
-        //    else if (s is FunctionStatement fs)
-        //    {
-        //        if (fs.Name.Equals("Regex"))
-        //        {
-        //            if (fs.Arguments[0] is FieldStatement f && f.ToString().Equals("field_Request.QueryString", StringComparison.OrdinalIgnoreCase) && fs.Arguments[1] is StringValueStatement sv)
-        //            {
-        //                var reg = new Regex(sv.Value, RegexOptions.Compiled);
-        //                return new ActionConditionStatement(c => reg.IsMatch(((HttpContext)c.Data).Request.QueryString.Value));
-        //            }
-        //        }
-        //    }
-        //    return s;
-        //});
         ITemplateEngineFactory te = new DefaultTemplateEngineFactory();
         this.HttpContext = new DefaultHttpContext();
         var req = HttpContext.Request;
@@ -196,8 +103,9 @@ public class Path_HttpRoutingStatementParserBenchmarks
         w = "header('#kvs') ~= 'xx[-].*'";
         _headersRegex = StatementParser.ConvertToFunc(w);
         _headersRegexV2 = HttpRoutingStatementParser.ConvertToFunction(w);
-        _t = f.Convert("{Path}####{Scheme}");
-        _LmzzzT = te.ConvertTemplate("{{Request.Path}}####{{Request.Scheme}}");
+        _t = f.Convert("{Path}####{Scheme}#{header('x-3')}");
+        _LmzzzT = te.ConvertTemplate("{{Request.Path}}####{{Request.Scheme}}#{{Request.Headers.['x-3']}}");
+        _LmzzzT2 = te.ConvertTemplate("{{Request.Path}}####{{Request.Scheme}}#{{Request.Headers.['x-3'].0}}");
         //EqualStatement.EqualityComparers[typeof(PathString)] = (l, r) =>
         //{
         //    if (l is PathString pl)
@@ -402,7 +310,7 @@ public class Path_HttpRoutingStatementParserBenchmarks
     public void Template()
     {
         var req = HttpContext.Request;
-        var b = $"{req.Path.Value}#{{}}{req.Scheme}";
+        var b = $"{req.Path.Value}#{{}}{req.Scheme}#{req.Headers["x-3"]}";
     }
 
     [Benchmark, BenchmarkCategory("Template")]
@@ -415,5 +323,11 @@ public class Path_HttpRoutingStatementParserBenchmarks
     public void LmzzzTemplate()
     {
         var b = _LmzzzT(HttpContext);
+    }
+
+    [Benchmark, BenchmarkCategory("Template")]
+    public void LmzzzTemplate2()
+    {
+        var b = _LmzzzT2(HttpContext);
     }
 }

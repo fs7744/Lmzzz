@@ -42,4 +42,9 @@ public class RequestProtocolHttpContextFieldConvertor : HttpContextFieldConverto
         func = static c => c.Request.Protocol;
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.Protocol);
+    }
 }

@@ -33,4 +33,9 @@ public class ResponseStatusCodeHttpContextFieldConvertor : HttpContextFieldConve
         func = static c => c.Response.StatusCode.ToString();
         return true;
     }
+
+    public override IStatement ConvertFieldStatement(FieldStatement field)
+    {
+        return new HttpTemplateFuncFieldStatement(field.Names, c => c.Response.StatusCode);
+    }
 }

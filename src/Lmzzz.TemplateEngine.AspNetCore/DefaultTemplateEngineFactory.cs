@@ -5,15 +5,13 @@ using Lmzzz.Template.Inner;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.IO;
 using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Lmzzz.AspNetCoreTemplate;
 
 public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 {
-    public DefaultTemplateEngineFactory()
+    static DefaultTemplateEngineFactory()
     {
         AddFieldConvertor(new RequestPathHttpContextFieldConvertor());
         AddFieldConvertor(new RequestHostHttpContextFieldConvertor());
@@ -25,6 +23,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         AddFieldConvertor(new RequestHasFormContentTypeHttpContextFieldConvertor());
         AddFieldConvertor(new RequestIsHttpsHttpContextFieldConvertor());
         AddFieldConvertor(new RequestContentLengthHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestHeadersGenericHttpContextFieldConvertor());
         AddFieldConvertor(new TraceIdentifierHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseContentLengthHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseContentTypeHttpContextFieldConvertor());
@@ -70,7 +69,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         return c => s.Evaluate(c);
     }
 
-    private static IStatement OptimizeTemplateEngine(IStatement statement)
+    public static IStatement OptimizeTemplateEngine(IStatement statement)
     {
         var r = statement;
         if (statement is EqualStatement equalStatement)
@@ -160,15 +159,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 
     private static IStatement OptimizeHttpTemplateReplaceStatement(ReplaceStatement replaceStatement)
     {
-        if (replaceStatement is IHttpTemplateStatement)
-        {
-            return replaceStatement;
-        }
-        else if (replaceStatement.Statement is IHttpTemplateStatement)
-        {
-            return replaceStatement.Statement;
-        }
-        else if (replaceStatement.Statement is StringValueStatement stringValueStatement)
+        if (replaceStatement.Statement is StringValueStatement stringValueStatement)
         {
             return new HttpTemplateOriginStrStatement(stringValueStatement.Value);
         }
@@ -190,7 +181,30 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
             {
                 if (c.TryConvertStringFunc(fieldStatement, out var func))
                     return new HttpTemplateReplaceStatementFunc(replaceStatement.Statement, func);
+                var r = c.ConvertFieldStatement(fieldStatement);
+                if (r != null && r is IHttpTemplateStatement)
+                    return r;
             }
+
+            foreach (var item in GenericConvertors)
+            {
+                if (fieldStatement.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (item.TryConvertStringFunc(fieldStatement, out var func))
+                        return new HttpTemplateReplaceStatementFunc(replaceStatement.Statement, func);
+                    var r = item.ConvertFieldStatement(fieldStatement);
+                    if (r != null && r is IHttpTemplateStatement)
+                        return r;
+                }
+            }
+        }
+        else if (replaceStatement is IHttpTemplateStatement)
+        {
+            return replaceStatement;
+        }
+        else if (replaceStatement.Statement is IHttpTemplateStatement)
+        {
+            return replaceStatement.Statement;
         }
 
         return null;
@@ -205,13 +219,32 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 
     private static IHttpConditionStatement OptimizeEqualStatement(EqualStatement equalStatement)
     {
-        if (equalStatement.Left is FieldStatement f && fieldConvertor.TryGetValue(f.Key, out var c))
+        if (equalStatement.Left is FieldStatement f)
         {
-            return c.ConvertEqual(equalStatement.Right);
+            if (fieldConvertor.TryGetValue(f.Key, out var c))
+                return c.ConvertEqual(equalStatement.Right);
+
+            foreach (var item in GenericConvertors)
+            {
+                if (f.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return item.GenericConvertEqual(f, equalStatement.Right);
+                }
+            }
         }
-        else if (equalStatement.Right is FieldStatement fr && fieldConvertor.TryGetValue(fr.Key, out c))
+
+        if (equalStatement.Right is FieldStatement fr)
         {
-            return c.ConvertEqual(equalStatement.Left);
+            if (fieldConvertor.TryGetValue(fr.Key, out var c))
+                return c.ConvertEqual(equalStatement.Left);
+
+            foreach (var item in GenericConvertors)
+            {
+                if (fr.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return item.GenericConvertEqual(fr, equalStatement.Left);
+                }
+            }
         }
         return null;
     }
@@ -252,13 +285,13 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 
     public static void AddFieldConvertor(HttpContextFieldConvertor c)
     {
-        if (c.IsGeneric())
-            GenericConvertors.Add(c);
+        if (c is GenericHttpContextFieldConvertor g)
+            GenericConvertors.Add(g);
         else
             fieldConvertor[c.Key()] = c;
     }
 
-    private static readonly List<HttpContextFieldConvertor> GenericConvertors = new List<HttpContextFieldConvertor>();
+    private static readonly List<GenericHttpContextFieldConvertor> GenericConvertors = new List<GenericHttpContextFieldConvertor>();
 
     private static readonly Dictionary<string, HttpContextFieldConvertor> fieldConvertor = new Dictionary<string, HttpContextFieldConvertor>(StringComparer.OrdinalIgnoreCase);
 

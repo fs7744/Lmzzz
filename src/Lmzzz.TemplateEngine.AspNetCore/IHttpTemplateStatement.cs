@@ -9,7 +9,7 @@ public interface IHttpTemplateStatement
     void EvaluateHttpTemplate(HttpContext context, StringBuilder sb);
 }
 
-public class HttpTemplateFuncFieldStatement : FieldStatement, IHttpTemplateStatement
+public class HttpTemplateFuncFieldStatement : FieldStatement, IHttpTemplateStatement, IObjectHttpStatement
 {
     private readonly Func<HttpContext, string> strFunc;
 
@@ -25,5 +25,10 @@ public class HttpTemplateFuncFieldStatement : FieldStatement, IHttpTemplateState
         var o = strFunc(context);
         if (o != null)
             sb.Append(o);
+    }
+
+    public object EvaluateObjectHttp(HttpContext context)
+    {
+        return func(context);
     }
 }

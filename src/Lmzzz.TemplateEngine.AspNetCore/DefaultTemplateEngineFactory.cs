@@ -251,9 +251,20 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 
     public static bool TryGetStringFunc(IStatement statement, out Func<HttpContext, string> func)
     {
-        if (statement is FieldStatement f && fieldConvertor.TryGetValue(f.Key, out var c) && c.TryConvertStringFunc(statement, out func))
+        if (statement is FieldStatement f)
         {
-            return true;
+            if (fieldConvertor.TryGetValue(f.Key, out var c) && c.TryConvertStringFunc(statement, out func))
+                return true;
+
+            foreach (var item in GenericConvertors)
+            {
+                if (f.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (item.TryConvertStringFunc(statement, out func))
+                        return true;
+                    break;
+                }
+            }
         }
 
         if (statement is IHttpConditionStatement s)
@@ -280,6 +291,76 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         }
 
         func = null;
+        return false;
+    }
+
+    public static bool TryGetBool(IStatement statement, out bool b)
+    {
+        if (statement is BoolValueStatement bb)
+        {
+            b = bb.Value;
+            return true;
+        }
+        else if (statement == HttpContextFieldConvertor.AlwaysFalse)
+        {
+            b = false;
+            return true;
+        }
+        else if (statement == HttpContextFieldConvertor.AlwaysTrue)
+        {
+            b = true;
+            return true;
+        }
+
+        b = false;
+        return false;
+    }
+
+    public static bool TryGetDecimal(IStatement statement, out decimal d)
+    {
+        if (statement is DecimalValueStatement dd)
+        {
+            d = dd.Value;
+            return true;
+        }
+        else if (statement is StringValueStatement s)
+        {
+            return Decimal.TryParse(s.Value, out d);
+        }
+
+        d = 0;
+        return false;
+    }
+
+    public static bool TryGetString(IStatement statement, out string str)
+    {
+        if (statement is StringValueStatement s)
+        {
+            str = s.Value;
+            return true;
+        }
+        else if (statement is BoolValueStatement b)
+        {
+            str = b.Value.ToString();
+            return true;
+        }
+        else if (statement is DecimalValueStatement d)
+        {
+            str = d.Value.ToString();
+            return true;
+        }
+        else if (statement == HttpContextFieldConvertor.AlwaysFalse)
+        {
+            str = false.ToString();
+            return true;
+        }
+        else if (statement == HttpContextFieldConvertor.AlwaysTrue)
+        {
+            str = true.ToString();
+            return true;
+        }
+
+        str = null;
         return false;
     }
 
@@ -319,37 +400,32 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
                 var reg = new Regex(svv.Value, o);
                 return new BoolConditionStatement(reg.IsMatch(s.Value));
             }
-            else if (fs.Arguments[0] is FieldStatement f && fs.Arguments[1] is StringValueStatement sv
-                && fieldConvertor.TryGetValue(f.Key, out var c) && c.TryConvertStringFunc(null, out var func))
+            else if (TryGetStringFunc(fs.Arguments[0], out var func) && fs.Arguments[1] is StringValueStatement sv)
             {
                 var reg = new Regex(sv.Value, o);
                 return new ActionConditionStatement(c => reg.IsMatch(func(c)));
             }
-            else
-                return null;
+
+           return null;
         } },
         { "In", fs =>
         {
             if(fs.Arguments.Length <= 1) return HttpContextFieldConvertor.AlwaysFalse;
 
-            if (fs.Arguments[0] is FieldStatement f
-                && fieldConvertor.TryGetValue(f.Key, out var c))
+            if (TryGetStringFunc(fs.Arguments[0], out var func))
             {
                 if(fs.Arguments.Skip(1).All(static i => i is StringValueStatement))
                 {
-                    if(c.TryConvertStringFunc(null, out var func))
-                    {
-                       var a = fs.Arguments.Skip(1).Select(static i => (i as StringValueStatement).Value).Distinct().ToFrozenSet();
-                        return new ActionConditionStatement(c => a.Contains(func(c)));
-                    }
+                    var a = fs.Arguments.Skip(1).Select(static i => (i as StringValueStatement).Value).Distinct().ToFrozenSet();
+                    return new ActionConditionStatement(c => a.Contains(func(c)));
                 }
-                else if(fs.Arguments.Skip(1).All(static i => i is BoolValueStatement))
+            }
+            else if(TryGetBoolFunc(fs.Arguments[0], out var f))
+            {
+                if(fs.Arguments.Skip(1).All(static i => i is BoolValueStatement))
                 {
-                    if(c.TryConvertBoolFunc(null, out var func))
-                    {
-                        var a = fs.Arguments.Skip(1).Select(static i => (i as BoolValueStatement).Value).Distinct().ToArray();
-                        return new ActionConditionStatement(c => a.Contains(func(c)));
-                    }
+                    var a = fs.Arguments.Skip(1).Select(static i => (i as BoolValueStatement).Value).Distinct().ToArray();
+                    return new ActionConditionStatement(c => a.Contains(f(c)));
                 }
             }
 
@@ -359,24 +435,20 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         {
             if(fs.Arguments.Length <= 1) return HttpContextFieldConvertor.AlwaysFalse;
 
-            if (fs.Arguments[0] is FieldStatement f
-                && fieldConvertor.TryGetValue(f.Key, out var c))
+            if (TryGetStringFunc(fs.Arguments[0], out var func))
             {
                 if(fs.Arguments.Skip(1).All(static i => i is StringValueStatement))
                 {
-                    if(c.TryConvertStringFunc(null, out var func))
-                    {
-                       var a = fs.Arguments.Skip(1).Select(static i => (i as StringValueStatement).Value).Distinct(StringComparer.OrdinalIgnoreCase).ToFrozenSet(StringComparer.OrdinalIgnoreCase);
-                        return new ActionConditionStatement(c => a.Contains(func(c)));
-                    }
+                    var a = fs.Arguments.Skip(1).Select(static i => (i as StringValueStatement).Value).Distinct(StringComparer.OrdinalIgnoreCase).ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+                    return new ActionConditionStatement(c => a.Contains(func(c)));
                 }
-                else if(fs.Arguments.Skip(1).All(static i => i is BoolValueStatement))
+            }
+            else if(TryGetBoolFunc(fs.Arguments[0], out var f))
+            {
+                if(fs.Arguments.Skip(1).All(static i => i is BoolValueStatement))
                 {
-                    if(c.TryConvertBoolFunc(null, out var func))
-                    {
-                        var a = fs.Arguments.Skip(1).Select(static i => (i as BoolValueStatement).Value).Distinct().ToArray();
-                        return new ActionConditionStatement(c => a.Contains(func(c)));
-                    }
+                    var a = fs.Arguments.Skip(1).Select(static i => (i as BoolValueStatement).Value).Distinct().ToArray();
+                    return new ActionConditionStatement(c => a.Contains(f(c)));
                 }
             }
 

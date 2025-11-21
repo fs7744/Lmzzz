@@ -14,7 +14,7 @@ public class RequestMethodHttpContextFieldConvertor : HttpContextFieldConvertor
 
     public override IHttpConditionStatement ConvertEqual(IStatement statement)
     {
-        if (TryGetString(statement, out var str))
+        if (DefaultTemplateEngineFactory.TryGetString(statement, out var str))
         {
             return CreateAction(c => str == c.Request.Method);
         }

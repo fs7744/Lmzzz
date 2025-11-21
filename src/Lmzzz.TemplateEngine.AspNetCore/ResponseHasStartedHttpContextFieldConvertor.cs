@@ -16,7 +16,7 @@ public class ResponseHasStartedHttpContextFieldConvertor : HttpContextFieldConve
 
     public override IHttpConditionStatement ConvertEqual(IStatement statement)
     {
-        if (TryGetBool(statement, out var b))
+        if (DefaultTemplateEngineFactory.TryGetBool(statement, out var b))
         {
             return b ? isTrue : isFalse;
         }

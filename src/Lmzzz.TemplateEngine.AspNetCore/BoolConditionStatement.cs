@@ -13,4 +13,9 @@ public class BoolConditionStatement : BoolValueStatement, IHttpConditionStatemen
     {
         return Value;
     }
+
+    public object EvaluateObjectHttp(HttpContext context)
+    {
+        return Value;
+    }
 }

@@ -26,4 +26,9 @@ public class ActionConditionStatement : IHttpConditionStatement
     {
         return action(context);
     }
+
+    public object EvaluateObjectHttp(HttpContext context)
+    {
+        return action(context);
+    }
 }

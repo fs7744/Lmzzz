@@ -14,7 +14,7 @@ public class RequestContentLengthHttpContextFieldConvertor : HttpContextFieldCon
 
     public override IHttpConditionStatement ConvertEqual(IStatement statement)
     {
-        if (TryGetDecimal(statement, out var d))
+        if (DefaultTemplateEngineFactory.TryGetDecimal(statement, out var d))
         {
             return CreateAction(c => d == c.Request.ContentLength);
         }

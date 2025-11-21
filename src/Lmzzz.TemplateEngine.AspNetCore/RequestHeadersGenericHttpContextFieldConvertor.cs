@@ -93,43 +93,87 @@ public class RequestHeadersGenericHttpContextFieldConvertor : GenericHttpContext
         return base.ConvertFieldStatement(field);
     }
 
-    //public override IHttpConditionStatement GenericConvertEqual(FieldStatement field, IStatement statement)
-    //{
-    //    if (field.Names.Count == 2)
-    //    {
-    //        var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
-    //        if (s is )
-    //            return new HttpTemplateFuncFieldStatement(field.Names, static c => c.Request.Headers);
-    //    }
-    //    else if (field.Names.Count >= 3)
-    //    {
-    //        var k = field.Names[2];
-    //        if (field.Names.Count == 3)
-    //        {
-    //            return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.Headers[k]);
-    //        }
-    //        else if (field.Names.Count == 4 && int.TryParse(field.Names.Last(), out var i) && i >= 0)
-    //        {
-    //            return new HttpTemplateFuncFieldStatement(field.Names, c =>
-    //            {
-    //                var o = c.Request.Headers[k];
-    //                if (i < o.Count)
-    //                    return o[i];
-    //                else
-    //                    return null;
-    //            });
-    //        }
-    //        else if (field.Names.Count == 4 && "Count".Equals(field.Names.Last(), StringComparison.OrdinalIgnoreCase))
-    //        {
-    //            return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.Headers[k].Count);
-    //        }
-    //        else
-    //        {
-    //            var f = FieldStatement.CreateGetter(field.Names.Skip(3), Template.FieldStatementMode.Defined);
-    //            return new HttpTemplateFuncFieldStatement(field.Names, c => f(c.Request.Headers[k]));
-    //        }
-    //    }
+    public override IHttpConditionStatement GenericConvertEqual(FieldStatement field, IStatement statement)
+    {
+        if (field.Names.Count == 2)
+        {
+            var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+            if (s is IObjectHttpStatement o)
+                return new ActionConditionStatement(c => EqualStatement.Eqs(c.Request.Headers, o.EvaluateObjectHttp(c)));
+        }
+        else if (field.Names.Count >= 3)
+        {
+            var k = field.Names[2];
+            if (field.Names.Count == 3)
+            {
+                if (DefaultTemplateEngineFactory.TryGetString(statement, out var fs))
+                {
+                    return new ActionConditionStatement(c => c.Request.Headers[k] == fs);
+                }
 
-    //    return base.GenericConvertEqual(field, statement);
-    //}
+                if (DefaultTemplateEngineFactory.TryGetStringFunc(statement, out var f))
+                {
+                    return new ActionConditionStatement(c => c.Request.Headers[k] == f(c));
+                }
+
+                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+                if (s is IObjectHttpStatement o)
+                    return new ActionConditionStatement(c => EqualStatement.Eqs(c.Request.Headers[k], o.EvaluateObjectHttp(c)));
+            }
+            else if (field.Names.Count == 4 && int.TryParse(field.Names.Last(), out var i) && i >= 0)
+            {
+                if (DefaultTemplateEngineFactory.TryGetString(statement, out var fs))
+                {
+                    return new ActionConditionStatement(c =>
+                    {
+                        var o = c.Request.Headers[k];
+                        if (i < o.Count)
+                            return o[i] == fs;
+                        else
+                            return null == fs;
+                    });
+                }
+                if (DefaultTemplateEngineFactory.TryGetStringFunc(statement, out var f))
+                {
+                    return new ActionConditionStatement(c =>
+                    {
+                        var o = c.Request.Headers[k];
+                        if (i < o.Count)
+                            return o[i] == f(c);
+                        else
+                            return null == f(c);
+                    });
+                }
+
+                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+                if (s is IObjectHttpStatement of)
+                    return new ActionConditionStatement(c =>
+                    {
+                        var o = c.Request.Headers[k];
+                        if (i < o.Count)
+                            return EqualStatement.Eqs(o[i], of.EvaluateObjectHttp(c));
+                        else
+                            return null == of.EvaluateObjectHttp(c);
+                    });
+            }
+            else if (field.Names.Count == 4 && "Count".Equals(field.Names.Last(), StringComparison.OrdinalIgnoreCase))
+            {
+                if (DefaultTemplateEngineFactory.TryGetDecimal(statement, out var d))
+                {
+                    return new ActionConditionStatement(c => c.Request.Headers[k].Count == d);
+                }
+            }
+            else
+            {
+                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+                if (s is IObjectHttpStatement o)
+                {
+                    var f = FieldStatement.CreateGetter(field.Names.Skip(3), Template.FieldStatementMode.Defined);
+                    return new ActionConditionStatement(c => EqualStatement.Eqs(f(c.Request.Headers[k]), o.EvaluateObjectHttp(c)));
+                }
+            }
+        }
+
+        return base.GenericConvertEqual(field, statement);
+    }
 }

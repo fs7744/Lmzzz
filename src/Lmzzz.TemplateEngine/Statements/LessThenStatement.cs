@@ -79,4 +79,12 @@ public class LessThenStatement : IOperaterStatement
         }
         return false;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Left is not null)
+            visitor(Left);
+        if (Right is not null)
+            visitor(Right);
+    }
 }

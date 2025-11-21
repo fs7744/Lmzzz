@@ -7,8 +7,3 @@ public interface IHttpConditionStatement : IConditionStatement, IObjectHttpState
 {
     bool EvaluateHttp(HttpContext context);
 }
-
-public interface IObjectHttpStatement
-{
-    object EvaluateObjectHttp(HttpContext context);
-}

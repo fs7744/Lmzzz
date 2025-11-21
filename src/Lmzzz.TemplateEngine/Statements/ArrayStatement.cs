@@ -18,4 +18,14 @@ public class ArrayStatement : IStatement
         }
         return null;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Statements is not null)
+            foreach (var item in Statements)
+            {
+                if (item is not null)
+                    visitor(item);
+            }
+    }
 }

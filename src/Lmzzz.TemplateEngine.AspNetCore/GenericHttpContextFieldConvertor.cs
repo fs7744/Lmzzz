@@ -22,7 +22,7 @@ public abstract class GenericHttpContextFieldConvertor : HttpContextFieldConvert
         return false;
     }
 
-    public virtual IHttpConditionStatement GenericConvertEqual(FieldStatement field, IStatement statement)
+    public virtual IHttpConditionStatement GenericConvertEqual(FieldStatement field, IStatement statement, Dictionary<string, HttpTemplateFuncFieldStatement> fields)
     {
         return null;
     }

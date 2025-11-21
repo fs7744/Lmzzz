@@ -3,6 +3,7 @@ using Lmzzz.Chars.Fluent;
 using Lmzzz.Template;
 using Lmzzz.Template.Inner;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
@@ -29,7 +30,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         AddFieldConvertor(new ResponseContentTypeHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseHasStartedHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseStatusCodeHttpContextFieldConvertor());
-        TemplateEngine.SetOptimizer(OptimizeTemplateEngine);
+        TemplateEngine.SetOptimizer(c => OptimizeTemplateEngine(c, null));
     }
 
     public Func<HttpContext, bool> ConvertRouteFunction(string statement)
@@ -69,16 +70,16 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         return c => s.Evaluate(c);
     }
 
-    public static IStatement OptimizeTemplateEngine(IStatement statement)
+    public static IStatement OptimizeTemplateEngine(IStatement statement, Dictionary<string, HttpTemplateFuncFieldStatement> fields)
     {
         var r = statement;
         if (statement is EqualStatement equalStatement)
         {
-            r = OptimizeEqualStatement(equalStatement);
+            r = OptimizeEqualStatement(equalStatement, fields);
         }
         else if (statement is NotEqualStatement notEqualStatement)
         {
-            var s = OptimizeEqualStatement(new EqualStatement(notEqualStatement.Left, notEqualStatement.Right));
+            var s = OptimizeEqualStatement(new EqualStatement(notEqualStatement.Left, notEqualStatement.Right), fields);
             if (s is IHttpConditionStatement c)
             {
                 r = new ActionConditionStatement(cc => !c.EvaluateHttp(cc));
@@ -124,7 +125,10 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         }
         else if (statement is FieldStatement field)
         {
-            r = OptimizeFieldStatement(field);
+            if (IsIndexField(field, fields, out var f))
+                r = f;
+            else
+                r = OptimizeFieldStatement(field);
         }
         else if (statement is OriginStrStatement originStrStatement)
         {
@@ -132,28 +136,29 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         }
         else if (statement is ReplaceStatement replaceStatement)
         {
-            r = OptimizeHttpTemplateReplaceStatement(replaceStatement);
+            r = OptimizeHttpTemplateReplaceStatement(replaceStatement, fields);
         }
         else if (statement is ArrayStatement arrayStatement)
         {
-            if (arrayStatement.Statements.All(static i => i is IHttpTemplateStatement))
+            var a = arrayStatement.Statements.Select(i => OptimizeTemplateEngine(i, fields) as IHttpTemplateStatement).ToArray();
+            if (a.All(static i => i is not null))
             {
-                r = new HttpTemplateArrayStatement(arrayStatement.Statements.Select(static i => i as IHttpTemplateStatement).ToArray());
+                r = new HttpTemplateArrayStatement(a);
             }
         }
         else if (statement is IfConditionStatement ifStatement)
         {
-            var s = OptimizeTemplateEngine(ifStatement.Condition) as IHttpConditionStatement;
+            var s = OptimizeTemplateEngine(ifStatement.Condition, fields) as IHttpConditionStatement;
             if (s != null)
             {
-                var t = OptimizeTemplateEngine(ifStatement.Text) as IHttpTemplateStatement;
+                var t = OptimizeTemplateEngine(ifStatement.Text, fields) as IHttpTemplateStatement;
                 if (t != null)
                     r = new HttpTemplateIfConditionStatement(s, t);
             }
         }
         else if (statement is IfStatement ifs)
         {
-            var s = OptimizeTemplateEngine(ifs.If) as IHttpIfConditionStatement;
+            var s = OptimizeTemplateEngine(ifs.If, fields) as IHttpIfConditionStatement;
             if (s != null)
             {
                 var d = new HttpTemplateIfStatement()
@@ -165,7 +170,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
                 };
                 if (ifs.Else != null)
                 {
-                    var es = OptimizeTemplateEngine(ifs.Else) as IHttpTemplateStatement;
+                    var es = OptimizeTemplateEngine(ifs.Else, fields) as IHttpTemplateStatement;
                     if (es != null)
                     {
                         d.ElseHttp = es;
@@ -176,7 +181,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 
                 if (ifs.ElseIfs != null)
                 {
-                    var el = ifs.ElseIfs.Select(i => OptimizeTemplateEngine(i) as IHttpIfConditionStatement).ToArray();
+                    var el = ifs.ElseIfs.Select(i => OptimizeTemplateEngine(i, fields) as IHttpIfConditionStatement).ToArray();
                     if (el.Any(i => i == null))
                         return r ?? statement;
                     d.ElseIfsHttp = el;
@@ -184,8 +189,63 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
                 r = d;
             }
         }
+        else if (statement is ForStatement fors)
+        {
+            fields ??= new Dictionary<string, HttpTemplateFuncFieldStatement>();
+            var itemName = fors.ItemName;
+            var indexName = fors.IndexName;
+            if (itemName != null)
+            {
+                var v = new HttpTemplateFuncFieldStatement([itemName], c => c.Items[itemName]);
+                fields[itemName] = v;
+            }
+            if (indexName != null)
+            {
+                var v = new HttpTemplateFuncFieldStatement([indexName], c => c.Items[indexName]);
+                fields[indexName] = v;
+            }
+            var s = OptimizeTemplateEngine(fors.Value, fields) as IObjectHttpStatement;
+            if (s != null)
+            {
+                var t = OptimizeTemplateEngine(fors.Statement, fields) as IHttpTemplateStatement;
+                if (t != null)
+                {
+                    r = new HttpTemplateForStatement()
+                    {
+                        IndexName = fors.IndexName,
+                        Value = fors.Value,
+                        ItemName = fors.ItemName,
+                        Statement = fors.Statement,
+                        StatementHttp = t,
+                        ValueHttp = s
+                    };
+                    // r.Visit(ss => ChangeFields(ss, v, itemName, i, indexName));
+                }
+            }
+        }
 
         return r ?? statement;
+    }
+
+    //private static void ChangeFields(IStatement ss, HttpTemplateFuncFieldStatement? v, string? itemName, HttpTemplateFuncFieldStatement? i, string? indexName)
+    //{
+    //    if (IsIndexField(ss, itemName))
+    //    {
+    //    }
+    //    else if (IsIndexField(ss, indexName))
+    //    {
+    //    }
+    //}
+
+    //private static bool IsIndexField(IStatement ss, string? itemName)
+    //{
+    //    return ss is FieldStatement field && field.Names.Count == 1 && field.Names[0].Equals(itemName, StringComparison.OrdinalIgnoreCase);
+    //}
+
+    private static bool IsIndexField(IStatement ss, Dictionary<string, HttpTemplateFuncFieldStatement> dict, out HttpTemplateFuncFieldStatement f)
+    {
+        f = null;
+        return ss is FieldStatement field && dict is not null && field.Names.Count == 1 && dict.TryGetValue(field.Key, out f);
     }
 
     private static IStatement OptimizeFieldStatement(FieldStatement field)
@@ -208,7 +268,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         return null;
     }
 
-    private static IStatement OptimizeHttpTemplateReplaceStatement(ReplaceStatement replaceStatement)
+    private static IStatement OptimizeHttpTemplateReplaceStatement(ReplaceStatement replaceStatement, Dictionary<string, HttpTemplateFuncFieldStatement> fields)
     {
         if (replaceStatement.Statement is StringValueStatement stringValueStatement)
         {
@@ -228,6 +288,9 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         }
         else if (replaceStatement.Statement is FieldStatement fieldStatement)
         {
+            if (IsIndexField(fieldStatement, fields, out var f))
+                return new HttpTemplateReplaceStatementFunc(replaceStatement.Statement, c => f.EvaluateObjectHttp(c)?.ToString());
+
             if (fieldConvertor.TryGetValue(fieldStatement.Key, out var c))
             {
                 if (c.TryConvertStringFunc(fieldStatement, out var func))
@@ -268,7 +331,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         return null;
     }
 
-    private static IHttpConditionStatement OptimizeEqualStatement(EqualStatement equalStatement)
+    private static IHttpConditionStatement OptimizeEqualStatement(EqualStatement equalStatement, Dictionary<string, HttpTemplateFuncFieldStatement> fields)
     {
         if (equalStatement.Left is FieldStatement f)
         {
@@ -279,7 +342,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
             {
                 if (f.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
                 {
-                    return item.GenericConvertEqual(f, equalStatement.Right);
+                    return item.GenericConvertEqual(f, equalStatement.Right, fields);
                 }
             }
         }
@@ -293,7 +356,7 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
             {
                 if (fr.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
                 {
-                    return item.GenericConvertEqual(fr, equalStatement.Left);
+                    return item.GenericConvertEqual(fr, equalStatement.Left, fields);
                 }
             }
         }

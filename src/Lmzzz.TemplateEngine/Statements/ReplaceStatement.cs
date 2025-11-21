@@ -23,4 +23,10 @@ public class ReplaceStatement : IStatement
         }
         return null;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Statement is not null)
+            visitor(Statement);
+    }
 }

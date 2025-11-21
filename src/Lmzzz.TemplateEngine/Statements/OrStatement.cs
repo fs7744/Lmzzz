@@ -28,4 +28,12 @@ public class OrStatement : IOperaterStatement
 
         return l is bool bl && r is bool br && (bl || br);
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Left is not null)
+            visitor(Left);
+        if (Right is not null)
+            visitor(Right);
+    }
 }

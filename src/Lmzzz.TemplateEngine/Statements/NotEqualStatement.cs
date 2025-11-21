@@ -25,4 +25,12 @@ public class NotEqualStatement : IOperaterStatement
         var r = Right.Evaluate(context);
         return !EqualStatement.Eqs(l, r);
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Left is not null)
+            visitor(Left);
+        if (Right is not null)
+            visitor(Right);
+    }
 }

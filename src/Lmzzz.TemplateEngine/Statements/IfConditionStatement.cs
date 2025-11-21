@@ -28,4 +28,12 @@ public class IfConditionStatement : IConditionStatement
         }
         return false;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (condition is not null)
+            visitor(condition);
+        if (text is not null)
+            visitor(text);
+    }
 }

@@ -11,6 +11,6 @@ using Benchmarks;
 //var f = a.FluidIfNoCache();
 //var ff = a.FluidIfCached();
 var a = new Path_HttpRoutingStatementParserBenchmarks();
-a.TemplateIF();
-a.LmzzzTemplateIF();
+a.TemplateFor();
+a.LmzzzTemplateFor();
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);

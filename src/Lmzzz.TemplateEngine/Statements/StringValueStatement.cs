@@ -15,4 +15,8 @@ public class StringValueStatement : IValueStatement
     {
         return Value;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+    }
 }

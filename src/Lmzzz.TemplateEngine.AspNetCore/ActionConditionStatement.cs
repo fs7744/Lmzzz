@@ -31,4 +31,8 @@ public class ActionConditionStatement : IHttpConditionStatement
     {
         return action(context);
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+    }
 }

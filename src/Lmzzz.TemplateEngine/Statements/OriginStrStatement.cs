@@ -14,4 +14,8 @@ public class OriginStrStatement : IStatement
         context.StringBuilder.Append(Text);
         return null;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+    }
 }

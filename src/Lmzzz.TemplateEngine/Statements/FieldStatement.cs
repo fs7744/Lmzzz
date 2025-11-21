@@ -262,4 +262,8 @@ public class FieldStatement : IFieldStatement
 
         return Null;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+    }
 }

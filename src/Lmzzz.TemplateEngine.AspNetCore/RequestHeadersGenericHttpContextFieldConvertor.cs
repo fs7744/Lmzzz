@@ -93,11 +93,11 @@ public class RequestHeadersGenericHttpContextFieldConvertor : GenericHttpContext
         return base.ConvertFieldStatement(field);
     }
 
-    public override IHttpConditionStatement GenericConvertEqual(FieldStatement field, IStatement statement)
+    public override IHttpConditionStatement GenericConvertEqual(FieldStatement field, IStatement statement, Dictionary<string, HttpTemplateFuncFieldStatement> fields)
     {
         if (field.Names.Count == 2)
         {
-            var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+            var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement, fields);
             if (s is IObjectHttpStatement o)
                 return new ActionConditionStatement(c => EqualStatement.Eqs(c.Request.Headers, o.EvaluateObjectHttp(c)));
         }
@@ -116,7 +116,7 @@ public class RequestHeadersGenericHttpContextFieldConvertor : GenericHttpContext
                     return new ActionConditionStatement(c => c.Request.Headers[k].ToString() == f(c));
                 }
 
-                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement, fields);
                 if (s is IObjectHttpStatement o)
                     return new ActionConditionStatement(c => EqualStatement.Eqs(c.Request.Headers[k].ToString(), o.EvaluateObjectHttp(c)));
             }
@@ -145,7 +145,7 @@ public class RequestHeadersGenericHttpContextFieldConvertor : GenericHttpContext
                     });
                 }
 
-                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement, fields);
                 if (s is IObjectHttpStatement of)
                     return new ActionConditionStatement(c =>
                     {
@@ -165,7 +165,7 @@ public class RequestHeadersGenericHttpContextFieldConvertor : GenericHttpContext
             }
             else
             {
-                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
+                var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement, fields);
                 if (s is IObjectHttpStatement o)
                 {
                     var f = FieldStatement.CreateGetter(field.Names.Skip(3), Template.FieldStatementMode.Defined);
@@ -174,6 +174,6 @@ public class RequestHeadersGenericHttpContextFieldConvertor : GenericHttpContext
             }
         }
 
-        return base.GenericConvertEqual(field, statement);
+        return base.GenericConvertEqual(field, statement, fields);
     }
 }

@@ -38,4 +38,12 @@ public class ForStatement : IStatement
 
         return null;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Value is not null)
+            visitor(Value);
+        if (Statement is not null)
+            visitor(Statement);
+    }
 }

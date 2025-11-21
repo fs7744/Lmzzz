@@ -77,4 +77,14 @@ public class FunctionStatement : IConditionStatement
         if (r is bool b) return b;
         else return false;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Arguments is not null)
+            foreach (var item in Arguments)
+            {
+                if (item is not null)
+                    visitor(item);
+            }
+    }
 }

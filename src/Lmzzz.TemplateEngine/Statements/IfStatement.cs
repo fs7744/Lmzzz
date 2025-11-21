@@ -1,4 +1,6 @@
-﻿namespace Lmzzz.Template.Inner;
+﻿using static System.Net.Mime.MediaTypeNames;
+
+namespace Lmzzz.Template.Inner;
 
 public class IfStatement : IStatement
 {
@@ -17,5 +19,19 @@ public class IfStatement : IStatement
             Else.Evaluate(context);
 
         return null;
+    }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (If is not null)
+            visitor(If);
+        if (ElseIfs is not null)
+            foreach (var item in ElseIfs)
+            {
+                if (item is not null)
+                    visitor(item);
+            }
+        if (Else is not null)
+            visitor(Else);
     }
 }

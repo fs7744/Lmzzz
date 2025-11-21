@@ -21,3 +21,35 @@ public class HttpTemplateIfStatement : IfStatement, IHttpTemplateStatement
             ElseHttp.EvaluateHttpTemplate(context, sb);
     }
 }
+
+public class HttpTemplateForStatement : ForStatement, IHttpTemplateStatement
+{
+    public IObjectHttpStatement ValueHttp { get; set; }
+    public IHttpTemplateStatement StatementHttp { get; set; }
+
+    public void EvaluateHttpTemplate(HttpContext context, StringBuilder sb)
+    {
+        var v = ValueHttp.EvaluateObjectHttp(context);
+        if (v is null) return;
+
+        if (v is System.Collections.IEnumerable e)
+        {
+            var index = 0;
+            if (!context.Items.TryGetValue(ItemName, out var o))
+                o = null;
+
+            if (!context.Items.TryGetValue(IndexName, out var oi))
+                oi = null;
+            foreach (var item in e)
+            {
+                context.Items[ItemName] = item;
+                context.Items[IndexName] = index;
+                index++;
+
+                StatementHttp.EvaluateHttpTemplate(context, sb);
+            }
+            context.Items[ItemName] = o;
+            context.Items[IndexName] = oi;
+        }
+    }
+}

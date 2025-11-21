@@ -21,4 +21,8 @@ public class BoolValueStatement : IValueStatement, IConditionStatement
     {
         return Value;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+    }
 }

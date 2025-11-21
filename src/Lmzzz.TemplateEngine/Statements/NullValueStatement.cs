@@ -8,4 +8,8 @@ public class NullValueStatement : IValueStatement
     {
         return null;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+    }
 }

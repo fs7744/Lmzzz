@@ -23,4 +23,10 @@ public class NotStatement : IUnaryStatement
             return false;
         else return !b;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+        if (Statement is not null)
+            visitor(Statement);
+    }
 }

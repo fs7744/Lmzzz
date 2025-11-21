@@ -13,4 +13,8 @@ public class DecimalValueStatement : IValueStatement
     {
         return Value;
     }
+
+    public void Visit(Action<IStatement> visitor)
+    {
+    }
 }

@@ -5,6 +5,9 @@ public class IfConditionStatement : IConditionStatement
     private IConditionStatement condition;
     private IStatement text;
 
+    public IConditionStatement Condition => condition;
+    public IStatement Text => text;
+
     public IfConditionStatement(IConditionStatement condition, IStatement text)
     {
         this.condition = condition;

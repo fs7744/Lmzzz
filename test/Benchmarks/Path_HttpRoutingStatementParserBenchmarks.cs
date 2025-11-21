@@ -44,6 +44,7 @@ public class Path_HttpRoutingStatementParserBenchmarks
     private readonly Func<HttpContext, string> _t;
     private readonly Func<HttpContext, string> _LmzzzT;
     private readonly Func<HttpContext, string> _LmzzzT2;
+    private readonly Func<HttpContext, string> _LmzzzTemplateIF;
     private readonly Func<HttpContext, bool> _LmzzzEqual;
     private Regex regx;
     private Func<HttpContext, bool> _PathRegx;
@@ -109,6 +110,7 @@ public class Path_HttpRoutingStatementParserBenchmarks
         _t = f.Convert("{Path}####{Scheme}#{header('x-3')}");
         _LmzzzT = te.ConvertTemplate("{{Request.Path}}####{{Request.Scheme}}#{{Request.Headers.['x-3']}}");
         _LmzzzT2 = te.ConvertTemplate("{{Request.Path}}####{{Request.Scheme}}#{{Request.Headers.['x-3'].0}}");
+        _LmzzzTemplateIF = te.ConvertTemplate("{{if(Request.Path == null)}}{{Request.Scheme}}{{elseif(Request.Path == '/test')}}{{Request.Path}}{{else}}go{{endif}}");
 
         //EqualStatement.EqualityComparers[typeof(PathString)] = (l, r) =>
         //{
@@ -158,186 +160,199 @@ public class Path_HttpRoutingStatementParserBenchmarks
         }
     }
 
-    [Benchmark(Baseline = true), BenchmarkCategory("PathEqual")]
-    public void PathEqualString()
-    {
-        var b = HttpContext.Request.Path.Value == "/testp";
-        var c = HttpContext.Request.Path.Value == "/testp/dsd/fsdfx/fadasd3/中";
-    }
+    //[Benchmark(Baseline = true), BenchmarkCategory("PathEqual")]
+    //public void PathEqualString()
+    //{
+    //    var b = HttpContext.Request.Path.Value == "/testp";
+    //    var c = HttpContext.Request.Path.Value == "/testp/dsd/fsdfx/fadasd3/中";
+    //}
 
-    [Benchmark, BenchmarkCategory("PathEqual")]
-    public void PathEqual()
-    {
-        var b = _PathEqual(HttpContext);
-        var c = _PathEqualTrue(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("PathEqual")]
+    //public void PathEqual()
+    //{
+    //    var b = _PathEqual(HttpContext);
+    //    var c = _PathEqualTrue(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("PathEqual")]
-    public void PathEqualV2()
-    {
-        var b = _PathEqualV2(HttpContext);
-        var c = _PathEqualTrueV2(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("PathEqual")]
+    //public void PathEqualV2()
+    //{
+    //    var b = _PathEqualV2(HttpContext);
+    //    var c = _PathEqualTrueV2(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("PathEqual")]
-    public void LmzzzPathEqual()
-    {
-        var b = _LmzzzEqual(HttpContext);
-        var c = _LmzzzEqualTrue(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("PathEqual")]
+    //public void LmzzzPathEqual()
+    //{
+    //    var b = _LmzzzEqual(HttpContext);
+    //    var c = _LmzzzEqualTrue(HttpContext);
+    //}
 
-    [Benchmark(Baseline = true), BenchmarkCategory("Regx")]
-    public void PathRegxString()
-    {
-        var b = regx.IsMatch(HttpContext.Request.Path.Value);
-    }
+    //[Benchmark(Baseline = true), BenchmarkCategory("Regx")]
+    //public void PathRegxString()
+    //{
+    //    var b = regx.IsMatch(HttpContext.Request.Path.Value);
+    //}
 
-    [Benchmark, BenchmarkCategory("Regx")]
-    public void PathRegx()
-    {
-        var b = _PathRegx(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("Regx")]
+    //public void PathRegx()
+    //{
+    //    var b = _PathRegx(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("Regx")]
-    public void PathRegxV2()
-    {
-        var b = _PathRegxV2(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("Regx")]
+    //public void PathRegxV2()
+    //{
+    //    var b = _PathRegxV2(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("Regx")]
-    public void LmzzzRegx()
-    {
-        var b = _LmzzzRegx(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("Regx")]
+    //public void LmzzzRegx()
+    //{
+    //    var b = _LmzzzRegx(HttpContext);
+    //}
 
-    [Benchmark(Baseline = true), BenchmarkCategory("In")]
-    public void PathInString()
-    {
-        var b = set.Contains(HttpContext.Request.Path.Value);
-    }
+    //[Benchmark(Baseline = true), BenchmarkCategory("In")]
+    //public void PathInString()
+    //{
+    //    var b = set.Contains(HttpContext.Request.Path.Value);
+    //}
 
-    [Benchmark, BenchmarkCategory("In")]
-    public void PathIn()
-    {
-        var b = _PathIn(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("In")]
+    //public void PathIn()
+    //{
+    //    var b = _PathIn(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("In")]
-    public void PathInV2()
-    {
-        var b = _PathInV2(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("In")]
+    //public void PathInV2()
+    //{
+    //    var b = _PathInV2(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("In")]
-    public void LmzzzPathIn()
-    {
-        var b = _LmzzzPathIn(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("In")]
+    //public void LmzzzPathIn()
+    //{
+    //    var b = _LmzzzPathIn(HttpContext);
+    //}
 
-    [Benchmark(Baseline = true), BenchmarkCategory("bool")]
-    public void IsHttps()
-    {
-        var b = HttpContext.Request.IsHttps == true;
-    }
+    //[Benchmark(Baseline = true), BenchmarkCategory("bool")]
+    //public void IsHttps()
+    //{
+    //    var b = HttpContext.Request.IsHttps == true;
+    //}
 
-    [Benchmark, BenchmarkCategory("bool")]
-    public void IsHttpsp()
-    {
-        var b = _IsHttps(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("bool")]
+    //public void IsHttpsp()
+    //{
+    //    var b = _IsHttps(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("bool")]
-    public void IsHttpspV2()
-    {
-        var b = _IsHttpsV2(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("bool")]
+    //public void IsHttpspV2()
+    //{
+    //    var b = _IsHttpsV2(HttpContext);
+    //}
 
-    [Benchmark, BenchmarkCategory("bool")]
-    public void LmzzzIsHttps()
-    {
-        var b = _LmzzzIsHttps(HttpContext);
-    }
+    //[Benchmark, BenchmarkCategory("bool")]
+    //public void LmzzzIsHttps()
+    //{
+    //    var b = _LmzzzIsHttps(HttpContext);
+    //}
 
-    [Benchmark(Baseline = true), BenchmarkCategory("Complex")]
-    public void Complex()
+    //[Benchmark(Baseline = true), BenchmarkCategory("Complex")]
+    //public void Complex()
+    //{
+    //    var req = HttpContext.Request;
+    //    var b = req.IsHttps == true
+    //        && req.Path.Value == "/testp/dsd/fsdfx/fadasd3/中"
+    //        && req.Method == "GET"
+    //        && req.Host.Value == "x.com"
+    //        && req.Scheme == "https"
+    //        && req.Protocol == "HTTP/1.1"
+    //        && req.ContentType == "json"
+    //        && queryRegx.IsMatch(req.QueryString.Value)
+    //        && !(req.Scheme == "http");
+    //}
+
+    //[Benchmark, BenchmarkCategory("Complex")]
+    //public void Complexp()
+    //{
+    //    var b = _PathComplex(HttpContext);
+    //}
+
+    //[Benchmark, BenchmarkCategory("Complex")]
+    //public void ComplexpV2()
+    //{
+    //    var b = _PathComplexV2(HttpContext);
+    //}
+
+    //[Benchmark, BenchmarkCategory("Complex")]
+    //public void LmzzzPathComplex()
+    //{
+    //    var b = _LmzzzPathComplex(HttpContext);
+    //}
+
+    //[Benchmark(Baseline = true), BenchmarkCategory("HeadersRegex")]
+    //public void HeadersRegex()
+    //{
+    //    var req = HttpContext.Request;
+    //    var b = headersRegex.IsMatch(req.Headers["x-3"].ToString());
+    //}
+
+    //[Benchmark, BenchmarkCategory("HeadersRegex")]
+    //public void HeadersRegexp()
+    //{
+    //    var b = _headersRegex(HttpContext);
+    //}
+
+    //[Benchmark, BenchmarkCategory("HeadersRegex")]
+    //public void HeadersRegexpV2()
+    //{
+    //    var b = _headersRegexV2(HttpContext);
+    //}
+
+    //[Benchmark, BenchmarkCategory("HeadersRegex")]
+    //public void LmzzzHeadersRegex()
+    //{
+    //    var b = _LmzzzHeadersRegex(HttpContext);
+    //}
+
+    //[Benchmark(Baseline = true), BenchmarkCategory("Template")]
+    //public void Template()
+    //{
+    //    var req = HttpContext.Request;
+    //    var b = $"{req.Path.Value}#{{}}{req.Scheme}#{req.Headers["x-3"]}";
+    //}
+
+    //[Benchmark, BenchmarkCategory("Template")]
+    //public void TemplateF()
+    //{
+    //    var b = _t(HttpContext);
+    //}
+
+    //[Benchmark, BenchmarkCategory("Template")]
+    //public void LmzzzTemplate()
+    //{
+    //    var b = _LmzzzT(HttpContext);
+    //}
+
+    //[Benchmark, BenchmarkCategory("Template")]
+    //public void LmzzzTemplate2()
+    //{
+    //    var b = _LmzzzT2(HttpContext);
+    //}
+
+    [Benchmark(Baseline = true), BenchmarkCategory("TemplateIF")]
+    public void TemplateIF()
     {
         var req = HttpContext.Request;
-        var b = req.IsHttps == true
-            && req.Path.Value == "/testp/dsd/fsdfx/fadasd3/中"
-            && req.Method == "GET"
-            && req.Host.Value == "x.com"
-            && req.Scheme == "https"
-            && req.Protocol == "HTTP/1.1"
-            && req.ContentType == "json"
-            && queryRegx.IsMatch(req.QueryString.Value)
-            && !(req.Scheme == "http");
+        var b = $"{(req.Path.Value == null ? req.Scheme : (req.Path.Value == "/test" ? req.Path.Value : "go"))}";
     }
 
-    [Benchmark, BenchmarkCategory("Complex")]
-    public void Complexp()
+    [Benchmark, BenchmarkCategory("TemplateIF")]
+    public void LmzzzTemplateIF()
     {
-        var b = _PathComplex(HttpContext);
-    }
-
-    [Benchmark, BenchmarkCategory("Complex")]
-    public void ComplexpV2()
-    {
-        var b = _PathComplexV2(HttpContext);
-    }
-
-    [Benchmark, BenchmarkCategory("Complex")]
-    public void LmzzzPathComplex()
-    {
-        var b = _LmzzzPathComplex(HttpContext);
-    }
-
-    [Benchmark(Baseline = true), BenchmarkCategory("HeadersRegex")]
-    public void HeadersRegex()
-    {
-        var req = HttpContext.Request;
-        var b = headersRegex.IsMatch(req.Headers["x-3"].ToString());
-    }
-
-    [Benchmark, BenchmarkCategory("HeadersRegex")]
-    public void HeadersRegexp()
-    {
-        var b = _headersRegex(HttpContext);
-    }
-
-    [Benchmark, BenchmarkCategory("HeadersRegex")]
-    public void HeadersRegexpV2()
-    {
-        var b = _headersRegexV2(HttpContext);
-    }
-
-    [Benchmark, BenchmarkCategory("HeadersRegex")]
-    public void LmzzzHeadersRegex()
-    {
-        var b = _LmzzzHeadersRegex(HttpContext);
-    }
-
-    [Benchmark(Baseline = true), BenchmarkCategory("Template")]
-    public void Template()
-    {
-        var req = HttpContext.Request;
-        var b = $"{req.Path.Value}#{{}}{req.Scheme}#{req.Headers["x-3"]}";
-    }
-
-    [Benchmark, BenchmarkCategory("Template")]
-    public void TemplateF()
-    {
-        var b = _t(HttpContext);
-    }
-
-    [Benchmark, BenchmarkCategory("Template")]
-    public void LmzzzTemplate()
-    {
-        var b = _LmzzzT(HttpContext);
-    }
-
-    [Benchmark, BenchmarkCategory("Template")]
-    public void LmzzzTemplate2()
-    {
-        var b = _LmzzzT2(HttpContext);
+        var b = _LmzzzTemplateIF(HttpContext);
     }
 }

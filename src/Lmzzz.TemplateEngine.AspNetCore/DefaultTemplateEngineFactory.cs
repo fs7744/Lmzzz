@@ -76,6 +76,14 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         {
             r = OptimizeEqualStatement(equalStatement);
         }
+        else if (statement is NotEqualStatement notEqualStatement)
+        {
+            var s = OptimizeEqualStatement(new EqualStatement(notEqualStatement.Left, notEqualStatement.Right));
+            if (s is IHttpConditionStatement c)
+            {
+                r = new ActionConditionStatement(cc => !c.EvaluateHttp(cc));
+            }
+        }
         else if (statement is FunctionStatement fs)
         {
             r = OptimizeFuncStatement(fs);
@@ -131,6 +139,49 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
             if (arrayStatement.Statements.All(static i => i is IHttpTemplateStatement))
             {
                 r = new HttpTemplateArrayStatement(arrayStatement.Statements.Select(static i => i as IHttpTemplateStatement).ToArray());
+            }
+        }
+        else if (statement is IfConditionStatement ifStatement)
+        {
+            var s = OptimizeTemplateEngine(ifStatement.Condition) as IHttpConditionStatement;
+            if (s != null)
+            {
+                var t = OptimizeTemplateEngine(ifStatement.Text) as IHttpTemplateStatement;
+                if (t != null)
+                    r = new HttpTemplateIfConditionStatement(s, t);
+            }
+        }
+        else if (statement is IfStatement ifs)
+        {
+            var s = OptimizeTemplateEngine(ifs.If) as IHttpIfConditionStatement;
+            if (s != null)
+            {
+                var d = new HttpTemplateIfStatement()
+                {
+                    If = ifs.If,
+                    Else = ifs.Else,
+                    ElseIfs = ifs.ElseIfs,
+                    IfHttp = s
+                };
+                if (ifs.Else != null)
+                {
+                    var es = OptimizeTemplateEngine(ifs.Else) as IHttpTemplateStatement;
+                    if (es != null)
+                    {
+                        d.ElseHttp = es;
+                    }
+                    else
+                        return r ?? statement;
+                }
+
+                if (ifs.ElseIfs != null)
+                {
+                    var el = ifs.ElseIfs.Select(i => OptimizeTemplateEngine(i) as IHttpIfConditionStatement).ToArray();
+                    if (el.Any(i => i == null))
+                        return r ?? statement;
+                    d.ElseIfsHttp = el;
+                }
+                r = d;
             }
         }
 
@@ -279,9 +330,20 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
 
     public static bool TryGetBoolFunc(IStatement statement, out Func<HttpContext, bool> func)
     {
-        if (statement is FieldStatement f && fieldConvertor.TryGetValue(f.Key, out var c) && c.TryConvertBoolFunc(statement, out func))
+        if (statement is FieldStatement f)
         {
-            return true;
+            if (fieldConvertor.TryGetValue(f.Key, out var c) && c.TryConvertBoolFunc(statement, out func))
+                return true;
+
+            foreach (var item in GenericConvertors)
+            {
+                if (f.Key.StartsWith(item.Key(), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (item.TryConvertBoolFunc(statement, out func))
+                        return true;
+                    break;
+                }
+            }
         }
 
         if (statement is IHttpConditionStatement s)
@@ -453,6 +515,37 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
             }
 
             return null;
-        } }
+        } },
+        { "EqualIgnoreCase", fs =>
+            {
+                if(fs.Arguments.Length <= 1) return HttpContextFieldConvertor.AlwaysFalse;
+                if(DefaultTemplateEngineFactory.TryGetString(fs.Arguments[0], out var s))
+                {
+                    if(DefaultTemplateEngineFactory.TryGetString(fs.Arguments[1], out var r))
+                    {
+                        return new BoolConditionStatement(string.Equals(s, r, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    if(DefaultTemplateEngineFactory.TryGetStringFunc(fs.Arguments[1], out var fr))
+                    {
+                        return new ActionConditionStatement(c => string.Equals(s, fr(c), StringComparison.OrdinalIgnoreCase));
+                    }
+                }
+
+                if(DefaultTemplateEngineFactory.TryGetStringFunc(fs.Arguments[0], out var ls))
+                {
+                    if(DefaultTemplateEngineFactory.TryGetString(fs.Arguments[1], out var r))
+                    {
+                        return new ActionConditionStatement(c => string.Equals(ls(c), r, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    if(DefaultTemplateEngineFactory.TryGetStringFunc(fs.Arguments[1], out var fr))
+                    {
+                        return new ActionConditionStatement(c => string.Equals(ls(c), fr(c), StringComparison.OrdinalIgnoreCase));
+                    }
+                }
+
+                return null;
+            } }
     };
 }

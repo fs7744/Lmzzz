@@ -35,26 +35,26 @@ public class TemplateEngineTest
         {
             req.Headers.Add($"x-{i}", new string[] { $"v-{i}", $"x-{i}", $"s-{i}" });
         }
-        EqualStatement.EqualityComparers[typeof(PathString)] = (l, r) =>
-        {
-            if (l is PathString pl)
-            {
-                if (pl.HasValue)
-                {
-                    if (r is PathString pr)
-                    {
-                        return pl == pr;
-                    }
-                    else if (r is string rs)
-                    {
-                        return pl.Value == rs;
-                    }
-                }
-                else
-                    return false;
-            }
-            return false;
-        };
+        //EqualStatement.EqualityComparers[typeof(PathString)] = (l, r) =>
+        //{
+        //    if (l is PathString pl)
+        //    {
+        //        if (pl.HasValue)
+        //        {
+        //            if (r is PathString pr)
+        //            {
+        //                return pl == pr;
+        //            }
+        //            else if (r is string rs)
+        //            {
+        //                return pl.Value == rs;
+        //            }
+        //        }
+        //        else
+        //            return false;
+        //    }
+        //    return false;
+        //};
     }
 
     [Theory]
@@ -234,9 +234,9 @@ public class TemplateEngineTest
     [InlineData("!(null != null) or 1 == 3", true)]
     [InlineData("Regex(Str,'^9.*')", true)]
     [InlineData("Regex ( Str, '^7.*', 'ECMAScript')", false)]
-    [InlineData("HttpContext.Request.Path == '/testp/dsd/fsdfx/fadasd3/中'", true)]
-    [InlineData("'/testp/dsd/fsdfx/fadasd3/中' == HttpContext.Request.Path", true)]
-    [InlineData("'/testp/dsd/fsdfx/fadasd3/中' == ['HttpContext'].['Request'].['Path']", true)]
+    [InlineData("HttpContext.Request.Path.Value == '/testp/dsd/fsdfx/fadasd3/中'", true)]
+    [InlineData("'/testp/dsd/fsdfx/fadasd3/中' == HttpContext.Request.Path.Value", true)]
+    [InlineData("'/testp/dsd/fsdfx/fadasd3/中' == ['HttpContext'].['Request'].['Path'].Value", true)]
     public void ConditionEvaluateTest(string text, object d)
     {
         var r = TemplateEngineParser.ConditionParser.TryParse(text, out var v, out var err);

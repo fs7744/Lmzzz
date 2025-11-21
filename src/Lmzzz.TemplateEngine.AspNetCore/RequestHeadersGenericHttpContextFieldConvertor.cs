@@ -108,17 +108,17 @@ public class RequestHeadersGenericHttpContextFieldConvertor : GenericHttpContext
             {
                 if (DefaultTemplateEngineFactory.TryGetString(statement, out var fs))
                 {
-                    return new ActionConditionStatement(c => c.Request.Headers[k] == fs);
+                    return new ActionConditionStatement(c => c.Request.Headers[k].ToString() == fs);
                 }
 
                 if (DefaultTemplateEngineFactory.TryGetStringFunc(statement, out var f))
                 {
-                    return new ActionConditionStatement(c => c.Request.Headers[k] == f(c));
+                    return new ActionConditionStatement(c => c.Request.Headers[k].ToString() == f(c));
                 }
 
                 var s = DefaultTemplateEngineFactory.OptimizeTemplateEngine(statement);
                 if (s is IObjectHttpStatement o)
-                    return new ActionConditionStatement(c => EqualStatement.Eqs(c.Request.Headers[k], o.EvaluateObjectHttp(c)));
+                    return new ActionConditionStatement(c => EqualStatement.Eqs(c.Request.Headers[k].ToString(), o.EvaluateObjectHttp(c)));
             }
             else if (field.Names.Count == 4 && int.TryParse(field.Names.Last(), out var i) && i >= 0)
             {

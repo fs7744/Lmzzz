@@ -25,11 +25,15 @@ public class DefaultTemplateEngineFactory : ITemplateEngineFactory
         AddFieldConvertor(new RequestIsHttpsHttpContextFieldConvertor());
         AddFieldConvertor(new RequestContentLengthHttpContextFieldConvertor());
         AddFieldConvertor(new RequestHeadersGenericHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestQueryGenericHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestCookiesGenericHttpContextFieldConvertor());
+        AddFieldConvertor(new RequestFormGenericHttpContextFieldConvertor());
         AddFieldConvertor(new TraceIdentifierHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseContentLengthHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseContentTypeHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseHasStartedHttpContextFieldConvertor());
         AddFieldConvertor(new ResponseStatusCodeHttpContextFieldConvertor());
+        AddFieldConvertor(new ResponseHeadersGenericHttpContextFieldConvertor());
         TemplateEngine.SetOptimizer(c => OptimizeTemplateEngine(c, null));
     }
 

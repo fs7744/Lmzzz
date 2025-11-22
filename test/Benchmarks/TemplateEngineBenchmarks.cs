@@ -27,26 +27,26 @@ public class TemplateEngineBenchmarks
 
     public TemplateEngineBenchmarks()
     {
-        Lmzzz.Template.Inner.EqualStatement.EqualityComparers[typeof(Microsoft.AspNetCore.Http.PathString)] = (l, r) =>
-        {
-            if (l is Microsoft.AspNetCore.Http.PathString pl)
-            {
-                if (pl.HasValue)
-                {
-                    if (r is Microsoft.AspNetCore.Http.PathString pr)
-                    {
-                        return pl == pr;
-                    }
-                    else if (r is string rs)
-                    {
-                        return pl.Value == rs;
-                    }
-                }
-                else
-                    return false;
-            }
-            return false;
-        };
+        //Lmzzz.Template.Inner.EqualStatement.EqualityComparers[typeof(Microsoft.AspNetCore.Http.PathString)] = (l, r) =>
+        //{
+        //    if (l is Microsoft.AspNetCore.Http.PathString pl)
+        //    {
+        //        if (pl.HasValue)
+        //        {
+        //            if (r is Microsoft.AspNetCore.Http.PathString pr)
+        //            {
+        //                return pl == pr;
+        //            }
+        //            else if (r is string rs)
+        //            {
+        //                return pl.Value == rs;
+        //            }
+        //        }
+        //        else
+        //            return false;
+        //    }
+        //    return false;
+        //};
         _ifcached = "{{ if(4 == Int)}}{{ if(5 == Int)}}{{ HttpContext.Request.ContentType }}dd{{endif}} xx {{ if(4 == Int)}}{{ HttpContext.Request.ContentType }}yy{{endif}}{{endif}}".ToTemplate();
         _ScribanIfCached = Template.Parse("{{ if int ==4;  if 5 == int ; $\"{httpContext.Request.ContentType}dd xx \" ; end ;   if 4 == int ; $\" xx {httpContext}yy\" ; end ;end; }}");
         var source = "{% if 4 == Int %} {% if 5 == Int %} {{ HttpContext.Request.ContentType }}dd  xx {% elsif  4 == Int %} xx {{HttpContext.Request.ContentType}}yy{% endif %}{% endif %}";

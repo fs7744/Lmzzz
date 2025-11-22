@@ -29,7 +29,11 @@ public class TemplateEngineFactoryTest
         for (int i = 0; i < 10; i++)
         {
             req.Headers.Add($"x-{i}", new string[] { $"v-{i}", $"x-{i}", $"s-{i}" });
+            HttpContext.Response.Headers.Add($"x-{i}", new string[] { $"v-{i}", $"x-{i}", $"s-{i}" });
         }
+
+        req.Headers.Cookie = "a=sss;b=444;";
+        req.Form = new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "aa", "ddd" }, { "cc", "cccs" } });
     }
 
     [Theory]
@@ -40,6 +44,8 @@ public class TemplateEngineFactoryTest
     [InlineData("1 == true", false)]
     [InlineData("1 == '/testp'", false)]
     [InlineData("Request.Path != '/testp/dsd/fsdfx/fadasd3/中1'", true)]
+    [InlineData("(Request.Path != '/testp/dsd/fsdfx/fadasd3/中1' && 1== 1 && 3 != 3) || Request.HttpContext == Request.HttpContext", true)]
+    [InlineData("(Request.Path != '/testp/dsd/fsdfx/fadasd3/中1' && 1== 1 && 3 != 5.6) || Request.HttpContext == Request.HttpContext", true)]
     [InlineData("Request.HttpContext.Request.Path.Value != '/testp/dsd/fsdfx/fadasd3/中1'", true)]
     [InlineData("Request.HttpContext.Request.Path.Value == '/testp/dsd/fsdfx/fadasd3/中'", true)]
     [InlineData("Request.HttpContext == Request.HttpContext", true)]
@@ -101,7 +107,7 @@ public class TemplateEngineFactoryTest
     [InlineData("Request.Method == F", false)]
     [InlineData("Request.Method == Features", false)]
     [InlineData("Request.HasFormContentType == '/testp'", false)]
-    [InlineData("Request.HasFormContentType == false", true)]
+    [InlineData("Request.HasFormContentType == true", true)]
     [InlineData("Request.HasFormContentType == null", false)]
     [InlineData("Request.HasFormContentType == Request.HasFormContentType", true)]
     [InlineData("Request.HasFormContentType == F", false)]
@@ -148,6 +154,30 @@ public class TemplateEngineFactoryTest
     [InlineData("Request.Headers.['x-3'] == Request.Headers.['x-3']", true)]
     [InlineData("Request.Headers.['x-3'] == F", false)]
     [InlineData("Request.Headers.['x-3'] == Features", false)]
+    [InlineData("Request.Cookies.['b'] == '/testp'", false)]
+    [InlineData("Request.Cookies.['b'] == '444'", true)]
+    [InlineData("Request.Cookies.['b'] == null", false)]
+    [InlineData("Request.Cookies.['b'] == Request.Cookies.['b']", true)]
+    [InlineData("Request.Cookies.['b'] == F", false)]
+    [InlineData("Request.Cookies.['b'] == Features", false)]
+    [InlineData("Request.Form.['cc'] == '/testp'", false)]
+    [InlineData("Request.Form.['cc'] == 'cccs'", true)]
+    [InlineData("Request.Form.['cc'] == null", false)]
+    [InlineData("Request.Form.['cc'] == Request.Form.['cc']", true)]
+    [InlineData("Request.Form.['cc'] == F", false)]
+    [InlineData("Request.Form.['cc'] == Features", false)]
+    [InlineData("Request.Query.['d'] == '/testp'", false)]
+    [InlineData("Request.Query.['d'] == '456'", true)]
+    [InlineData("Request.Query.['d'] == null", false)]
+    [InlineData("Request.Query.['d'] == Request.Query.['d']", true)]
+    [InlineData("Request.Query.['d'] == F", false)]
+    [InlineData("Request.Query.['d'] == Features", false)]
+    [InlineData("Response.Headers.['x-3'] == '/testp'", false)]
+    [InlineData("Response.Headers.['x-3'] == 'v-3,x-3,s-3'", true)]
+    [InlineData("Response.Headers.['x-3'] == null", false)]
+    [InlineData("Response.Headers.['x-3'] == Request.Headers.['x-3']", true)]
+    [InlineData("Response.Headers.['x-3'] == F", false)]
+    [InlineData("Response.Headers.['x-3'] == Features", false)]
     public void ConvertRouteFunctionTest(string text, bool r)
     {
         var f = te.ConvertRouteFunction(text);

@@ -66,7 +66,7 @@ public class RequestFormGenericHttpContextFieldConvertor : GenericHttpContextFie
             var k = field.Names[2];
             if (field.Names.Count == 3)
             {
-                return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.Form[k]);
+                return new HttpTemplateFuncFieldStatement(field.Names, c => c.Request.Form[k].ToString());
             }
             else if (field.Names.Count == 4 && int.TryParse(field.Names.Last(), out var i) && i >= 0)
             {

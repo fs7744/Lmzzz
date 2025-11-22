@@ -183,4 +183,15 @@ public class TemplateEngineFactoryTest
         var f = te.ConvertRouteFunction(text);
         Assert.Equal(r, f(HttpContext));
     }
+
+    [Theory]
+    [InlineData("{{if(Request.Path == null)}}{{Request.Scheme}}{{elseif(Request.Path == '/test')}}{{Request.Path}}{{else}}go{{endif}}", "go")]
+    [InlineData("{{Request.Path}}####{{Request.Scheme}}#{{Request.Headers.['x-3']}}", "/testp/dsd/fsdfx/fadasd3/中####https#v-3,x-3,s-3")]
+    [InlineData("{{Request.Path}}####{{Request.Scheme}}#{{Request.Headers.['x-3'].0}}", "/testp/dsd/fsdfx/fadasd3/中####https#v-3")]
+    [InlineData("{{Request.Path}}####{{Request.Scheme}}#{{Request.Headers.['x-3'].1}}", "/testp/dsd/fsdfx/fadasd3/中####https#x-3")]
+    public void ConvertTemplateTest(string text, string r)
+    {
+        var f = te.ConvertTemplate(text);
+        Assert.Equal(r, f(HttpContext));
+    }
 }

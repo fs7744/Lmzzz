@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Lmzzz.Template.Inner;
 
@@ -194,7 +196,36 @@ public class FieldStatement : IFieldStatement
 
     private static Func<object, object> CreateGetter(Type type, string k)
     {
-        if (type.IsGenericType && type.GetInterfaces().Any(x => x == typeof(System.Collections.IDictionary)))
+        if (type == typeof(JsonObject))
+        {
+            return c =>
+            {
+                if (c is null || c is not JsonNode d) return null;
+                if (d is JsonObject o)
+                {
+                    return o.TryGetPropertyValue(k, out var p) ? GetJsonValue(p) : null;
+                }
+                else
+                    return null;
+            };
+        }
+        else if (type == typeof(JsonArray))
+        {
+            if (int.TryParse(k, out var i) && i >= 0)
+            {
+                return c =>
+                {
+                    if (c is null || c is not JsonArray d) return null;
+                    if (i < d.Count)
+                        return GetJsonValue(d[i]);
+                    else
+                        return null;
+                };
+            }
+            else
+                return Null;
+        }
+        else if (type.IsGenericType && type.GetInterfaces().Any(x => x == typeof(System.Collections.IDictionary)))
         {
             var ts = type.GetGenericArguments();
             if (ts != null && ts.Length == 2)
@@ -261,6 +292,34 @@ public class FieldStatement : IFieldStatement
         }
 
         return Null;
+    }
+
+    private static object GetJsonValue(JsonNode p)
+    {
+        if (p == null) return null;
+        switch (p.GetValueKind())
+        {
+            case JsonValueKind.String:
+                return p.GetValue<string>();
+
+            case JsonValueKind.Number:
+                return p.AsValue().TryGetValue<decimal>(out var lv) ? lv : null;
+
+            case JsonValueKind.True:
+                return true;
+
+            case JsonValueKind.False:
+                return false;
+
+            case JsonValueKind.Null:
+                return null;
+
+            case JsonValueKind.Undefined:
+            case JsonValueKind.Object:
+            case JsonValueKind.Array:
+            default:
+                return p;
+        }
     }
 
     public void Visit(Action<IStatement> visitor)

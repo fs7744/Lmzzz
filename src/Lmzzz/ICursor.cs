@@ -14,12 +14,4 @@ public interface ICursor<T>
     public void Advance(int count);
 
     public bool Match(ReadOnlySpan<T> s);
-
-    //public ValueTask AdvanceAsync(CancellationToken cancellationToken = default);
-
-    //public ValueTask AdvanceAsync(int count, CancellationToken cancellationToken = default);
-
-    //public ValueTask ResetAsync(int offset, CancellationToken cancellationToken = default);
-
-    //public bool MatchAsync(ReadOnlySpan<T> s, CancellationToken cancellationToken = default);
 }

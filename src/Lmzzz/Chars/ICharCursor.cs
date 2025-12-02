@@ -13,6 +13,4 @@ public interface ICharCursor : ICursor<char>
     public void Reset(in TextPosition position);
 
     public bool Match(ReadOnlySpan<char> s, StringComparison comparisonType);
-
-    //public ValueTask ResetAsync(in TextPosition position, CancellationToken cancellationToken = default);
 }

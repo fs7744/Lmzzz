@@ -1,6 +1,7 @@
 ﻿using Lmzzz.Bytes;
 using System.IO.Pipelines;
 using System.Text;
+using static Lmzzz.Bytes.Fluent.Parsers;
 
 namespace UT.Bytes;
 
@@ -35,8 +36,8 @@ public class PipeReadBufferStateTest
         try
         {
             var reader = a.Reader;
-            var bb = Encoding.UTF8.GetBytes(string.Join(",", Enumerable.Range(0, 3000)));
-            var isB = new BytesLiteral(bb).Parse(ref reader, out var r);
+            var p = Text(string.Join(",", Enumerable.Range(0, 3000)));
+            var isB = p.Parse(ref reader, out var r);
             Assert.True(isB);
         }
         finally

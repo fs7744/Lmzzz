@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-using Benchmarks;
 
 //var a = new TemplateEngineBenchmarks();
 //var aa = a.ScribanIfNoCache();

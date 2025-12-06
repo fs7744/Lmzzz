@@ -1,5 +1,5 @@
-﻿using Lmzzz.JsonPath;
-using Lmzzz.Chars.Fluent;
+﻿using Lmzzz.Chars.Fluent;
+using Lmzzz.JsonPath;
 using Lmzzz.JsonPath.Statements;
 using static Lmzzz.Chars.Fluent.Parsers;
 

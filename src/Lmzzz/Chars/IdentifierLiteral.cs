@@ -1,5 +1,5 @@
-﻿using System.Buffers;
-using Lmzzz.Chars.Fluent;
+﻿using Lmzzz.Chars.Fluent;
+using System.Buffers;
 
 namespace Lmzzz.Chars;
 

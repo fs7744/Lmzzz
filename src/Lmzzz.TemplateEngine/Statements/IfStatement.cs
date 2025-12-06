@@ -1,6 +1,4 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-
-namespace Lmzzz.Template.Inner;
+﻿namespace Lmzzz.Template.Inner;
 
 public class IfStatement : IStatement
 {

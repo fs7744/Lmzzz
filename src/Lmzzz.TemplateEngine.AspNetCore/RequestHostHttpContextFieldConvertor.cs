@@ -1,6 +1,5 @@
 ﻿using Lmzzz.Template.Inner;
 using Microsoft.AspNetCore.Http;
-using System;
 
 namespace Lmzzz.AspNetCoreTemplate;
 

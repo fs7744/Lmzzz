@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace VKProxy.HttpRoutingStatement;
+﻿namespace VKProxy.HttpRoutingStatement;
 
 public static partial class HttpRoutingStatementParser
 {

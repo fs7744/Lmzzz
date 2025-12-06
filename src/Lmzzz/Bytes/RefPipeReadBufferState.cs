@@ -1,11 +1,9 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
-using System.Runtime.InteropServices;
 
 namespace Lmzzz.Bytes;
 
-[StructLayout(LayoutKind.Auto)]
-public struct PipeReadBufferState : IDisposable
+public class RefPipeReadBufferState : IDisposable
 {
     private readonly PipeReader _pipeReader;
 
@@ -13,14 +11,14 @@ public struct PipeReadBufferState : IDisposable
     private bool _isFinalBlock;
     private int _unsuccessfulReadBytes;
 
-    public PipeReadBufferState(PipeReader pipeReader)
+    public RefPipeReadBufferState(PipeReader pipeReader)
     {
         _pipeReader = pipeReader;
     }
 
-    public readonly bool IsFinalBlock => _isFinalBlock;
-    public readonly ReadOnlySequence<byte> Sequence => _sequence;
-    public readonly SequenceReader<byte> Reader => new SequenceReader<byte>(_sequence);
+    public bool IsFinalBlock => _isFinalBlock;
+    public ReadOnlySequence<byte> Sequence => _sequence;
+    public SequenceReader<byte> Reader => new SequenceReader<byte>(_sequence);
 
     public void Advance(long bytesConsumed)
     {
@@ -50,9 +48,9 @@ public struct PipeReadBufferState : IDisposable
         _sequence = ReadOnlySequence<byte>.Empty;
     }
 
-    public async ValueTask<PipeReadBufferState> ReadAsync(CancellationToken cancellationToken)
+    public async ValueTask ReadAsync(CancellationToken cancellationToken)
     {
-        PipeReadBufferState bufferState = this;
+        RefPipeReadBufferState bufferState = this;
 
         int minBufferSize = _unsuccessfulReadBytes > 0 ? _unsuccessfulReadBytes : 0;
         ReadResult readResult = await _pipeReader.ReadAtLeastAsync(minBufferSize, cancellationToken).ConfigureAwait(false);
@@ -64,18 +62,16 @@ public struct PipeReadBufferState : IDisposable
         {
             throw new OperationCanceledException("PipeReader.ReadAsync was canceled.");
         }
-        return bufferState;
     }
 
-    public async ValueTask<PipeReadBufferState> ReadAllAsync(CancellationToken cancellationToken)
+    public async ValueTask ReadAllAsync(CancellationToken cancellationToken)
     {
-        PipeReadBufferState bufferState = this;
-        bufferState = await bufferState.ReadAsync(cancellationToken).ConfigureAwait(false);
+        RefPipeReadBufferState bufferState = this;
+        await bufferState.ReadAsync(cancellationToken).ConfigureAwait(false);
         while (!bufferState.IsFinalBlock)
         {
             bufferState.Advance(0);
-            bufferState = await bufferState.ReadAsync(cancellationToken).ConfigureAwait(false);
+            await bufferState.ReadAsync(cancellationToken).ConfigureAwait(false);
         }
-        return bufferState;
     }
 }

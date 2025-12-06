@@ -1,6 +1,5 @@
 using Parlot.Fluent;
 using Samples.Json;
-using static Parlot.Fluent.Parsers;
 
 namespace Parlot.Tests.Json;
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Frozen;
-using System.Linq;
 using VKProxy.HttpRoutingStatement.Statements;
 
 namespace VKProxy.HttpRoutingStatement;

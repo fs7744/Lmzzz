@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using Lmzzz.Chars;
+﻿using System.Runtime.CompilerServices;
 
 namespace Lmzzz.Chars.Fluent;
 

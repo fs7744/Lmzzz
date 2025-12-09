@@ -23,4 +23,6 @@ public static class ReadOnlySequenceExtensions
         var l = sequence.FirstSpan.Length;
         return sequence.Slice(l).StartsWith(value.Slice(l));
     }
+
+
 }

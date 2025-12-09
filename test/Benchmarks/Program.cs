@@ -11,6 +11,5 @@ using Benchmarks;
 //var f = a.FluidIfNoCache();
 //var ff = a.FluidIfCached();
 var a = new PipeReadBufferStateBenchmarks();
-for (int i = 0; i < 10; i++)
-    a.IgnoreCaseTest();
+a.StringIgnoreCaseTest();
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);

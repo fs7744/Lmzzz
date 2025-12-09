@@ -16,6 +16,9 @@ public class PipeReadBufferStateBenchmarks
     private readonly byte[] testData1;
     private readonly Func<ReadOnlySequence<byte>, bool> testData2;
     private readonly Func<ReadOnlySequence<byte>, bool> testData3;
+    private readonly string testData4;
+    private readonly string testData5;
+    private readonly string testData6;
 
     public PipeReadBufferStateBenchmarks()
     {
@@ -27,6 +30,9 @@ public class PipeReadBufferStateBenchmarks
 
         this.testData2 = IgnoreCaseBytesLiteral.BuildIgnoreCaseFunc(string.Join(',', Enumerable.Range(0, 1000)), Encoding.UTF8);
         this.testData3 = IgnoreCaseBytesLiteral.BuildIgnoreCaseFunc(string.Join(".", Enumerable.Range(0, 1000)), Encoding.UTF8);
+        this.testData4 = string.Join(',', Enumerable.Range(0, 1000));
+        this.testData5 = string.Join(".", Enumerable.Range(0, 1000));
+        this.testData6 = Encoding.UTF8.GetString(test.Sequence);
     }
 
     //[Benchmark]
@@ -57,5 +63,12 @@ public class PipeReadBufferStateBenchmarks
     {
         var a = testData2(test.Sequence);
         var b = testData3(test.Sequence);
+    }
+
+    [Benchmark]
+    public void StringIgnoreCaseTest()
+    {
+        var a = testData6.StartsWith(testData4, StringComparison.OrdinalIgnoreCase);
+        var b = testData6.StartsWith(testData5, StringComparison.OrdinalIgnoreCase);
     }
 }

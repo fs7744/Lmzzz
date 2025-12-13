@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\examples\Lmzzz.JsonPath\Lmzzz.JsonPath.csproj" />
     <ProjectReference Include="..\..\examples\Samples\Samples.csproj" />
-    <ProjectReference Include="..\..\src\Lmzzz.TemplateEngine.AspNetCore\Lmzzz.TemplateEngine.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Lmzzz.TemplateEngine\Lmzzz.TemplateEngine.csproj" />
     <ProjectReference Include="..\..\src\Lmzzz\Lmzzz.csproj" />
   </ItemGroup>

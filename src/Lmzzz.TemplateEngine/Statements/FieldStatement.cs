@@ -15,6 +15,8 @@ public class FieldStatement : IFieldStatement
     private readonly string key;
     protected Func<object, object> func;
     protected Func<object, object> runtimeFunc;
+    private readonly string firstKey;
+    private readonly Func<object, object> scopeRuntimeFunc;
 
     public string Key => key;
 
@@ -27,6 +29,8 @@ public class FieldStatement : IFieldStatement
         key = $"field_{string.Join(".", Names)}";
         this.func = CreateGetter(key, names, FieldStatementMode.Defined);
         this.runtimeFunc = CreateGetter(key, names, FieldStatementMode.Runtime);
+        this.firstKey = $"field_{Names.First()}";
+        this.scopeRuntimeFunc = CreateGetter(key, names.Skip(1).ToList(), FieldStatementMode.Runtime);
     }
 
     public FieldStatement(IReadOnlyList<TextSpan> names) : this(names.Select(i => i.ToString()).ToImmutableList())
@@ -40,7 +44,13 @@ public class FieldStatement : IFieldStatement
 
     public object? Evaluate(TemplateContext context)
     {
-        if (context.scopeCount > 0 && context.Cache.TryGetValue(key, out var value)) { return value; }
+        if (context.scopeCount > 0)
+        {
+            if (context.Cache.TryGetValue(firstKey, out var value))
+            {
+                return scopeRuntimeFunc(value);
+            }
+        }
         if (context.FieldMode == FieldStatementMode.Defined)
         {
             return func(context.Data);

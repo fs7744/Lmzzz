@@ -110,7 +110,7 @@ public class AnyLiteral : Parser<TextSpan>
                     span = cursor.Span;
                     var start = cursor.Offset;
                     cursor.Advance(span.Length);
-                    result.Set(start, cursor.Offset, new TextSpan(cursor.Buffer, 0, span.Length));
+                    result.Set(start, cursor.Offset, new TextSpan(cursor.Buffer, start, span.Length));
                     context.ExitParser(this);
                     return true;
                 }

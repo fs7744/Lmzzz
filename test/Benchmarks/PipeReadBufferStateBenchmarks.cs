@@ -28,8 +28,8 @@ public class PipeReadBufferStateBenchmarks
         this.testData0 = Encoding.UTF8.GetBytes(string.Join(',', Enumerable.Range(0, 1000)));
         this.testData1 = Encoding.UTF8.GetBytes(string.Join(".", Enumerable.Range(0, 1000)));
 
-        this.testData2 = IgnoreCaseBytesLiteral.BuildIgnoreCaseFunc(string.Join(',', Enumerable.Range(0, 1000)), Encoding.UTF8);
-        this.testData3 = IgnoreCaseBytesLiteral.BuildIgnoreCaseFunc(string.Join(".", Enumerable.Range(0, 1000)), Encoding.UTF8);
+        //this.testData2 = IgnoreCaseBytesLiteral.BuildIgnoreCaseFunc(string.Join(',', Enumerable.Range(0, 1000)), Encoding.UTF8);
+        //this.testData3 = IgnoreCaseBytesLiteral.BuildIgnoreCaseFunc(string.Join(".", Enumerable.Range(0, 1000)), Encoding.UTF8);
         this.testData4 = string.Join(',', Enumerable.Range(0, 1000));
         this.testData5 = string.Join(".", Enumerable.Range(0, 1000));
         this.testData6 = Encoding.UTF8.GetString(test.Sequence);
@@ -58,12 +58,12 @@ public class PipeReadBufferStateBenchmarks
         var b = test.Sequence.StartsWith(testData1);
     }
 
-    [Benchmark]
-    public void IgnoreCaseTest()
-    {
-        var a = testData2(test.Sequence);
-        var b = testData3(test.Sequence);
-    }
+    //[Benchmark]
+    //public void IgnoreCaseTest()
+    //{
+    //    var a = testData2(test.Sequence);
+    //    var b = testData3(test.Sequence);
+    //}
 
     [Benchmark]
     public void StringIgnoreCaseTest()

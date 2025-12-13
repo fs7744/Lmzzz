@@ -56,6 +56,8 @@ public static partial class Parsers
 
     public static Parser<TextSpan> Any(string end, bool mustHasEnd = false, bool canEmpty = true, char? escape = null) => new AnyLiteral(end, mustHasEnd, canEmpty, escape);
 
+    public static Parser<TextSpan> AnyBeforeEnd(string end, bool mustHasEnd = false, bool canEmpty = true, char? escape = null) => new AnyBeforeEndLiteral(end, mustHasEnd, canEmpty, escape);
+
     public static Parser<TextSpan> AnyBefore<T>(Parser<T> parser, bool canBeEmpty = false, bool failOnEof = false, bool consumeDelimiter = false) => new TextBefore<T>(parser, canBeEmpty, failOnEof, consumeDelimiter);
 
     public static Parser<T> ZeroOrOne<T>(Parser<T> parser, T defaultValue) => new ZeroOrOne<T>(parser, defaultValue);

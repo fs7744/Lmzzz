@@ -1,11 +1,10 @@
 ﻿using Lmzzz.Chars.Fluent;
-using System.Buffers;
 
 namespace Lmzzz.Chars;
 
 public class AnyBeforeEndLiteral : Parser<TextSpan>
 {
-    private readonly SearchValues<char> end;
+    private readonly string end;
     private readonly bool mustHasEnd;
     private readonly bool canEmpty;
     private readonly char? escape;
@@ -15,12 +14,7 @@ public class AnyBeforeEndLiteral : Parser<TextSpan>
         this.mustHasEnd = mustHasEnd;
         this.canEmpty = canEmpty;
         this.escape = escape;
-        if (escape.HasValue)
-        {
-            end = end + escape.Value;
-        }
-
-        this.end = SearchValues.Create(end);
+        this.end = end;
     }
 
     public override bool Parse(CharParseContext context, ref ParseResult<TextSpan> result)
@@ -39,7 +33,7 @@ public class AnyBeforeEndLiteral : Parser<TextSpan>
                 do
                 {
                     var s = span.Slice(j);
-                    i = s.IndexOfAnyExcept(end);
+                    i = s.IndexOf(end);
                     if (i >= 0)
                     {
                         if (s[i] == escape)
@@ -118,7 +112,7 @@ public class AnyBeforeEndLiteral : Parser<TextSpan>
             else
             {
                 var span = cursor.Span;
-                var i = span.IndexOfAnyExcept(end);
+                var i = span.IndexOf(end);
                 if (i == 0 && !canEmpty)
                 {
                     context.ExitParser(this);

@@ -322,11 +322,14 @@ public class TemplateEngineTest
     {
         var td = System.Text.Json.JsonSerializer.Deserialize<TableData>("{\"name\":\"ci_item_listing\",\"namespaceName\":null,\"className\":null,\"columns\":[{\"columnName\":\"AccountId\",\"dataType\":\"int\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"Brand\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"Channel\",\"dataType\":\"int\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"ChannelData\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"ChannelItemId\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"ChannelSKU\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"ChannelStatus\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"CurrencyCode\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"FollowSales\",\"dataType\":\"bit\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":3,\"dbTypeName\":\"Boolean\"},{\"columnName\":\"InDate\",\"dataType\":\"bigint\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":12,\"dbTypeName\":\"Int64\"},{\"columnName\":\"InUser\",\"dataType\":\"int\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"Inventory\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"InventoryAutoSync\",\"dataType\":\"int\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"InventoryControl\",\"dataType\":\"int\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"InventoryTemplateId\",\"dataType\":\"int\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"IsAutoMapping\",\"dataType\":\"bit\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":3,\"dbTypeName\":\"Boolean\"},{\"columnName\":\"IsDelete\",\"dataType\":\"bit\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":3,\"dbTypeName\":\"Boolean\"},{\"columnName\":\"ItemData\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"ItemImage\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"ItemName\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"ItemTransactionNumber\",\"dataType\":\"int\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"ItemType\",\"dataType\":\"tinyint\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"LastEditDate\",\"dataType\":\"bigint\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":12,\"dbTypeName\":\"Int64\"},{\"columnName\":\"LastEditUser\",\"dataType\":\"int\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"LastModifyInventory\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"LastModifyPrice\",\"dataType\":\"decimal\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":7,\"dbTypeName\":\"Decimal\"},{\"columnName\":\"LastModifyPromotePrice\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"LastOperateFailed\",\"dataType\":\"bit\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":3,\"dbTypeName\":\"Boolean\"},{\"columnName\":\"LastSyncDate\",\"dataType\":\"bigint\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":12,\"dbTypeName\":\"Int64\"},{\"columnName\":\"ListStatus\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"Memo\",\"dataType\":\"text\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"MerchantID\",\"dataType\":\"int\",\"isNullable\":false,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"MergeData\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"ModelNumber\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"Price\",\"dataType\":\"decimal\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":7,\"dbTypeName\":\"Decimal\"},{\"columnName\":\"PriceAutoSync\",\"dataType\":\"int\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"PriceTemplateId\",\"dataType\":\"int\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"PromotePrice\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"Setting\",\"dataType\":\"json\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"StoreItemName\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"StoreSKU\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"TemplateId\",\"dataType\":\"int\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"TotalQty\",\"dataType\":\"int\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"TransactionNumber\",\"dataType\":\"int\",\"isNullable\":false,\"isPrimaryKey\":true,\"dbType\":11,\"dbTypeName\":\"Int32\"},{\"columnName\":\"UPC\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"VariationGroupId\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"},{\"columnName\":\"VariationPriority\",\"dataType\":\"varchar\",\"isNullable\":true,\"isPrimaryKey\":false,\"dbType\":16,\"dbTypeName\":\"String\"}]}"
             , new System.Text.Json.JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+        foreach (var item in td.Columns)
+        {
+            item.Init();
+        }
         var code = DbCodeGenerater.GenerateCode(td);
         Assert.NotNull(code);
         var codeStr = code as string;
-        Assert.Contains("SELECT Fields FROM TestTable as a", codeStr);
-        Assert.Contains("<Parameter Name=\"@Id\" Type=\"Int32\" Where=\"a.Id\" Select=\"a.Id\" Sort=\"a.Id\" />", codeStr);
+        Assert.Contains("SELECT {Fields} FROM ci_item_listing as a", codeStr);
     }
 }
 
@@ -352,13 +355,13 @@ public class A
 
 public class DbCodeGenerater
 {
-    static string Template = """
+    static string Template = """"
         /// select
         <DbSql CommandName="Query_{{Name}}" Type="Text" ConnectionName="ToolBox">
         	<Text>
         		<![CDATA[
-        SELECT \{Fields} FROM {{Name}} as a
-        \{where}
+        SELECT {Fields} FROM {{Name}} as a
+        {where}
                 ]]>
         	</Text>
         	<PreParameters>
@@ -368,7 +371,7 @@ public class DbCodeGenerater
         </DbSql>
 
         public Task<PageResult<T>> Query_{{Name}}<T>(IDictionary<string, StringValues> ps)
-        \{
+        {
             return dbManager.QueryAsync<T>(ps, "Query_{{Name}}");
         }
 
@@ -377,7 +380,7 @@ public class DbCodeGenerater
             <Text>
             <![CDATA[
             UPDATE {{Name}}
-                SET \{set}
+                SET {set}
                 WHERE TransactionNumber=@TransactionNumber AND AccountId=@AccountId LIMIT 1
             ]]>
             </Text>
@@ -388,6 +391,33 @@ public class DbCodeGenerater
                 {{endfor}}
             </PreParameters>
         </DbSql>
+
+        public async ValueTask<int> Update_{{Name}}(? data, IDictionary<string, StringValues> ps = null)
+        {
+            var dict = new Dictionary<string, object>();
+            {{for ( c,i in Columns)}}dict.TryAddWhenNotNull("@{{c.ColumnName}}", data.{{c.ColumnName}});
+            {{endfor}}
+            if (ps != null)
+            {
+                if (ps.TryGetValue("@_DeleteFields", out var vs))
+                {
+                    foreach (var item in vs.Where(i => !string.IsNullOrWhiteSpace(i)).SelectMany(i => i.Split(',', StringSplitOptions.RemoveEmptyEntries)).Where(i => !string.IsNullOrWhiteSpace(i)).Select(i => $"@{i}"))
+                    {
+                        if (!dict.ContainsKey(item))
+                        {
+                            dict[item] = null;
+                        }
+                    }
+                }
+            }
+            if (dict.Count == 0) return 0;
+            dict.Add("@LastEditUser", data.LastEditUser);
+            dict.Add("@LastEditDate", DateTime.UtcNow.ToUnixTimestamp());
+            dict.Add("@AccountId", data.AccountId);
+            dict.Add("@TransactionNumber", data.TransactionNumber);
+            var r = await dbManager.UpdateAsync("Update_{{Name}}", dict);
+            return r;
+        }
 
         /// delete
         <DbSql CommandName="Delete_{{Name}}" Type="Text" Timeout="30" ConnectionName="ToolBox">
@@ -404,12 +434,25 @@ public class DbCodeGenerater
         </DbSql>
 
         public ValueTask<int> Delete_{{Name}}(int transactionNumber, int accountId)
-        \{
+        {
             var cmd = dbManager.GetCommand("Delete_{{Name}}");
-            return cmd.ExecuteNonQueryAsync(new 
-            \{ TransactionNumber = transactionNumber,AccountId = accountId });
+            return cmd.ExecuteNonQueryAsync(new { TransactionNumber = transactionNumber,AccountId = accountId });
         }
-        """;
+
+        /// class
+        [Db("ToolBox")]
+        [Table("""
+            select {Fields}
+            FROM {{Name}} a
+            {where}
+            """, UpdateTable = "{{Name}}")]
+        public class {{Name}}
+        {
+            {{for ( c,i in Columns)}}[Select("a.{{c.ColumnName}}"), OrderBy, Where, Column(Name = "{{c.ColumnName}}", Type = DbType.{{c.DbTypeName}}), Update{{if(c.IsPrimaryKey == true)}}(PrimaryKey = true, NotAllowInsert = true){{endif}}]
+            public {{c.TypeName}}? {{c.ColumnName}} { get; set; }
+            {{endfor}}
+        }
+        """";
 
     public static object GenerateCode(TableData td)
     {
@@ -436,6 +479,8 @@ public class ColumnData
 
     public string DbTypeName { get; set; }
 
+    public string TypeName { get; set; }
+
     internal void Init()
     {
         DbType = DataType switch
@@ -449,5 +494,15 @@ public class ColumnData
             _ => DbType.String,
         };
         DbTypeName = Enum.GetName<DbType>(DbType);
+
+        TypeName = DbType switch
+        {
+            DbType.Int32 => "int",
+            DbType.Int64 => "long",
+            DbType.Boolean => "bool",
+            DbType.DateTime => "DateTime",
+            DbType.Decimal => "decimal",
+            _ => "string",
+        };
     }
 }

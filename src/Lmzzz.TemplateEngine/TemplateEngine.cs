@@ -65,7 +65,7 @@ public class TemplateEngineParser
         return rr;
     }), AnyValue, SignEnd).Then<IStatement>(static x => TemplateEngine.Optimize(new ReplaceStatement(x)));
 
-    public static readonly Parser<IStatement> OriginStr = Any('{', canEmpty: false, escape: '\\').Then<IStatement>(static x => TemplateEngine.Optimize(new OriginStrStatement(x.Span.ToString())));
+    public static readonly Parser<IStatement> OriginStr = AnyBeforeEnd("{{", canEmpty: false, escape: '\\').Then<IStatement>(static x => TemplateEngine.Optimize(new OriginStrStatement(x.Span.ToString())));
 
     public static readonly Deferred<IStatement> TemplateValue = Deferred<IStatement>(nameof(TemplateValue));
 
